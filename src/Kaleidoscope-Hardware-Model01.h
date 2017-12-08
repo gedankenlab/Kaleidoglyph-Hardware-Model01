@@ -7,17 +7,40 @@
 
 #define COLS 16
 #define ROWS 4
+#define TOTAL_KEYS (ROWS * COLS)
 
 #define CRGB(r,g,b) (cRGB){b, g, r}
+
+typedef byte KeyAddr;
+
+namespace kaleidoscope {
+namespace keyaddr {
+inline byte row(KeyAddr key_addr) {
+  return (key_addr / COLS);
+}
+inline byte col(KeyAddr key_addr) {
+  return (key_addr % COLS);
+}
+inline KeyAddr addr(byte row, byte col) {
+  return ((row * COLS) + col);
+}
+inline void mask(KeyAddr key_addr) {
+  KeyboardHardware.maskKey(row(key_addr), col(key_addr));
+}
+inline void unmask(KeyAddr key_addr) {
+  KeyboardHardware.unMaskKey(row(key_addr), col(key_addr));
+}
+} // namespace keyaddr {
+} // namespace kaleidoscope {
 
 class Model01 {
  public:
   Model01(void);
   void syncLeds(void);
-  void setCrgbAt(byte row, byte col, cRGB color);
+  void setCrgbAt(KeyAddr key_addr, cRGB color);
   void setCrgbAt(uint8_t i, cRGB crgb);
   cRGB getCrgbAt(uint8_t i);
-  uint8_t getLedIndex(byte row, byte col);
+  uint8_t getLedIndex(KeyAddr key_addr);
 
   void scanMatrix(void);
   void readMatrix(void);
@@ -43,9 +66,9 @@ class Model01 {
    *
    * See `handleKeyswitchEvent` in the Kaleidoscope sources for a use-case.
    */
-  void maskKey(byte row, byte col);
-  void unMaskKey(byte row, byte col);
-  bool isKeyMasked(byte row, byte col);
+  void maskKey(KeyAddr key_addr);
+  void unMaskKey(KeyAddr key_addr);
+  bool isKeyMasked(KeyAddr key_addr);
   void maskHeldKeys(void);
 
   keydata_t leftHandState;

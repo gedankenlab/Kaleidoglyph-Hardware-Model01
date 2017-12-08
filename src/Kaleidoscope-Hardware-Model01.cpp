@@ -8,12 +8,14 @@ bool Model01::isLEDChanged = true;
 keydata_t Model01::leftHandMask;
 keydata_t Model01::rightHandMask;
 
-static constexpr uint8_t key_led_map[4][16] = {
-  {3, 4, 11, 12, 19, 20, 26, 27,     36, 37, 43, 44, 51, 52, 59, 60},
-  {2, 5, 10, 13, 18, 21, 25, 28,     35, 38, 42, 45, 50, 53, 58, 61},
-  {1, 6, 9, 14, 17, 22, 24, 29,     34, 39, 41, 46, 49, 54, 57, 62},
-  {0, 7, 8, 15, 16, 23, 31, 30,     33, 32, 40, 47, 48, 55, 56, 63},
+// *INDENT-OFF*
+static constexpr uint8_t key_led_map[TOTAL_KEYS] = {
+  3,  4, 11, 12, 19, 20, 26, 27,      36, 37, 43, 44, 51, 52, 59, 60,
+  2,  5, 10, 13, 18, 21, 25, 28,      35, 38, 42, 45, 50, 53, 58, 61,
+  1,  6,  9, 14, 17, 22, 24, 29,      34, 39, 41, 46, 49, 54, 57, 62,
+  0,  7,  8, 15, 16, 23, 31, 30,      33, 32, 40, 47, 48, 55, 56, 63,
 };
+// *INDENT-ON*
 
 Model01::Model01(void) {
 
@@ -81,12 +83,12 @@ void Model01::setCrgbAt(uint8_t i, cRGB crgb) {
   }
 }
 
-void Model01::setCrgbAt(byte row, byte col, cRGB color) {
-  setCrgbAt(key_led_map[row][col], color);
+void Model01::setCrgbAt(KeyAddr key_addr, cRGB color) {
+  setCrgbAt(key_led_map[key_addr], color);
 }
 
-uint8_t Model01::getLedIndex(byte row, byte col) {
-  return key_led_map[row][col];
+uint8_t Model01::getLedIndex(KeyAddr key_addr) {
+  return key_led_map[key_addr];
 }
 
 cRGB Model01::getCrgbAt(uint8_t i) {
@@ -126,18 +128,20 @@ boolean Model01::ledPowerFault() {
   }
 }
 
-void debugKeyswitchEvent(keydata_t state, keydata_t previousState, uint8_t keynum, uint8_t row, uint8_t col) {
-  if (bitRead(state.all, keynum) != bitRead(previousState.all, keynum)) {
+void debugKeyswitchEvent(keydata_t state, keydata_t previousState, KeyAddr key_addr) {
+  byte row = kaleidoscope::keyaddr::row(key_addr);
+  byte col = kaleidoscope::keyaddr::col(key_addr);
+  if (bitRead(state.all, key_addr) != bitRead(previousState.all, key_addr)) {
     Serial.print("Looking at row ");
     Serial.print(row);
     Serial.print(", col ");
     Serial.print(col);
     Serial.print(" key # ");
-    Serial.print(keynum);
+    Serial.print(key_addr);
     Serial.print(" ");
-    Serial.print(bitRead(previousState.all, keynum));
+    Serial.print(bitRead(previousState.all, key_addr));
     Serial.print(" -> ");
-    Serial.print(bitRead(state.all, keynum));
+    Serial.print(bitRead(state.all, key_addr));
     Serial.println();
   }
 }
@@ -163,14 +167,14 @@ void Model01::actOnMatrixScan() {
   for (byte row = 0; row < 4; row++) {
     for (byte col = 0; col < 8; col++) {
 
-      uint8_t keynum = (row * 8) + (col);
+      KeyAddr key_addr = kaleidoscope::keyaddr::addr(row, col);
 
-      uint8_t keyState = (bitRead(previousLeftHandState.all, keynum) << 0) |
-                         (bitRead(leftHandState.all, keynum) << 1);
+      uint8_t keyState = (bitRead(previousLeftHandState.all, key_addr) << 0) |
+                         (bitRead(leftHandState.all, key_addr) << 1);
       handleKeyswitchEvent(Key_NoKey, row, 7 - col, keyState);
 
-      keyState = (bitRead(previousRightHandState.all, keynum) << 0) |
-                 (bitRead(rightHandState.all, keynum) << 1);
+      keyState = (bitRead(previousRightHandState.all, key_addr) << 0) |
+                 (bitRead(rightHandState.all, key_addr) << 1);
 
       handleKeyswitchEvent(Key_NoKey, row, (15 - col), keyState);
     }
@@ -204,10 +208,11 @@ void Model01::rebootBootloader() {
   // happens before the watchdog reboots us
 }
 
-void Model01::maskKey(byte row, byte col) {
-  if (row >= ROWS || col >= COLS)
+void Model01::maskKey(KeyAddr key_addr) {
+  if (key_addr >= TOTAL_KEYS)
     return;
-
+  byte row = kaleidoscope::keyaddr::row(key_addr);
+  byte col = kaleidoscope::keyaddr::col(key_addr);
   if (col >= 8) {
     rightHandMask.rows[row] |= 1 << (7 - (col - 8));
   } else {
@@ -215,21 +220,29 @@ void Model01::maskKey(byte row, byte col) {
   }
 }
 
-void Model01::unMaskKey(byte row, byte col) {
-  if (row >= ROWS || col >= COLS)
+void Model01::unMaskKey(KeyAddr key_addr) {
+  if (key_addr >= TOTAL_KEYS)
     return;
-
-  if (col >= 8) {
-    rightHandMask.rows[row] &= ~(1 << (7 - (col - 8)));
+  // row:        B**XX****
+  // column:     B****XXXX
+  // Left side:  B****0***
+  // Right side: B****1***  = if(key_addr & B00001000) (8)
+  // * side column # = key_addr & B00000111 (7)
+  // row # (in bounds) = key_addr >> 4
+  // column # = key_addr & B00001111 (15)
+  if (key_addr & 8) {
+    rightHandMask.rows[key_addr >> 4] &= ~(1 << (7 - (key_addr & 7))); // or leave out the subtraction
+    //                                   ~(128 >> (key_addr & 7));  // B10000000
   } else {
-    leftHandMask.rows[row] &= ~(1 << (7 - col));
+    leftHandMask.rows[key_addr >> 4] &= ~(1 << (7 - (key_addr & 7))); // or leave out the subtraction
   }
 }
 
-bool Model01::isKeyMasked(byte row, byte col) {
-  if (row >= ROWS || col >= COLS)
+bool Model01::isKeyMasked(KeyAddr key_addr) {
+  if (key_addr >= TOTAL_KEYS)
     return false;
-
+  byte row = kaleidoscope::keyaddr::row(key_addr);
+  byte col = kaleidoscope::keyaddr::col(key_addr);
   if (col >= 8) {
     return rightHandMask.rows[row] & (1 << (7 - (col - 8)));
   } else {
