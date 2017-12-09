@@ -2,6 +2,12 @@
 #include <KeyboardioHID.h>
 #include <avr/wdt.h>
 
+#define KEYADDR_UNUSED_BITS B11000000
+#define KEYADDR_HAND_BIT    B00001000
+#define KEYADDR_ROW_BITS    B00110000
+#define KEYADDR_COL_BITS    B00000111
+#define KEYADDR_LEFT_BIT    B10000000
+
 KeyboardioScanner Model01::leftHand(0);
 KeyboardioScanner Model01::rightHand(3);
 bool Model01::isLEDChanged = true;
@@ -160,20 +166,16 @@ void Model01::readMatrix() {
 
 
 void Model01::actOnMatrixScan() {
-  for (byte row = 0; row < 4; row++) {
-    for (byte col = 0; col < 8; col++) {
+  for (KeyAddr key_addr = 0; key_addr < (TOTAL_KEYS/2); key_addr++) {
 
-      KeyAddr key_addr = kaleidoscope::keyaddr::addr(row, col);
+    uint8_t keyState = (bitRead(previousLeftHandState.all, key_addr) << 0) |
+                       (bitRead(leftHandState.all, key_addr) << 1);
+    handleKeyswitchEvent(Key_NoKey, key_addr, keyState);
 
-      uint8_t keyState = (bitRead(previousLeftHandState.all, key_addr) << 0) |
-                         (bitRead(leftHandState.all, key_addr) << 1);
-      handleKeyswitchEvent(Key_NoKey, kaleidoscope::keyaddr::addr(row, 7 - col), keyState);
+    keyState = (bitRead(previousRightHandState.all, key_addr) << 0) |
+               (bitRead(rightHandState.all, key_addr) << 1);
 
-      keyState = (bitRead(previousRightHandState.all, key_addr) << 0) |
-                 (bitRead(rightHandState.all, key_addr) << 1);
-
-      handleKeyswitchEvent(Key_NoKey, kaleidoscope::keyaddr::addr(row, (15 - col)), keyState);
-    }
+    handleKeyswitchEvent(Key_NoKey, (key_addr | KEYADDR_HAND_BIT), keyState);
   }
 }
 
@@ -204,11 +206,6 @@ void Model01::rebootBootloader() {
   // happens before the watchdog reboots us
 }
 
-#define KEYADDR_UNUSED_BITS B11000000
-#define KEYADDR_HAND_BIT    B00001000
-#define KEYADDR_ROW_BITS    B00110000
-#define KEYADDR_COL_BITS    B00000111
-#define KEYADDR_LEFT_BIT    B10000000
 #define MASK_BIT(key_addr)  (KEYADDR_LEFT_BIT >> (key_addr & KEYADDR_COL_BITS))
 
 void Model01::maskKey(KeyAddr key_addr) {
