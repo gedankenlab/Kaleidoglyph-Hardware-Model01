@@ -204,14 +204,21 @@ void Model01::rebootBootloader() {
   // happens before the watchdog reboots us
 }
 
+#define KEYADDR_UNUSED_BITS B11000000
+#define KEYADDR_HAND_BIT    B00001000
+#define KEYADDR_ROW_BITS    B00110000
+#define KEYADDR_COL_BITS    B00000111
+#define KEYADDR_LEFT_BIT    B10000000
+#define MASK_BIT(key_addr)  (KEYADDR_LEFT_BIT >> (key_addr & KEYADDR_COL_BITS))
+
 void Model01::maskKey(KeyAddr key_addr) {
   if (key_addr >= TOTAL_KEYS)
     return;
 
-  if (key_addr & 8) {
-    rightHandMask.rows[key_addr >> 4] |= (128 >> (key_addr & 7));
+  if (key_addr & KEYADDR_HAND_BIT) {
+    rightHandMask.rows[key_addr & KEYADDR_ROW_BITS] |= MASK_BIT(key_addr);
   } else {
-    leftHandMask.rows[key_addr >> 4] |= (128 >> (key_addr & 7));
+    leftHandMask.rows[key_addr & KEYADDR_ROW_BITS] |= MASK_BIT(key_addr);
   }
 }
 
@@ -219,21 +226,21 @@ void Model01::unMaskKey(KeyAddr key_addr) {
   if (key_addr >= TOTAL_KEYS)
     return;
 
-  if (key_addr & 8) {
-    rightHandMask.rows[key_addr >> 4] &= ~(128 >> (key_addr & 7));
+  if (key_addr & KEYADDR_HAND_BIT) {
+    rightHandMask.rows[key_addr & KEYADDR_ROW_BITS] &= ~MASK_BIT(key_addr);
   } else {
-    leftHandMask.rows[key_addr >> 4] &= ~(128 >> (key_addr & 7));
+    leftHandMask.rows[key_addr & KEYADDR_ROW_BITS] &= ~MASK_BIT(key_addr);
   }
 }
 
 bool Model01::isKeyMasked(KeyAddr key_addr) {
-  if (key_addr & B11000000)
+  if (key_addr >= TOTAL_KEYS)
     return false;
 
-  if (key_addr & 8) {
-    return rightHandMask.rows[key_addr >> 4] & (128 >> (key_addr & 7));
+  if (key_addr & KEYADDR_HAND_BIT) {
+    return rightHandMask.rows[key_addr & KEYADDR_ROW_BITS] & MASK_BIT(key_addr);
   } else {
-    return leftHandMask.rows[key_addr >> 4] & (128 >> (key_addr & 7));
+    return leftHandMask.rows[key_addr & KEYADDR_ROW_BITS] & MASK_BIT(key_addr);
   }
 }
 
