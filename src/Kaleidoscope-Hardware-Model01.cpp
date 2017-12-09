@@ -230,6 +230,8 @@ void Model01::unMaskKey(KeyAddr key_addr) {
   // * side column # = key_addr & B00000111 (7)
   // row # (in bounds) = key_addr >> 4
   // column # = key_addr & B00001111 (15)
+  //byte row = key_addr >> 4;
+  //byte col = B10000000 >> (key_addr & B00000111);
   if (key_addr & 8) {
     rightHandMask.rows[key_addr >> 4] &= ~(1 << (7 - (key_addr & 7))); // or leave out the subtraction
     //                                   ~(128 >> (key_addr & 7));  // B10000000
