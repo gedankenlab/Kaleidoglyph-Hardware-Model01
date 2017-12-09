@@ -83,10 +83,6 @@ void Model01::setCrgbAt(uint8_t i, cRGB crgb) {
   }
 }
 
-void Model01::setCrgbAt(KeyAddr key_addr, cRGB color) {
-  setCrgbAt(key_led_map[key_addr], color);
-}
-
 uint8_t Model01::getLedIndex(KeyAddr key_addr) {
   return key_led_map[key_addr];
 }
@@ -171,12 +167,12 @@ void Model01::actOnMatrixScan() {
 
       uint8_t keyState = (bitRead(previousLeftHandState.all, key_addr) << 0) |
                          (bitRead(leftHandState.all, key_addr) << 1);
-      handleKeyswitchEvent(Key_NoKey, row, 7 - col, keyState);
+      handleKeyswitchEvent(Key_NoKey, kaleidoscope::keyaddr::addr(row, 7 - col), keyState);
 
       keyState = (bitRead(previousRightHandState.all, key_addr) << 0) |
                  (bitRead(rightHandState.all, key_addr) << 1);
 
-      handleKeyswitchEvent(Key_NoKey, row, (15 - col), keyState);
+      handleKeyswitchEvent(Key_NoKey, kaleidoscope::keyaddr::addr(row, (15 - col)), keyState);
     }
   }
 }
@@ -212,10 +208,10 @@ void Model01::maskKey(KeyAddr key_addr) {
   if (key_addr >= TOTAL_KEYS)
     return;
 
-  if (col & 8) {
-    rightHandMask.rows[row] |= (128 >> (key_addr & 7));
+  if (key_addr & 8) {
+    rightHandMask.rows[key_addr >> 4] |= (128 >> (key_addr & 7));
   } else {
-    leftHandMask.rows[row] |= (128 >> (key_addr & 7));
+    leftHandMask.rows[key_addr >> 4] |= (128 >> (key_addr & 7));
   }
 }
 
@@ -234,10 +230,10 @@ bool Model01::isKeyMasked(KeyAddr key_addr) {
   if (key_addr & B11000000)
     return false;
 
-  if (col >= 8) {
-    return rightHandMask.rows[row] & (128 >> (key_addr & 7));
+  if (key_addr & 8) {
+    return rightHandMask.rows[key_addr >> 4] & (128 >> (key_addr & 7));
   } else {
-    return leftHandMask.rows[row] & (128 >> (key_addr & 7));
+    return leftHandMask.rows[key_addr >> 4] & (128 >> (key_addr & 7));
   }
 }
 
