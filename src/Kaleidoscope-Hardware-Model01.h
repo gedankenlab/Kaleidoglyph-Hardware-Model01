@@ -31,7 +31,6 @@ inline void unmask(KeyAddr key_addr) {
   KeyboardHardware.unMaskKey(row(key_addr), col(key_addr));
 }
 } // namespace keyaddr {
-} // namespace kaleidoscope {
 
 class Model01 {
  public:
@@ -84,6 +83,7 @@ class Model01 {
   static keydata_t leftHandMask;
   static keydata_t rightHandMask;
 };
+} // namespace kaleidoscope {
 
 #define SCANBIT(row,col) ((uint32_t)1 << ((row) * 8 + (7 - (col))))
 
