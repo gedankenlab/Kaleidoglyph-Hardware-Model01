@@ -211,44 +211,33 @@ void Model01::rebootBootloader() {
 void Model01::maskKey(KeyAddr key_addr) {
   if (key_addr >= TOTAL_KEYS)
     return;
-  byte row = kaleidoscope::keyaddr::row(key_addr);
-  byte col = kaleidoscope::keyaddr::col(key_addr);
-  if (col >= 8) {
-    rightHandMask.rows[row] |= 1 << (7 - (col - 8));
+
+  if (col & 8) {
+    rightHandMask.rows[row] |= (128 >> (key_addr & 7));
   } else {
-    leftHandMask.rows[row] |= 1 << (7 - col);
+    leftHandMask.rows[row] |= (128 >> (key_addr & 7));
   }
 }
 
 void Model01::unMaskKey(KeyAddr key_addr) {
   if (key_addr >= TOTAL_KEYS)
     return;
-  // row:        B**XX****
-  // column:     B****XXXX
-  // Left side:  B****0***
-  // Right side: B****1***  = if(key_addr & B00001000) (8)
-  // * side column # = key_addr & B00000111 (7)
-  // row # (in bounds) = key_addr >> 4
-  // column # = key_addr & B00001111 (15)
-  //byte row = key_addr >> 4;
-  //byte col = B10000000 >> (key_addr & B00000111);
+
   if (key_addr & 8) {
-    rightHandMask.rows[key_addr >> 4] &= ~(1 << (7 - (key_addr & 7))); // or leave out the subtraction
-    //                                   ~(128 >> (key_addr & 7));  // B10000000
+    rightHandMask.rows[key_addr >> 4] &= ~(128 >> (key_addr & 7));
   } else {
-    leftHandMask.rows[key_addr >> 4] &= ~(1 << (7 - (key_addr & 7))); // or leave out the subtraction
+    leftHandMask.rows[key_addr >> 4] &= ~(128 >> (key_addr & 7));
   }
 }
 
 bool Model01::isKeyMasked(KeyAddr key_addr) {
-  if (key_addr >= TOTAL_KEYS)
+  if (key_addr & B11000000)
     return false;
-  byte row = kaleidoscope::keyaddr::row(key_addr);
-  byte col = kaleidoscope::keyaddr::col(key_addr);
+
   if (col >= 8) {
-    return rightHandMask.rows[row] & (1 << (7 - (col - 8)));
+    return rightHandMask.rows[row] & (128 >> (key_addr & 7));
   } else {
-    return leftHandMask.rows[row] & (1 << (7 - col));
+    return leftHandMask.rows[row] & (128 >> (key_addr & 7));
   }
 }
 

@@ -16,21 +16,16 @@ typedef byte KeyAddr;
 namespace kaleidoscope {
 namespace keyaddr {
 inline byte row(KeyAddr key_addr) {
-  return (key_addr / COLS);
+  return (key_addr & B00110000);
 }
 inline byte col(KeyAddr key_addr) {
-  return (key_addr % COLS);
+  return (key_addr & B00001111);
 }
 inline KeyAddr addr(byte row, byte col) {
-  return ((row * COLS) + col);
-}
-inline void mask(KeyAddr key_addr) {
-  KeyboardHardware.maskKey(row(key_addr), col(key_addr));
-}
-inline void unmask(KeyAddr key_addr) {
-  KeyboardHardware.unMaskKey(row(key_addr), col(key_addr));
+  return ((row << 4) | col);
 }
 } // namespace keyaddr {
+} // namespace kaleidoscope {
 
 class Model01 {
  public:
@@ -83,7 +78,6 @@ class Model01 {
   static keydata_t leftHandMask;
   static keydata_t rightHandMask;
 };
-} // namespace kaleidoscope {
 
 #define SCANBIT(row,col) ((uint32_t)1 << ((row) * 8 + (7 - (col))))
 
