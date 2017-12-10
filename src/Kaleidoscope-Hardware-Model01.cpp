@@ -3,8 +3,8 @@
 #include <avr/wdt.h>
 
 #define KEYADDR_UNUSED_BITS B11000000
-#define KEYADDR_HAND_BIT    B00001000
-#define KEYADDR_ROW_BITS    B00110000
+#define KEYADDR_HAND_BIT    B00100000
+#define KEYADDR_ROW_BITS    B00011000
 #define KEYADDR_COL_BITS    B00000111
 #define KEYADDR_LEFT_BIT    B10000000
 
@@ -16,10 +16,15 @@ keydata_t Model01::rightHandMask;
 
 // *INDENT-OFF*
 static constexpr uint8_t key_led_map[TOTAL_KEYS] = {
-  3,  4, 11, 12, 19, 20, 26, 27,      36, 37, 43, 44, 51, 52, 59, 60,
-  2,  5, 10, 13, 18, 21, 25, 28,      35, 38, 42, 45, 50, 53, 58, 61,
-  1,  6,  9, 14, 17, 22, 24, 29,      34, 39, 41, 46, 49, 54, 57, 62,
-  0,  7,  8, 15, 16, 23, 31, 30,      33, 32, 40, 47, 48, 55, 56, 63,
+  27, 26, 20, 19, 12, 11,  4,  3,
+  28, 25, 21, 18, 13, 10,  5,  2,
+  29, 24, 22, 17, 14,  9,  6,  1,
+  30, 31, 23, 16, 15,  8,  7,  0,
+                             
+  60, 59, 52, 51, 44, 43, 37, 36,
+  61, 58, 53, 50, 45, 42, 38, 35,
+  62, 57, 54, 49, 46, 41, 39, 34,
+  63, 56, 55, 48, 47, 40, 32, 33,
 };
 // *INDENT-ON*
 
