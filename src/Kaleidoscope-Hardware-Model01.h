@@ -31,8 +31,8 @@ class Model01 {
  public:
   Model01(void);
   void syncLeds(void);
-  void setCrgbAt(uint8_t i, cRGB crgb);
-  cRGB getCrgbAt(uint8_t i);
+  void setCrgbAt(KeyAddr key_addr, cRGB crgb);
+  cRGB getCrgbAt(KeyAddr key_addr);
   uint8_t getLedIndex(KeyAddr key_addr);
 
   void scanMatrix(void);

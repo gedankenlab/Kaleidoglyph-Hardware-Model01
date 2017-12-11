@@ -76,7 +76,8 @@ void Model01::setup(void) {
 }
 
 
-void Model01::setCrgbAt(uint8_t i, cRGB crgb) {
+void Model01::setCrgbAt(KeyAddr key_addr, cRGB crgb) {
+  byte i = key_led_map[key_addr];
   if (i < 32) {
     cRGB oldColor = getCrgbAt(i);
     isLEDChanged |= !(oldColor.r == crgb.r && oldColor.g == crgb.g && oldColor.b == crgb.b);
@@ -98,7 +99,8 @@ uint8_t Model01::getLedIndex(KeyAddr key_addr) {
   return key_led_map[key_addr];
 }
 
-cRGB Model01::getCrgbAt(uint8_t i) {
+cRGB Model01::getCrgbAt(KeyAddr key_addr) {
+  uint8_t i = key_led_map[key_addr];
   if (i < 32) {
     return leftHand.ledData.leds[i];
   } else if (i < 64) {
