@@ -2,30 +2,47 @@
 
 #include <Arduino.h>
 
-#define HARDWARE_IMPLEMENTATION Model01
+#define HARDWARE_IMPLEMENTATION kaleidoscope::Model01
 #include "KeyboardioScanner.h"
 
-#define COLS 8
-#define ROWS 8
-#define TOTAL_KEYS (ROWS * COLS)
 
-#define CRGB(r,g,b) (cRGB){b, g, r}
+namespace kaleidoscope {
+
+constexpr byte LED_COUNT = 64;
+
+constexpr cRGB CRGB(byte r, byte g, byte b) {
+  return (cRGB){b, g, r};
+}
 
 typedef byte KeyAddr;
 
-namespace kaleidoscope {
+constexpr KeyAddr ROWS = 8;
+constexpr KeyAddr COLS = 8;
+constexpr KeyAddr TOTAL_KEYS = ROWS * COLS;
+constexpr KeyAddr UNKNOWN_KEY_ADDR = TOTAL_KEYS;
+
 namespace keyaddr {
-inline byte row(KeyAddr key_addr) {
-  return (key_addr & B00111000);
+
+constexpr KeyAddr ROW_BITS = B00111000;
+constexpr KeyAddr COL_BITS = B00000111;
+
+// Conversion functions to help with back-compat and user addressing
+constexpr byte row(KeyAddr key_addr) {
+  return (key_addr & ROW_BITS);
 }
-inline byte col(KeyAddr key_addr) {
-  return (key_addr & B00000111);
+
+constexpr byte col(KeyAddr key_addr) {
+  return (key_addr & COL_BITS);
 }
-inline KeyAddr addr(byte row, byte col) {
+
+constexpr KeyAddr addr(byte row, byte col) {
+  // shift row by the number of col bits
   return ((row << 3) | col);
 }
 } // namespace keyaddr {
-} // namespace kaleidoscope {
+
+}
+
 
 class Model01 {
  public:
@@ -41,6 +58,8 @@ class Model01 {
   void setup();
   void rebootBootloader();
 
+  bool stateChanged();
+  KeyAddr getNextKeyswitchEvent(KeyAddr key_addr);
 
   /* These public functions are things supported by the Model 01, but
    * aren't necessarily part of the Kaleidoscope API
@@ -78,12 +97,15 @@ class Model01 {
   static keydata_t rightHandMask;
 };
 
+} // namespace kaleidoscope {
+
+// This is currently incorrect (keyaddr)
 #define SCANBIT(row,col) ((uint32_t)1 << ((row) * 8 + (7 - (col))))
 
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-
+// these need to be redefined (keyaddr)
 #define R0C0  SCANBIT(0, 0)
 #define R0C1  SCANBIT(0, 1)
 #define R0C2  SCANBIT(0, 2)
@@ -151,7 +173,6 @@ class Model01 {
 #define R3C15 SCANBIT(3, 7)
 
 
-#define LED_COUNT 64
 
 
 #define LED_PGDN 0

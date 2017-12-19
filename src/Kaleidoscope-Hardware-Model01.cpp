@@ -2,11 +2,7 @@
 #include <KeyboardioHID.h>
 #include <avr/wdt.h>
 
-#define KEYADDR_UNUSED_BITS B11000000
-#define KEYADDR_HAND_BIT    B00100000
-#define KEYADDR_ROW_BITS    B00011000
-#define KEYADDR_COL_BITS    B00000111
-#define KEYADDR_LEFT_BIT    B10000000
+namespace kaleidoscope {
 
 KeyboardioScanner Model01::leftHand(0);
 KeyboardioScanner Model01::rightHand(3);
@@ -164,8 +160,29 @@ void Model01::readMatrix() {
   }
 }
 
+// tell if any keyswitch was pressed or released
+bool Model01::stateChanged() {
+  if (leftHandState.all != previousLeftHandState.all ||
+      rightHandState.all != previousRightHandState.all)
+    return true;
+  return false;
+}
+
+// get the address of the next key that changed state (if any)
+KeyAddr Model01::getNextKeyswitchEvent(KeyAddr key_addr) {
+  for (byte r = keyaddr::row(key_addr); r < ROWS; ++r) {
+    if (keyboard_state_[r] == prev_keyboard_state_[r])
+      continue;
+    for (byte c = keyaddr::col(key_addr); c < COLS; ++c) {
+      if (bitRead(keyboard_state_[r], c) != bitRead(prev_keyboard_state_[r], c))
+	return keyaddr::addr(r, c);
+    }
+  }
+  return UNKNOWN_KEY_ADDR;
+}
 
 
+// probably also soon obsolete
 void Model01::actOnMatrixScan() {
   for (KeyAddr key_addr = 0; key_addr < (TOTAL_KEYS/2); key_addr++) {
 
@@ -207,16 +224,26 @@ void Model01::rebootBootloader() {
   // happens before the watchdog reboots us
 }
 
+// These masking fuctions should become obsolete soon
 #define MASK_BIT(key_addr)  (KEYADDR_LEFT_BIT >> (key_addr & KEYADDR_COL_BITS))
+
+namespace keymask {
+constexpr KeyAddr HAND_BIT = B00100000;
+constexpr KeyAddr ROW_BITS = B00011000;
+constexpr KeyAddr COL_BITS = B00000111;
+constexpr KeyAddr mask_bit(KeyAddr key_addr) {
+  return (B10000000 >> (key_addr & COL_BITS));
+}
+} // namespace keymask {
 
 void Model01::maskKey(KeyAddr key_addr) {
   if (key_addr >= TOTAL_KEYS)
     return;
 
-  if (key_addr & KEYADDR_HAND_BIT) {
-    rightHandMask.rows[key_addr & KEYADDR_ROW_BITS] |= MASK_BIT(key_addr);
+  if (key_addr & keymask::HAND_BIT) {
+    rightHandMask.rows[key_addr & keymask::ROW_BITS] |= keymask::mask_bit(key_addr);
   } else {
-    leftHandMask.rows[key_addr & KEYADDR_ROW_BITS] |= MASK_BIT(key_addr);
+    leftHandMask.rows[key_addr & keymask::ROW_BITS] |= keymask::mask_bit(key_addr);
   }
 }
 
@@ -224,10 +251,10 @@ void Model01::unMaskKey(KeyAddr key_addr) {
   if (key_addr >= TOTAL_KEYS)
     return;
 
-  if (key_addr & KEYADDR_HAND_BIT) {
-    rightHandMask.rows[key_addr & KEYADDR_ROW_BITS] &= ~MASK_BIT(key_addr);
+  if (key_addr & keymask::HAND_BIT) {
+    rightHandMask.rows[key_addr & keymask::ROW_BITS] &= ~keymask::mask_bit(key_addr);
   } else {
-    leftHandMask.rows[key_addr & KEYADDR_ROW_BITS] &= ~MASK_BIT(key_addr);
+    leftHandMask.rows[key_addr & keymask::ROW_BITS] &= ~keymask::mask_bit(key_addr);
   }
 }
 
@@ -235,10 +262,10 @@ bool Model01::isKeyMasked(KeyAddr key_addr) {
   if (key_addr >= TOTAL_KEYS)
     return false;
 
-  if (key_addr & KEYADDR_HAND_BIT) {
-    return rightHandMask.rows[key_addr & KEYADDR_ROW_BITS] & MASK_BIT(key_addr);
+  if (key_addr & keymask::HAND_BIT) {
+    return rightHandMask.rows[key_addr & keymask::ROW_BITS] & keymask::mask_bit(key_addr);
   } else {
-    return leftHandMask.rows[key_addr & KEYADDR_ROW_BITS] & MASK_BIT(key_addr);
+    return leftHandMask.rows[key_addr & keymask::ROW_BITS] & keymask::mask_bit(key_addr);
   }
 }
 
@@ -252,5 +279,7 @@ void Model01::setKeyscanInterval(uint8_t interval) {
   leftHand.setKeyscanInterval(interval);
   rightHand.setKeyscanInterval(interval);
 }
+
+} // namespace kaleidoscope {
 
 HARDWARE_IMPLEMENTATION KeyboardHardware;
