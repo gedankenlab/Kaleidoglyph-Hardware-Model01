@@ -28,9 +28,7 @@ static constexpr uint8_t key_led_map[TOTAL_KEYS] = {
 };
 // *INDENT-ON*
 
-Model01::Model01(void) {
-
-}
+Model01::Model01(void) {}
 
 void Model01::enableScannerPower(void) {
   // PC7
@@ -39,7 +37,6 @@ void Model01::enableScannerPower(void) {
   // Turn on power to the LED net
   DDRC |= _BV(7);
   PORTC |= _BV(7);
-
 }
 
 // This lets the keyboard pull up to 1.6 amps from
@@ -55,9 +52,6 @@ void Model01::enableHighPowerLeds(void) {
   // Set B4, the overcurrent check to an input with an internal pull-up
   DDRB &= ~_BV(4);	// set bit, input
   PORTB &= ~_BV(4);	// set bit, enable pull-up resistor
-
-
-
 }
 
 void Model01::setup(void) {
