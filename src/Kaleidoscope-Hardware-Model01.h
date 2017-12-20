@@ -39,10 +39,17 @@ constexpr KeyAddr addr(byte row, byte col) {
   // shift row by the number of col bits
   return ((row << 3) | col);
 }
+
 } // namespace keyaddr {
 
 }
-
+union KeyboardState {
+  struct {
+    keydata_t left_hand;
+    keydata_t right_hand;
+  };
+  byte rows[ROWS];
+};
 
 class Model01 {
  public:
@@ -87,6 +94,19 @@ class Model01 {
   keydata_t rightHandState;
   keydata_t previousLeftHandState;
   keydata_t previousRightHandState;
+
+  keydata_t getLeftHandState() {
+    return curr_state_.left_hand;
+  }
+  keydata_t getRightHandState() {
+    return curr_state_.right_hand;
+  }
+  keydata_t getPreviousLeftHandState() {
+    return prev_state_.left_hand;
+  }
+  keydata_t getPreviousRightHandState() {
+    return prev_state_.right_hand;
+  }
 
  private:
   static bool isLEDChanged;

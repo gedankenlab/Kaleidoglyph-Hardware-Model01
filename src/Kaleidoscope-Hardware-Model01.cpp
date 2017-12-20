@@ -225,8 +225,6 @@ void Model01::rebootBootloader() {
 }
 
 // These masking fuctions should become obsolete soon
-#define MASK_BIT(key_addr)  (KEYADDR_LEFT_BIT >> (key_addr & KEYADDR_COL_BITS))
-
 namespace keymask {
 constexpr KeyAddr HAND_BIT = B00100000;
 constexpr KeyAddr ROW_BITS = B00011000;
