@@ -1,13 +1,20 @@
 #include <Kaleidoscope.h>
+// Does HID interface stuff really belong here?
 #include <KeyboardioHID.h>
+// todo: look up wdt.h
 #include <avr/wdt.h>
 
+namespace kaleidoscope {
+namespace hardware {
+
+// Why don't we do these things in the constructor? Why are they static? There's only one object...
 KeyboardioScanner Model01::leftHand(0);
 KeyboardioScanner Model01::rightHand(3);
 bool Model01::isLEDChanged = true;
 keydata_t Model01::leftHandMask;
 keydata_t Model01::rightHandMask;
 
+// This needs rearranging because of KeyAddr
 static constexpr uint8_t key_led_map[4][16] = {
   {3, 4, 11, 12, 19, 20, 26, 27,     36, 37, 43, 44, 51, 52, 59, 60},
   {2, 5, 10, 13, 18, 21, 25, 28,     35, 38, 42, 45, 50, 53, 58, 61},
@@ -15,9 +22,6 @@ static constexpr uint8_t key_led_map[4][16] = {
   {0, 7, 8, 15, 16, 23, 31, 30,     33, 32, 40, 47, 48, 55, 56, 63},
 };
 
-Model01::Model01(void) {
-
-}
 
 void Model01::enableScannerPower(void) {
   // PC7
@@ -26,7 +30,6 @@ void Model01::enableScannerPower(void) {
   // Turn on power to the LED net
   DDRC |= _BV(7);
   PORTC |= _BV(7);
-
 }
 
 // This lets the keyboard pull up to 1.6 amps from
@@ -42,9 +45,6 @@ void Model01::enableHighPowerLeds(void) {
   // Set B4, the overcurrent check to an input with an internal pull-up
   DDRB &= ~_BV(4);	// set bit, input
   PORTB &= ~_BV(4);	// set bit, enable pull-up resistor
-
-
-
 }
 
 void Model01::setup(void) {
@@ -157,8 +157,6 @@ void Model01::readMatrix() {
   }
 }
 
-
-
 void Model01::actOnMatrixScan() {
   for (byte row = 0; row < 4; row++) {
     for (byte col = 0; col < 8; col++) {
@@ -248,4 +246,8 @@ void Model01::setKeyscanInterval(uint8_t interval) {
   rightHand.setKeyscanInterval(interval);
 }
 
+// Why do we declare this object here?
 HARDWARE_IMPLEMENTATION KeyboardHardware;
+
+} // namespace hardware {
+} // namespace kaleidoscope {
