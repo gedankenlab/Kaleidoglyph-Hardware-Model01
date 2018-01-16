@@ -5,25 +5,37 @@
 #include <Arduino.h>
 
 #define HARDWARE_IMPLEMENTATION Model01
-#include "KeyboardioScanner.h"
+#include <KeyboardioScanner.h>
 
+namespace kaleidoscope {
+namespace hardware {
+
+// I think this should actually be a member variable of the hardware object
+constexpr byte TOTAL_KEYS = 64;
+
+// These should be obsolete because of TOTAL_KEYS & single-byte addressing
 #define COLS 16
 #define ROWS 4
 
+// This should be superceded by the constructor for the Crgb struct
 #define CRGB(r,g,b) (cRGB){b, g, r}
 
 class Model01 {
  public:
-  Model01(void);
-  void syncLeds(void);
-  void setCrgbAt(byte row, byte col, cRGB color);
-  void setCrgbAt(uint8_t i, cRGB crgb);
-  cRGB getCrgbAt(uint8_t i);
-  uint8_t getLedIndex(byte row, byte col);
+  Model01();
 
-  void scanMatrix(void);
-  void readMatrix(void);
-  void actOnMatrixScan(void);
+  // Not sure what this is for yet
+  void syncLeds();
+  // These should be *LedColor instead
+  void setCrgbAt(KeyAddr k, Crgb color);
+  Crgb getCrgbAt(KeyAddr k);
+  // I'm not sure we need this. If we do, it should be private, I think.
+  uint8_t getLedIndex(KeyAddr k);
+
+  void scanMatrix();
+  void readMatrix();
+  // I doubt this will survive
+  void actOnMatrixScan();
   void setup();
   void rebootBootloader();
 
@@ -31,39 +43,31 @@ class Model01 {
   /* These public functions are things supported by the Model 01, but
    * aren't necessarily part of the Kaleidoscope API
    */
-  void enableHighPowerLeds(void);
-  void enableScannerPower(void);
+  void enableHighPowerLeds();
+  void enableScannerPower();
   void setKeyscanInterval(uint8_t interval);
-  boolean ledPowerFault(void);
+  boolean ledPowerFault();
 
-  /* Key masking
-   * -----------
-   *
-   * There are situations when one wants to ignore key events for a while, and
-   * mask them out. These functions help do that. In isolation, they do nothing,
-   * plugins and the core firmware is expected to make use of these.
-   *
-   * See `handleKeyswitchEvent` in the Kaleidoscope sources for a use-case.
-   */
-  void maskKey(byte row, byte col);
-  void unMaskKey(byte row, byte col);
-  bool isKeyMasked(byte row, byte col);
-  void maskHeldKeys(void);
-
-  keydata_t leftHandState;
-  keydata_t rightHandState;
-  keydata_t previousLeftHandState;
-  keydata_t previousRightHandState;
+  // This stuff should be private
+  // I want to combine these into a two-dimensional array
+  KeyData left_hand_state;
+  KeyData right_hand_state;
+  KeyData previous_left_hand_state;
+  KeyData previous_right_hand_state;
+  // like this?
+  KeyData hand_state[2][2];
 
  private:
-  static bool isLEDChanged;
-  static KeyboardioScanner leftHand;
-  static KeyboardioScanner rightHand;
-
-  static keydata_t leftHandMask;
-  static keydata_t rightHandMask;
+  bool is_led_changed_;
+  KeyboardioScanner left_hand_;
+  KeyboardioScanner right_hand_;
 };
 
+} // namespace hardware {
+} // namespace kaleidoscope {
+
+
+// Everything past this line is probably obsolete
 #define SCANBIT(row,col) ((uint32_t)1 << ((row) * 8 + (7 - (col))))
 
 
