@@ -14,6 +14,11 @@ typedef byte KeyAddr;
 
 constexpr KeyAddr UNKNOWN_KEY_ADDR = TOTAL_KEYS;
 
+// Everything past this point should be unnecessary, but could possibly be helpful for
+// plugins that want to affect whole rows or columns. Note that this code defines 8 rows &
+// 8 columns, which is probably not what a user wants on a Model01 (the last four rows are
+// on the right half of the keyboard.
+
 constexpr KeyAddr ROW_BITS = B00111000;
 constexpr KeyAddr COL_BITS = B00000111;
 
