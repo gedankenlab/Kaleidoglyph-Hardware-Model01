@@ -23,7 +23,7 @@ static constexpr uint8_t key_led_map[4][16] = {
 };
 
 
-void Model01::enableScannerPower(void) {
+void Model01::enableScannerPower() {
   // PC7
   //pinMode(13, OUTPUT);
   //digitalWrite(13, HIGH);
@@ -35,7 +35,7 @@ void Model01::enableScannerPower(void) {
 // This lets the keyboard pull up to 1.6 amps from
 // the host. That violates the USB spec. But it sure
 // is pretty looking
-void Model01::enableHighPowerLeds(void) {
+void Model01::enableHighPowerLeds() {
   // PE6
   //    pinMode(7, OUTPUT);
   //    digitalWrite(7, LOW);
@@ -47,7 +47,7 @@ void Model01::enableHighPowerLeds(void) {
   PORTB &= ~_BV(4);	// set bit, enable pull-up resistor
 }
 
-void Model01::setup(void) {
+void Model01::setup() {
   wdt_disable();
   delay(100);
   enableScannerPower();
@@ -200,44 +200,6 @@ void Model01::rebootBootloader() {
 
   while (1) {} // This infinite loop ensures nothing else
   // happens before the watchdog reboots us
-}
-
-void Model01::maskKey(byte row, byte col) {
-  if (row >= ROWS || col >= COLS)
-    return;
-
-  if (col >= 8) {
-    rightHandMask.rows[row] |= 1 << (7 - (col - 8));
-  } else {
-    leftHandMask.rows[row] |= 1 << (7 - col);
-  }
-}
-
-void Model01::unMaskKey(byte row, byte col) {
-  if (row >= ROWS || col >= COLS)
-    return;
-
-  if (col >= 8) {
-    rightHandMask.rows[row] &= ~(1 << (7 - (col - 8)));
-  } else {
-    leftHandMask.rows[row] &= ~(1 << (7 - col));
-  }
-}
-
-bool Model01::isKeyMasked(byte row, byte col) {
-  if (row >= ROWS || col >= COLS)
-    return false;
-
-  if (col >= 8) {
-    return rightHandMask.rows[row] & (1 << (7 - (col - 8)));
-  } else {
-    return leftHandMask.rows[row] & (1 << (7 - col));
-  }
-}
-
-void Model01::maskHeldKeys(void) {
-  memcpy(leftHandMask.rows, leftHandState.rows, sizeof(leftHandMask));
-  memcpy(rightHandMask.rows, rightHandState.rows, sizeof(rightHandMask));
 }
 
 
