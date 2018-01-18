@@ -36,7 +36,5 @@ constexpr KeyAddr addr(byte row, byte col) {
   return ((row << 3) | col);
 }
 
-};
-
 } // namespace keyaddr {
 } // namespace kaleidoscope {
