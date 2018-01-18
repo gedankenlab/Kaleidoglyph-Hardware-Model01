@@ -63,17 +63,26 @@ void Model01::setup() {
 }
 
 
-void Model01::setCrgbAt(uint8_t i, cRGB crgb) {
-  if (i < 32) {
-    cRGB oldColor = getCrgbAt(i);
-    isLEDChanged |= !(oldColor.r == crgb.r && oldColor.g == crgb.g && oldColor.b == crgb.b);
+Crgb Model01::getLedColor(KeyAddr key_addr) {
+  if (key_addr < 32) {
+    return left_hand_.led_data.leds[key_addr];
+  } else if (key_addr < 64) {
+    return right_hand_.led_data.leds[key_addr - 32] ;
+  } else {
+    return (Crgb){};
+  }
+}
 
-    leftHand.ledData.leds[i] = crgb;
-  } else if (i < 64) {
-    cRGB oldColor = getCrgbAt(i);
-    isLEDChanged |= !(oldColor.r == crgb.r && oldColor.g == crgb.g && oldColor.b == crgb.b);
-
-    rightHand.ledData.leds[i - 32] = crgb;
+void Model01::setLedColor(KeyAddr key_addr, Crgb color) {
+  // bad magic number
+  if (key_addr < 32) {
+    Crgb old_color = getLedColor(key_addr);
+    is_led_changed_ |= !(color == old_color);
+    left_hand_.led_data.leds[key_addr] = color;
+  } else if (key_addr < 64) {
+    cRGB old_color = getLedColor(key_addr);
+    is_led_changed_ |= !(color == old_color);
+    left_hand_.led_data.leds[key_addr - 32] = color;
   } else {
     // TODO(anyone):
     // how do we want to handle debugging assertions about crazy user
@@ -81,24 +90,11 @@ void Model01::setCrgbAt(uint8_t i, cRGB crgb) {
   }
 }
 
-void Model01::setCrgbAt(byte row, byte col, cRGB color) {
-  setCrgbAt(key_led_map[row][col], color);
+byte Model01::getLedIndex(KeyAddr key_addr) {
+  return key_led_map[key_addr];
 }
 
-uint8_t Model01::getLedIndex(byte row, byte col) {
-  return key_led_map[row][col];
-}
-
-cRGB Model01::getCrgbAt(uint8_t i) {
-  if (i < 32) {
-    return leftHand.ledData.leds[i];
-  } else if (i < 64) {
-    return rightHand.ledData.leds[i - 32] ;
-  } else {
-    return {0, 0, 0};
-  }
-}
-
+// I really don't like this; look at KeyboardioScanner::sendLEDData()
 void Model01::syncLeds() {
   if (!isLEDChanged)
     return;

@@ -27,10 +27,10 @@ class Model01 {
   // Not sure what this is for yet
   void syncLeds();
   // These should be *LedColor instead
-  void setCrgbAt(KeyAddr k, Crgb color);
-  Crgb getCrgbAt(KeyAddr k);
+  Crgb getLedColor(KeyAddr key_addr);
+  void setLedColor(KeyAddr key_addr, Crgb color);
   // I'm not sure we need this. If we do, it should be private, I think.
-  uint8_t getLedIndex(KeyAddr k);
+  byte getLedIndex(KeyAddr k);
 
   void scanMatrix();
   void readMatrix();
