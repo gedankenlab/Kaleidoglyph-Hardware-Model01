@@ -1,3 +1,4 @@
+// Why don't we #include "Model01.h"? I guess we get it via <Kaleidoscope.h>
 #include <Kaleidoscope.h>
 // Does HID interface stuff really belong here?
 #include <KeyboardioHID.h>
@@ -11,8 +12,6 @@ namespace hardware {
 KeyboardioScanner Model01::leftHand(0);
 KeyboardioScanner Model01::rightHand(3);
 bool Model01::isLEDChanged = true;
-keydata_t Model01::leftHandMask;
-keydata_t Model01::rightHandMask;
 
 // This needs rearranging because of KeyAddr
 static constexpr uint8_t key_led_map[4][16] = {
