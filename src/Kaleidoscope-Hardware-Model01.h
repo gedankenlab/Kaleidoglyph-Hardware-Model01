@@ -13,13 +13,6 @@ namespace hardware {
 // I think this should actually be a member variable of the hardware object
 constexpr byte TOTAL_KEYS = 64;
 
-// These should be obsolete because of TOTAL_KEYS & single-byte addressing
-#define COLS 16
-#define ROWS 4
-
-// This should be superceded by the constructor for the Crgb struct
-#define CRGB(r,g,b) (cRGB){b, g, r}
-
 class Model01 {
  public:
   Model01();
