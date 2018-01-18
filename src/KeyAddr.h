@@ -2,4 +2,4 @@
 
 #pragma once
 
-// Defined in Kaleidoscope-Hardware-Model01.h
+// Defined in Model01.h
