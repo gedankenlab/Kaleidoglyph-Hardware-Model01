@@ -22,6 +22,7 @@ static constexpr uint8_t key_led_map[4][16] = {
 };
 
 
+
 void Model01::enableScannerPower() {
   // PC7
   //pinMode(13, OUTPUT);
@@ -62,56 +63,47 @@ void Model01::setup() {
 }
 
 
-Crgb Model01::getLedColor(KeyAddr key_addr) {
-  if (key_addr < 32) {
-    return left_hand_.led_data.leds[key_addr];
-  } else if (key_addr < 64) {
-    return right_hand_.led_data.leds[key_addr - 32] ;
-  } else {
-    return (Crgb){};
-  }
-}
-
-void Model01::setLedColor(KeyAddr key_addr, Crgb color) {
-  // bad magic number
-  if (key_addr < 32) {
-    Crgb old_color = getLedColor(key_addr);
-    is_led_changed_ |= !(color == old_color);
-    left_hand_.led_data.leds[key_addr] = color;
-  } else if (key_addr < 64) {
-    cRGB old_color = getLedColor(key_addr);
-    is_led_changed_ |= !(color == old_color);
-    left_hand_.led_data.leds[key_addr - 32] = color;
-  } else {
-    // TODO(anyone):
-    // how do we want to handle debugging assertions about crazy user
-    // code that would overwrite other memory?
-  }
-}
-
-byte Model01::getLedIndex(KeyAddr key_addr) {
+LedAddr Model01::getLedAddr(KeyAddr key_addr) {
   return key_led_map[key_addr];
 }
 
-// I really don't like this; look at KeyboardioScanner::sendLEDData()
-void Model01::syncLeds() {
-  if (!isLEDChanged)
-    return;
-
-  leftHand.sendLEDData();
-  rightHand.sendLEDData();
-
-  leftHand.sendLEDData();
-  rightHand.sendLEDData();
-
-  leftHand.sendLEDData();
-  rightHand.sendLEDData();
-
-  leftHand.sendLEDData();
-  rightHand.sendLEDData();
-
-  isLEDChanged = false;
+Color Model01::getLedColor(LedAddr led_addr) {
+  bool hand = led_addr & HAND_BIT; // B10000000
+  return scanners_[hand].getLedColor(led_addr & ~HAND_BIT);
 }
+
+void Model01::setLedColor(LedAddr led_addr, Color color) {
+  bool hand = led_addr & HAND_BIT; // B10000000
+  scanners_[hand].setLedColor(led_addr & ~HAND_BIT, color);
+}
+
+Color Model01::getKeyColor(KeyAddr key_addr) {
+  LedAddr led_addr = getLedAddr(key_addr);
+  return getLedColor(led_addr);
+}
+
+void Model01::setKeyColor(KeyAddr key_addr, Color color) {
+  LedAddr led_addr = getLedAddr(key_addr);
+  setLedColor(led_addr, color);
+}
+
+
+// This function is a bit better now, but I still feel the desire to write this as an
+// explicit loop
+void Model01::updateLeds() {
+  scanners_[0].updateNextLedBank();
+  scanners_[1].updateNextLedBank();
+
+  scanners_[0].updateNextLedBank();
+  scanners_[1].updateNextLedBank();
+
+  scanners_[0].updateNextLedBank();
+  scanners_[1].updateNextLedBank();
+
+  scanners_[0].updateNextLedBank();
+  scanners_[1].updateNextLedBank();
+}
+
 
 boolean Model01::ledPowerFault() {
   if (PINB & _BV(4)) {

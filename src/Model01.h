@@ -17,7 +17,14 @@ namespace kaleidoscope {
 // key address, so that all fits in one byte.
 typedef byte KeyAddr;
 
+// I think we should also have a type for LED index. Warning: this is tricky, because
+// "KeyAddr" & "LedAddr" are actually the same type, so we can't use two functions, one of
+// which takes a KeyAddr, and a different one that takes LedAddr as a param. The compiler
+// will catch it, though.
+typedef byte LedAddr;
 
+
+// Maybe this namespace should be "model01" instead of "hardware"
 namespace hardware {
 
 class Model01 {
@@ -26,43 +33,50 @@ class Model01 {
 
   static constexpr KeyAddr total_keys = 64;
 
-  // Not sure what this is for yet
-  void syncLeds();
-  // These should be *LedColor instead
-  Crgb getLedColor(KeyAddr key_addr);
-  void setLedColor(KeyAddr key_addr, Crgb color);
-  // I'm not sure we need this. If we do, it should be private, I think.
-  byte getLedIndex(KeyAddr k);
-
+  // New API
   void scanMatrix();
-  void readMatrix();
-  // I doubt this will survive
-  void actOnMatrixScan();
+  KeyAddr nextKeyswitchEvent(KeyAddr key_addr);
+  
+  // Update all LEDs
+  void updateLeds();
+
+  // These functions operate on LedAddr values, which are different from corresponding KeyAddr values
+  Color getLedColor(LedAddr led_addr);
+  void  setLedColor(LedAddr led_addr, Color color);
+
+  // These are the KeyAddr versions, which call the LedAddr functions
+  Color getKeyColor(KeyAddr key_addr);
+  void  setKeyColor(KeyAddr key_addr, Color color);
+
+  // I'm leaving this functions alone for now; they shall remain mysterious
   void setup();
-  void rebootBootloader();
 
-
-  /* These public functions are things supported by the Model 01, but
-   * aren't necessarily part of the Kaleidoscope API
-   */
-  void enableHighPowerLeds();
-  void enableScannerPower();
+  // This function is used by TestMode
   void setKeyscanInterval(uint8_t interval);
-  boolean ledPowerFault();
-
-  // This stuff should be private
-  // I want to combine these into a two-dimensional array
-  KeyData left_hand_state;
-  KeyData right_hand_state;
-  KeyData previous_left_hand_state;
-  KeyData previous_right_hand_state;
-  // like this: hand_state[left|right][prev|cur]
-  KeyData hand_state[2][2];
 
  private:
   bool is_led_changed_;
-  KeyboardioScanner left_hand_;
-  KeyboardioScanner right_hand_;
+
+  // I'm still not sure about these needing to be static
+  static KeyboardioScanner scanner_l_;
+  static KeyboardioScanner scanner_r_;
+
+  // maybe there would be some utility to making these an array or union?
+  KeyData cur_state_l_;
+  KeyData cur_state_r_;
+  KeyData prev_state_l_;
+  KeyData prev_state_r_;
+
+  // I'm not sure we need this conversion function
+  LedAddr getLedAddr(KeyAddr key_addr);
+
+  // special functions for Model01; make private if possible
+  void enableHighPowerLeds();
+  void enableScannerPower();
+  boolean ledPowerFault();
+
+  // This doesn't seem to be called anywhere
+  void rebootBootloader();
 };
 
 } // namespace hardware {
