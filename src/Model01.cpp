@@ -130,43 +130,18 @@ void debugKeyswitchEvent(keydata_t state, keydata_t previousState, uint8_t keynu
 }
 
 
-void Model01::readMatrix() {
-  //scan the Keyboard matrix looking for connections
-  previousLeftHandState = leftHandState;
-  previousRightHandState = rightHandState;
-
-  if (leftHand.readKeys()) {
-    leftHandState = leftHand.getKeyData();
-  }
-
-  if (rightHand.readKeys()) {
-    rightHandState = rightHand.getKeyData();
-  }
-}
-
-void Model01::actOnMatrixScan() {
-  for (byte row = 0; row < 4; row++) {
-    for (byte col = 0; col < 8; col++) {
-
-      uint8_t keynum = (row * 8) + (col);
-
-      uint8_t keyState = (bitRead(previousLeftHandState.all, keynum) << 0) |
-                         (bitRead(leftHandState.all, keynum) << 1);
-      handleKeyswitchEvent(Key_NoKey, row, 7 - col, keyState);
-
-      keyState = (bitRead(previousRightHandState.all, keynum) << 0) |
-                 (bitRead(rightHandState.all, keynum) << 1);
-
-      handleKeyswitchEvent(Key_NoKey, row, (15 - col), keyState);
-    }
-  }
-}
-
-
 void Model01::scanMatrix() {
-  readMatrix();
-  actOnMatrixScan();
+  // copy current keyswitch state array to previous
+  memcpy(prev_state_, curr_state_, sizeof(prev_state_));
+
+  // scan left hand
+  if (scanners_[0].readKeys())
+    curr_state_[0] = scanners_[0].getKeyData();
+  // scan right hand
+  if (scanners_[1].readKeys())
+    curr_state_[1] = scanners_[1].getKeyData();
 }
+
 
 void Model01::rebootBootloader() {
   // Set the magic bits to get a Caterina-based device

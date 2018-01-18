@@ -57,10 +57,15 @@ class Model01 {
  private:
   bool is_led_changed_;
 
+  static constexpr byte HAND_BIT = B00100000;
+
+  static KeyboardioScanner scanners_[2];
   // I'm still not sure about these needing to be static
   static KeyboardioScanner scanner_l_;
   static KeyboardioScanner scanner_r_;
 
+  KeyData curr_state_[2];
+  KeyData prev_state_[2];
   // maybe there would be some utility to making these an array or union?
   KeyData cur_state_l_;
   KeyData cur_state_r_;
