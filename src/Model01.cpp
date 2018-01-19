@@ -9,9 +9,8 @@ namespace kaleidoscope {
 namespace model01 {
 
 // Why don't we do these things in the constructor? Why are they static? There's only one object...
-Scanner Keyboard::leftHand(0);
-Scanner Keyboard::rightHand(3);
-bool Keyboard::isLEDChanged = true;
+Scanner Keyboard::scanners_[0](0);
+Scanner Keyboard::scanners_[1](3);
 
 // *INDENT-OFF*
 static constexpr uint8_t key_led_map[TOTAL_KEYS] = {
