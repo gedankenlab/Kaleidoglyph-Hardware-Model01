@@ -57,6 +57,8 @@ union KeyboardState {
 
 class Keyboard {
  public:
+  // This class should really be a singleton, but it probably costs a few bytes for the
+  // extra getInstance() method that would be required to do that.
   Model01();
 
   static constexpr KeyAddr total_keys = 64;
