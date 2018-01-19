@@ -1,7 +1,5 @@
 // Why don't we #include "Model01.h"? I guess we get it via <Kaleidoscope.h>
 #include <Kaleidoscope.h>
-// Does HID interface stuff really belong here?
-#include <KeyboardioHID.h>
 // todo: look up wdt.h
 #include <avr/wdt.h>
 
