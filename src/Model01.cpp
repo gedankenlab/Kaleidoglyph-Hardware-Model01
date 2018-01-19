@@ -11,7 +11,7 @@ Scanner Keyboard::scanners_[0](0);
 Scanner Keyboard::scanners_[1](3);
 
 // *INDENT-OFF*
-static constexpr uint8_t key_led_map[TOTAL_KEYS] = {
+static constexpr uint8_t key_led_map[TOTAL_KEYS] PROGMEM = {
   27, 26, 20, 19, 12, 11,  4,  3,
   28, 25, 21, 18, 13, 10,  5,  2,
   29, 24, 22, 17, 14,  9,  6,  1,
@@ -53,7 +53,7 @@ KeyAddr Keyboard::getNextKeyswitchEvent(KeyAddr key_addr) {
 
 
 LedAddr Keyboard::getLedAddr(KeyAddr key_addr) {
-  return key_led_map[key_addr];
+  return pgm_read_byte(&(key_led_map[key_addr]));
 }
 
 Color Keyboard::getLedColor(LedAddr led_addr) {
