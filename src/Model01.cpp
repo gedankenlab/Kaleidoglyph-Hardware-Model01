@@ -143,6 +143,20 @@ void Model01::scanMatrix() {
 }
 
 
+// get the address of the next key that changed state (if any)
+KeyAddr Model01::getNextKeyswitchEvent(KeyAddr key_addr) {
+  for (byte r = (key_addr / 8); r < 8; ++r) {
+    if (keyboard_state_[r] == prev_keyboard_state_[r])
+      continue;
+    for (byte c = (key_addr % 8); c < 8; ++c) {
+      if (bitRead(keyboard_state_[r], c) != bitRead(prev_keyboard_state_[r], c))
+	return keyaddr::addr(r, c);
+    }
+  }
+  return UNKNOWN_KEY_ADDR;
+}
+
+
 void Model01::rebootBootloader() {
   // Set the magic bits to get a Caterina-based device
   // to reboot into the bootloader and stay there, rather

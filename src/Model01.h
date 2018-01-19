@@ -27,6 +27,14 @@ typedef byte LedAddr;
 // Maybe this namespace should be "model01" instead of "hardware"
 namespace hardware {
 
+union KeyboardState {
+  struct {
+    KeyData left_hand;
+    KeyData right_hand;
+  };
+  byte rows[TOTAL_KEYS / 8];  // ROWS no good
+};
+
 class Model01 {
  public:
   Model01();
@@ -63,6 +71,9 @@ class Model01 {
   // I'm still not sure about these needing to be static
   static KeyboardioScanner scanner_l_;
   static KeyboardioScanner scanner_r_;
+
+  KeyboardState keyboard_state_;
+  KeyboardState prev_keyboard_state_;
 
   KeyData curr_state_[2];
   KeyData prev_state_[2];
