@@ -6,48 +6,101 @@
 #include <avr/wdt.h>
 
 namespace kaleidoscope {
-namespace hardware {
+namespace model01 {
 
 // Why don't we do these things in the constructor? Why are they static? There's only one object...
-KeyboardioScanner Model01::leftHand(0);
-KeyboardioScanner Model01::rightHand(3);
-bool Model01::isLEDChanged = true;
+Scanner Keyboard::leftHand(0);
+Scanner Keyboard::rightHand(3);
+bool Keyboard::isLEDChanged = true;
 
-// This needs rearranging because of KeyAddr
-static constexpr uint8_t key_led_map[4][16] = {
-  {3, 4, 11, 12, 19, 20, 26, 27,     36, 37, 43, 44, 51, 52, 59, 60},
-  {2, 5, 10, 13, 18, 21, 25, 28,     35, 38, 42, 45, 50, 53, 58, 61},
-  {1, 6, 9, 14, 17, 22, 24, 29,     34, 39, 41, 46, 49, 54, 57, 62},
-  {0, 7, 8, 15, 16, 23, 31, 30,     33, 32, 40, 47, 48, 55, 56, 63},
+// *INDENT-OFF*
+static constexpr uint8_t key_led_map[TOTAL_KEYS] = {
+  27, 26, 20, 19, 12, 11,  4,  3,
+  28, 25, 21, 18, 13, 10,  5,  2,
+  29, 24, 22, 17, 14,  9,  6,  1,
+  30, 31, 23, 16, 15,  8,  7,  0,
+                             
+  60, 59, 52, 51, 44, 43, 37, 36,
+  61, 58, 53, 50, 45, 42, 38, 35,
+  62, 57, 54, 49, 46, 41, 39, 34,
+  63, 56, 55, 48, 47, 40, 32, 33,
 };
+// *INDENT-ON*
 
 
+void Keyboard::scanMatrix() {
+  // copy current keyswitch state array to previous
+  memcpy(prev_state_, curr_state_, sizeof(prev_state_));
 
-void Model01::enableScannerPower() {
-  // PC7
-  //pinMode(13, OUTPUT);
-  //digitalWrite(13, HIGH);
-  // Turn on power to the LED net
-  DDRC |= _BV(7);
-  PORTC |= _BV(7);
+  // scan left hand
+  if (scanners_[0].readKeys())
+    curr_state_[0] = scanners_[0].getKeyData();
+  // scan right hand
+  if (scanners_[1].readKeys())
+    curr_state_[1] = scanners_[1].getKeyData();
 }
 
-// This lets the keyboard pull up to 1.6 amps from
-// the host. That violates the USB spec. But it sure
-// is pretty looking
-void Model01::enableHighPowerLeds() {
-  // PE6
-  //    pinMode(7, OUTPUT);
-  //    digitalWrite(7, LOW);
-  DDRE |= _BV(6);
-  PORTE &= ~_BV(6);
 
-  // Set B4, the overcurrent check to an input with an internal pull-up
-  DDRB &= ~_BV(4);	// set bit, input
-  PORTB &= ~_BV(4);	// set bit, enable pull-up resistor
+// get the address of the next key that changed state (if any)
+KeyAddr Keyboard::getNextKeyswitchEvent(KeyAddr key_addr) {
+  for (byte r = (key_addr / 8); r < 8; ++r) {
+    if (keyboard_state_[r] == prev_keyboard_state_[r])
+      continue;
+    for (byte c = (key_addr % 8); c < 8; ++c) {
+      if (bitRead(keyboard_state_[r], c) != bitRead(prev_keyboard_state_[r], c))
+	return keyaddr::addr(r, c);
+    }
+  }
+  return UNKNOWN_KEY_ADDR;
 }
 
-void Model01::setup() {
+
+LedAddr Keyboard::getLedAddr(KeyAddr key_addr) {
+  return key_led_map[key_addr];
+}
+
+Color Keyboard::getLedColor(LedAddr led_addr) {
+  bool hand = led_addr & HAND_BIT; // B10000000
+  return scanners_[hand].getLedColor(led_addr & ~HAND_BIT);
+}
+
+void Keyboard::setLedColor(LedAddr led_addr, Color color) {
+  bool hand = led_addr & HAND_BIT; // B10000000
+  scanners_[hand].setLedColor(led_addr & ~HAND_BIT, color);
+}
+
+Color Keyboard::getKeyColor(KeyAddr key_addr) {
+  LedAddr led_addr = getLedAddr(key_addr);
+  return getLedColor(led_addr);
+}
+
+void Keyboard::setKeyColor(KeyAddr key_addr, Color color) {
+  LedAddr led_addr = getLedAddr(key_addr);
+  setLedColor(led_addr, color);
+}
+
+
+// This function is a bit better now, but I still feel the desire to write this as an
+// explicit loop
+void Keyboard::updateLeds() {
+  scanners_[0].updateNextLedBank();
+  scanners_[1].updateNextLedBank();
+
+  scanners_[0].updateNextLedBank();
+  scanners_[1].updateNextLedBank();
+
+  scanners_[0].updateNextLedBank();
+  scanners_[1].updateNextLedBank();
+
+  scanners_[0].updateNextLedBank();
+  scanners_[1].updateNextLedBank();
+}
+
+
+// My question here is why this is done in a separate setup() function; I suppose it's
+// because we need other objects to start up before calling functions that affect the
+// scanners
+void Keyboard::setup() {
   wdt_disable();
   delay(100);
   enableScannerPower();
@@ -63,49 +116,33 @@ void Model01::setup() {
 }
 
 
-LedAddr Model01::getLedAddr(KeyAddr key_addr) {
-  return key_led_map[key_addr];
-}
-
-Color Model01::getLedColor(LedAddr led_addr) {
-  bool hand = led_addr & HAND_BIT; // B10000000
-  return scanners_[hand].getLedColor(led_addr & ~HAND_BIT);
-}
-
-void Model01::setLedColor(LedAddr led_addr, Color color) {
-  bool hand = led_addr & HAND_BIT; // B10000000
-  scanners_[hand].setLedColor(led_addr & ~HAND_BIT, color);
-}
-
-Color Model01::getKeyColor(KeyAddr key_addr) {
-  LedAddr led_addr = getLedAddr(key_addr);
-  return getLedColor(led_addr);
-}
-
-void Model01::setKeyColor(KeyAddr key_addr, Color color) {
-  LedAddr led_addr = getLedAddr(key_addr);
-  setLedColor(led_addr, color);
+void Keyboard::enableScannerPower() {
+  // PC7
+  //pinMode(13, OUTPUT);
+  //digitalWrite(13, HIGH);
+  // Turn on power to the LED net
+  DDRC |= _BV(7);
+  PORTC |= _BV(7);
 }
 
 
-// This function is a bit better now, but I still feel the desire to write this as an
-// explicit loop
-void Model01::updateLeds() {
-  scanners_[0].updateNextLedBank();
-  scanners_[1].updateNextLedBank();
+// This lets the keyboard pull up to 1.6 amps from
+// the host. That violates the USB spec. But it sure
+// is pretty looking
+void Keyboard::enableHighPowerLeds() {
+  // PE6
+  //    pinMode(7, OUTPUT);
+  //    digitalWrite(7, LOW);
+  DDRE |= _BV(6);
+  PORTE &= ~_BV(6);
 
-  scanners_[0].updateNextLedBank();
-  scanners_[1].updateNextLedBank();
-
-  scanners_[0].updateNextLedBank();
-  scanners_[1].updateNextLedBank();
-
-  scanners_[0].updateNextLedBank();
-  scanners_[1].updateNextLedBank();
+  // Set B4, the overcurrent check to an input with an internal pull-up
+  DDRB &= ~_BV(4);	// set bit, input
+  PORTB &= ~_BV(4);	// set bit, enable pull-up resistor
 }
 
 
-boolean Model01::ledPowerFault() {
+boolean Keyboard::ledPowerFault() {
   if (PINB & _BV(4)) {
     return true;
   } else {
@@ -113,51 +150,8 @@ boolean Model01::ledPowerFault() {
   }
 }
 
-void debugKeyswitchEvent(keydata_t state, keydata_t previousState, uint8_t keynum, uint8_t row, uint8_t col) {
-  if (bitRead(state.all, keynum) != bitRead(previousState.all, keynum)) {
-    Serial.print("Looking at row ");
-    Serial.print(row);
-    Serial.print(", col ");
-    Serial.print(col);
-    Serial.print(" key # ");
-    Serial.print(keynum);
-    Serial.print(" ");
-    Serial.print(bitRead(previousState.all, keynum));
-    Serial.print(" -> ");
-    Serial.print(bitRead(state.all, keynum));
-    Serial.println();
-  }
-}
 
-
-void Model01::scanMatrix() {
-  // copy current keyswitch state array to previous
-  memcpy(prev_state_, curr_state_, sizeof(prev_state_));
-
-  // scan left hand
-  if (scanners_[0].readKeys())
-    curr_state_[0] = scanners_[0].getKeyData();
-  // scan right hand
-  if (scanners_[1].readKeys())
-    curr_state_[1] = scanners_[1].getKeyData();
-}
-
-
-// get the address of the next key that changed state (if any)
-KeyAddr Model01::getNextKeyswitchEvent(KeyAddr key_addr) {
-  for (byte r = (key_addr / 8); r < 8; ++r) {
-    if (keyboard_state_[r] == prev_keyboard_state_[r])
-      continue;
-    for (byte c = (key_addr % 8); c < 8; ++c) {
-      if (bitRead(keyboard_state_[r], c) != bitRead(prev_keyboard_state_[r], c))
-	return keyaddr::addr(r, c);
-    }
-  }
-  return UNKNOWN_KEY_ADDR;
-}
-
-
-void Model01::rebootBootloader() {
+void Keyboard::rebootBootloader() {
   // Set the magic bits to get a Caterina-based device
   // to reboot into the bootloader and stay there, rather
   // than run move onward
@@ -179,7 +173,7 @@ void Model01::rebootBootloader() {
 }
 
 
-void Model01::setKeyscanInterval(uint8_t interval) {
+void Keyboard::setKeyscanInterval(uint8_t interval) {
   leftHand.setKeyscanInterval(interval);
   rightHand.setKeyscanInterval(interval);
 }
