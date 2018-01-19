@@ -95,20 +95,14 @@ class Keyboard {
   // model01::Keyboard. I could define them in Model01.cpp instead, as static variables,
   // but that doesn't seem like a great approach, either.
   static KeyboardioScanner scanners_[2];
-  // I'm still not sure about these needing to be static
+  // I'm still not sure about these needing to be static -- it's because we really don't
+  // want multiple instances of Keyboard, especially not multiple instances of the same
+  // Scanner/Controller object
   static KeyboardioScanner scanner_l_;
   static KeyboardioScanner scanner_r_;
 
   KeyboardState keyboard_state_;
   KeyboardState prev_keyboard_state_;
-
-  KeyData curr_state_[2];
-  KeyData prev_state_[2];
-  // maybe there would be some utility to making these an array or union?
-  KeyData cur_state_l_;
-  KeyData cur_state_r_;
-  KeyData prev_state_l_;
-  KeyData prev_state_r_;
 
   // I'm not sure we need this conversion function
   LedAddr getLedAddr(KeyAddr key_addr);
