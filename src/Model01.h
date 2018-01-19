@@ -7,8 +7,8 @@
 #define HARDWARE_IMPLEMENTATION Model01
 #include <KeyboardioScanner.h>
 
-#define UNKNOWN_KEY_ADDR  kaleidoscope::hardware::Model01::total_keys;
-#define TOTAL_KEYS        kaleidoscope::hardware::Model01::total_keys;
+#define UNKNOWN_KEY_ADDR  kaleidoscope::model01::Keyboard::total_keys;
+#define TOTAL_KEYS        kaleidoscope::model01::Keyboard::total_keys;
 
 
 namespace kaleidoscope {
@@ -23,9 +23,28 @@ typedef byte KeyAddr;
 // will catch it, though.
 typedef byte LedAddr;
 
+// In the old cRGB struct, the order of the bytes (b,g,r) was important because brace
+// initialization was used. for the Color struct, I'm using a real constructor, so that
+// won't matter, but I'll leave the order as it was for brace initialization. What really
+// matters is the order of the arguments when calling the twi function that sends the
+// commands to the LED controller module, and that's handled by the functions that make
+// those calls, not this struct.
+struct Color {
+  byte b;
+  byte g;
+  byte r;
+
+  Color() = default; // Does not initialize to zeros, unless `Color c = {};`
+  // I'm not really sure why constexpr would help here. I should experiment to see if it
+  // produces smaller code. I'm also not sure about the constructor above; this is obtuse
+  // C++ magic.
+  constexpr Color(byte red, byte green, byte blue)
+    : r(red), g(green), b(blue) {}
+};
+
 
 // Maybe this namespace should be "model01" instead of "hardware"
-namespace hardware {
+namespace model01 {
 
 union KeyboardState {
   struct {
@@ -35,7 +54,8 @@ union KeyboardState {
   byte rows[TOTAL_KEYS / 8];  // ROWS no good
 };
 
-class Model01 {
+
+class Keyboard {
  public:
   Model01();
 
@@ -43,6 +63,7 @@ class Model01 {
 
   // New API
   void scanMatrix();
+  // should probably return KeyswitchEvent instead
   KeyAddr nextKeyswitchEvent(KeyAddr key_addr);
   
   // Update all LEDs
@@ -67,6 +88,10 @@ class Model01 {
 
   static constexpr byte HAND_BIT = B00100000;
 
+  // The scanner and KeyData types shouldn't be part of the interface, but if they're
+  // members, there's no way to hide those types from anything that needs to access class
+  // model01::Keyboard. I could define them in Model01.cpp instead, as static variables,
+  // but that doesn't seem like a great approach, either.
   static KeyboardioScanner scanners_[2];
   // I'm still not sure about these needing to be static
   static KeyboardioScanner scanner_l_;
@@ -95,7 +120,7 @@ class Model01 {
   void rebootBootloader();
 };
 
-} // namespace hardware {
+} // namespace model01 {
 
 
 namespace keyaddr {
