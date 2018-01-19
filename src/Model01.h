@@ -67,8 +67,10 @@ class Keyboard {
   void scanMatrix();
   // should probably return KeyswitchEvent instead
   KeyAddr nextKeyswitchEvent(KeyAddr key_addr);
-  
-  // Update all LEDs
+  // I really don't think we need this function, but maybe it will be useful
+  //byte getKeyState(KeyAddr key_addr);
+
+  // Update all LEDs to values set by set*Color() functions below
   void updateLeds();
 
   // These functions operate on LedAddr values, which are different from corresponding KeyAddr values
