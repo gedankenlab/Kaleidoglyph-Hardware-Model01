@@ -5,7 +5,7 @@
 #include <Arduino.h>
 
 #define HARDWARE_IMPLEMENTATION Model01
-#include <KeyboardioScanner.h>
+#include "model01/Scanner.h"
 
 #define UNKNOWN_KEY_ADDR  kaleidoscope::model01::Keyboard::total_keys;
 #define TOTAL_KEYS        kaleidoscope::model01::Keyboard::total_keys;
@@ -86,20 +86,18 @@ class Keyboard {
   void setKeyscanInterval(uint8_t interval);
 
  private:
-  bool is_led_changed_;
-
   static constexpr byte HAND_BIT = B00100000;
 
   // The scanner and KeyData types shouldn't be part of the interface, but if they're
   // members, there's no way to hide those types from anything that needs to access class
   // model01::Keyboard. I could define them in Model01.cpp instead, as static variables,
   // but that doesn't seem like a great approach, either.
-  static KeyboardioScanner scanners_[2];
+  static Scanner scanners_[2];
   // I'm still not sure about these needing to be static -- it's because we really don't
   // want multiple instances of Keyboard, especially not multiple instances of the same
   // Scanner/Controller object
-  static KeyboardioScanner scanner_l_;
-  static KeyboardioScanner scanner_r_;
+  //static KeyboardioScanner scanner_l_;
+  //static KeyboardioScanner scanner_r_;
 
   KeyboardState keyboard_state_;
   KeyboardState prev_keyboard_state_;
