@@ -22,36 +22,6 @@ namespace kaleidoscope {
 
 namespace model01 {
 
-// The Model01 has only 64 keys, and we only need one extra value to indicate an invalid
-// key address, so that all fits in one byte.
-typedef byte KeyAddr;
-
-// I think we should also have a type for LED index. Warning: this is tricky, because
-// "KeyAddr" & "LedAddr" are actually the same type, so we can't use two functions, one of
-// which takes a KeyAddr, and a different one that takes LedAddr as a param. The compiler
-// will catch it, though.
-typedef byte LedAddr;
-
-// In the old cRGB struct, the order of the bytes (b,g,r) was important because brace
-// initialization was used. for the Color struct, I'm using a real constructor, so that
-// won't matter, but I'll leave the order as it was for brace initialization. What really
-// matters is the order of the arguments when calling the twi function that sends the
-// commands to the LED controller module, and that's handled by the functions that make
-// those calls, not this struct.
-struct Color {
-  byte b;
-  byte g;
-  byte r;
-
-  Color() = default; // Does not initialize to zeros, unless `Color c = {};`
-  // I'm not really sure why constexpr would help here. I should experiment to see if it
-  // produces smaller code. I'm also not sure about the constructor above; this is obtuse
-  // C++ magic.
-  constexpr Color(byte red, byte green, byte blue)
-    : r(red), g(green), b(blue) {}
-};
-
-
 union KeyboardState {
   struct {
     KeyData left_hand;
