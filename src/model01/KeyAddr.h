@@ -12,6 +12,7 @@ typedef byte KeyAddr;
 
 } // namespace model01 {
 
+
 namespace keyaddr {
 
 // Everything past this point should be unnecessary, but could possibly be helpful for
