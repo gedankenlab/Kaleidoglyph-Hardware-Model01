@@ -9,6 +9,9 @@
 // try this:
 namespace kaleidoscope::hardware = kaleidoscope::mode01;
 
+#include "model01/Color.h"
+#include "model01/KeyAddr.h"
+#include "model01/LedAddr.h"
 #include "model01/Scanner.h"
 
 #define UNKNOWN_KEY_ADDR  kaleidoscope::model01::Keyboard::total_keys;
