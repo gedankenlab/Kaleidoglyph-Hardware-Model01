@@ -22,16 +22,6 @@ namespace kaleidoscope {
 
 namespace model01 {
 
-// Used for only two member variables; perhaps an internal class?
-union KeyboardState {
-  struct {
-    KeyData left_hand;
-    KeyData right_hand;
-  };
-  byte rows[TOTAL_KEYS / 8];  // CHAR_BIT
-};
-
-
 class Keyboard {
  public:
   // This class should really be a singleton, but it probably costs a few bytes for the
@@ -78,6 +68,13 @@ class Keyboard {
   //static KeyboardioScanner scanner_l_;
   //static KeyboardioScanner scanner_r_;
 
+  union KeyboardState {
+    struct {
+      KeyData left_hand;
+      KeyData right_hand;
+    };
+    byte rows[TOTAL_KEYS / 8];  // CHAR_BIT
+  };
   KeyboardState keyboard_state_;
   KeyboardState prev_keyboard_state_;
 
