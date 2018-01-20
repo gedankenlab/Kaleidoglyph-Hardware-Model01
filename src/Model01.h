@@ -4,7 +4,11 @@
 
 #include <Arduino.h>
 
+// instead of this:
 #define HARDWARE_IMPLEMENTATION Model01
+// try this:
+namespace kaleidoscope::hardware = kaleidoscope::mode01;
+
 #include "model01/Scanner.h"
 
 #define UNKNOWN_KEY_ADDR  kaleidoscope::model01::Keyboard::total_keys;
@@ -68,7 +72,7 @@ class Keyboard {
   // should probably return KeyswitchEvent instead
   KeyAddr nextKeyswitchEvent(KeyAddr key_addr);
   // I really don't think we need this function, but maybe it will be useful
-  //byte getKeyState(KeyAddr key_addr);
+  byte getKeyswitchState(KeyAddr key_addr);
 
   // Update all LEDs to values set by set*Color() functions below
   void updateLeds();

@@ -52,6 +52,17 @@ KeyAddr Keyboard::getNextKeyswitchEvent(KeyAddr key_addr) {
 }
 
 
+// return the state of the keyswitch as a bitfield
+byte Keyboard::getKeyswitchState(KeyAddr key_addr) {
+  byte state = 0;
+  byte r = key_addr / 8;
+  byte c = key_addr % 8;
+  state |= bitRead(prev_keyboard_state_[r], c) << 1;
+  state |= bitRead(keyboard_state_[r], c);
+  return state;
+}
+
+
 LedAddr Keyboard::getLedAddr(KeyAddr key_addr) {
   return pgm_read_byte(&(key_led_map[key_addr]));
 }
