@@ -17,13 +17,13 @@ class KeyboardioScanner {
   KeyboardioScanner(byte setAd01);
 
   // only here for debugging, I think; it's unused in firmware
-  //int readVersion();
+  int readVersion();
 
   byte setKeyscanInterval(byte delay);
-  //int readKeyscanInterval();
+  int readKeyscanInterval();
 
-  //byte setLedSpiFrequency(byte frequency);
-  //int readLedSpiFrequency();
+  byte setLedSpiFrequency(byte frequency);
+  int readLedSpiFrequency();
 
   // interface to LED color array
   Color getLedColor(byte i);

@@ -50,30 +50,6 @@ KeyboardioScanner::KeyboardioScanner(byte ad01) {
 }
 
 
-// This is called from other unused(?) functions
-int KeyboardioScanner::readRegister(byte cmd) {
-  byte return_value = 0;
-
-  byte data[] = {cmd};
-  byte result = twi_writeTo(addr_, data, ELEMENTS(data), 1, 0);
-
-  delayMicroseconds(15); // We may be able to drop this in the future
-  // but will need to verify with correctly
-  // sized pull-ups on both the left and right
-  // hands' i2c SDA and SCL lines
-
-  byte rx_buffer[1];
-
-  // perform blocking read into buffer
-  byte read = twi_readFrom(addr_, rx_buffer, ELEMENTS(rx_buffer), true);
-  if (read > 0) {
-    return rx_buffer[0];
-  } else {
-    return -1;
-  }
-}
-
-
 // This function should just return a KeyData object, and not bother storing it as a
 // member of the Scanner object. This reference parameter needs testing to see if it works
 // as I expect.
@@ -188,6 +164,29 @@ byte KeyboardioScanner::setKeyscanInterval(byte delay) {
 
 
 // These functions seem to be here only for debugging purposes, and can probably be removed
+
+// This is called from other debugging functions
+int KeyboardioScanner::readRegister(byte cmd) {
+  byte return_value = 0;
+
+  byte data[] = {cmd};
+  byte result = twi_writeTo(addr_, data, ELEMENTS(data), 1, 0);
+
+  delayMicroseconds(15); // We may be able to drop this in the future
+  // but will need to verify with correctly
+  // sized pull-ups on both the left and right
+  // hands' i2c SDA and SCL lines
+
+  byte rx_buffer[1];
+
+  // perform blocking read into buffer
+  byte read = twi_readFrom(addr_, rx_buffer, ELEMENTS(rx_buffer), true);
+  if (read > 0) {
+    return rx_buffer[0];
+  } else {
+    return -1;
+  }
+}
 
 // returns -1 on error, otherwise returns the scanner version integer
 int KeyboardioScanner::readVersion() {
