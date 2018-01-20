@@ -22,6 +22,7 @@ namespace kaleidoscope {
 
 namespace model01 {
 
+// This should get defined in the header file as an anonymous union structure
 union KeyboardState {
   struct {
     KeyData left_hand;
