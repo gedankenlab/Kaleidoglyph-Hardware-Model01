@@ -22,13 +22,13 @@ namespace kaleidoscope {
 
 namespace model01 {
 
-// This should get defined in the header file as an anonymous union structure
+// Used for only two member variables; perhaps an internal class?
 union KeyboardState {
   struct {
     KeyData left_hand;
     KeyData right_hand;
   };
-  byte rows[TOTAL_KEYS / 8];  // ROWS no good
+  byte rows[TOTAL_KEYS / 8];  // CHAR_BIT
 };
 
 
