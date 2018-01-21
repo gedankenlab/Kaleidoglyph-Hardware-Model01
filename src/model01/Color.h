@@ -17,7 +17,7 @@ struct Color {
   byte g;
   byte r;
 
-  Color() = default; // I think this initializes to zeros
+  Color() = default; // Does not initialize to zeros without `Color c = {};`
   // I'm not really sure why constexpr would help here. I should experiment to see if it
   // produces smaller code. I'm also not sure about the constructor above; this is obtuse
   // C++ magic.
