@@ -2,6 +2,7 @@
 
 #pragma once
 
+// Do we need to include this? Or Kaleidoscope.h?
 #include <Arduino.h>
 
 // instead of this:
@@ -14,6 +15,7 @@ namespace kaleidoscope::hardware = kaleidoscope::mode01;
 #include "model01/LedAddr.h"
 #include "model01/Scanner.h"
 
+// I'm not sure this is the best way to export these symbols
 #define UNKNOWN_KEY_ADDR  kaleidoscope::model01::Keyboard::total_keys;
 #define TOTAL_KEYS        kaleidoscope::model01::Keyboard::total_keys;
 
@@ -78,7 +80,8 @@ class Keyboard {
   KeyboardState keyboard_state_;
   KeyboardState prev_keyboard_state_;
 
-  // I'm not sure we need this conversion function
+  // I'm not sure we need this conversion function. On the other hand, maybe it should be
+  // public...
   LedAddr getLedAddr(KeyAddr key_addr);
 
   // special functions for Model01; make private if possible
@@ -95,6 +98,7 @@ class Keyboard {
 } // namespace kaleidoscope {
 
 
+// These macros will need to be revised, or possibly removed entirely
 #define KEYMAP_STACKED(                                                 \
                r0c0, r0c1, r0c2, r0c3, r0c4, r0c5, r0c6,                \
                r1c0, r1c1, r1c2, r1c3, r1c4, r1c5, r1c6,                \
