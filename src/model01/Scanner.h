@@ -3,7 +3,6 @@
 #pragma once
 
 #include <Arduino.h>
-#include "twi/wire-protocol-constants.h"
 #include "model01/Color.h"
 
 // See .cpp file for comments regarding appropriate namespaces

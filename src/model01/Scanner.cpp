@@ -4,6 +4,7 @@
 // why extern "C"? Because twi.c is not C++!
 extern "C" {
 #include "twi/twi.h"
+#include "twi/wire-protocol-constants.h"
 }
 
 // I'm not sure "kaleidoscope" is the best namespace here. Maybe it should be "keyboardio"?
