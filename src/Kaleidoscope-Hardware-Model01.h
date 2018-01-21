@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "kaleidoscope/model01/Keyboard.h"
+#include "model01/Keyboard.h"
 
 namespace kaleidoscope {
 
