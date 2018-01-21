@@ -18,7 +18,7 @@ constexpr byte SCANNER_I2C_ADDR_BASE = 0x58;
 // to this file, it's not that important.
 #define ELEMENTS(array)  (sizeof(array) / sizeof((array)[0]))
 
-uint8_t twi_uninitialized = 1;
+byte twi_uninitialized = 1;
 
 // This array translates LED values to corrected values
 const byte PROGMEM gamma8[] = {
@@ -167,7 +167,7 @@ byte Scanner::setKeyscanInterval(byte delay) {
 // These functions seem to be here only for debugging purposes, and can probably be removed
 
 // This is called from other debugging functions
-int Scanner::readRegister(byte cmd) {
+byte Scanner::readRegister(byte cmd) {
   byte return_value = 0;
 
   byte data[] = {cmd};
@@ -190,17 +190,17 @@ int Scanner::readRegister(byte cmd) {
 }
 
 // returns -1 on error, otherwise returns the scanner version integer
-int Scanner::readVersion() {
+byte Scanner::readVersion() {
   return readRegister(TWI_CMD_VERSION);
 }
 
 // returns -1 on error, otherwise returns the scanner keyscan interval
-int Scanner::readKeyscanInterval() {
+byte Scanner::readKeyscanInterval() {
   return readRegister(TWI_CMD_KEYSCAN_INTERVAL);
 }
 
 // returns -1 on error, otherwise returns the LED SPI Frequncy
-int Scanner::readLedSpiFrequency() {
+byte Scanner::readLedSpiFrequency() {
   return readRegister(TWI_CMD_LED_SPI_FREQUENCY);
 }
 

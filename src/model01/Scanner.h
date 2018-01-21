@@ -16,13 +16,13 @@ class KeyboardioScanner {
   KeyboardioScanner(byte setAd01);
 
   // only here for debugging, I think; it's unused in firmware
-  int readVersion();
+  byte readVersion();
 
   byte setKeyscanInterval(byte delay);
-  int readKeyscanInterval();
+  byte readKeyscanInterval();
 
   byte setLedSpiFrequency(byte frequency);
-  int readLedSpiFrequency();
+  byte readLedSpiFrequency();
 
   // interface to LED color array
   Color getLedColor(byte i);
@@ -37,10 +37,10 @@ class KeyboardioScanner {
   bool scanKeys();
 
  private:
-  int addr_;
-  int ad01_;
+  byte addr_;
+  byte ad01_;
 
-  //int readRegister(byte cmd);
+  byte readRegister(byte cmd);
 
   // These constants might be wasting some space vs #define
   static constexpr byte total_leds_         = 32;  // per controller
