@@ -63,17 +63,19 @@ byte Keyboard::getKeyswitchState(KeyAddr key_addr) {
 }
 
 
+constexpr byte HAND_BIT = B00100000;
+
 LedAddr Keyboard::getLedAddr(KeyAddr key_addr) {
   return pgm_read_byte(&(key_led_map[key_addr]));
 }
 
 Color Keyboard::getLedColor(LedAddr led_addr) {
-  bool hand = led_addr & HAND_BIT; // B10000000
+  bool hand = led_addr & HAND_BIT; // B00100000
   return scanners_[hand].getLedColor(led_addr & ~HAND_BIT);
 }
 
 void Keyboard::setLedColor(LedAddr led_addr, Color color) {
-  bool hand = led_addr & HAND_BIT; // B10000000
+  bool hand = led_addr & HAND_BIT; // B00100000
   scanners_[hand].setLedColor(led_addr & ~HAND_BIT, color);
 }
 
@@ -117,8 +119,8 @@ void Keyboard::setup() {
   // boot up, to make it easier to rescue things
   // in case of power draw issues.
   enableHighPowerLeds();
-  leftHandState.all = 0;
-  rightHandState.all = 0;
+  memset(keyboard_state_, 0, sizeof(keyboard_state_));
+  memset(prev_keyboard_state_, 0, sizeof(prev_keyboard_state_));
 
   TWBR = 12; // This is 400mhz, which is the fastest we can drive the ATTiny
 }
@@ -182,8 +184,8 @@ void Keyboard::rebootBootloader() {
 
 
 void Keyboard::setKeyscanInterval(uint8_t interval) {
-  leftHand.setKeyscanInterval(interval);
-  rightHand.setKeyscanInterval(interval);
+  scanners_[0].setKeyscanInterval(interval);
+  scanners_[1].setKeyscanInterval(interval);
 }
 
 // Why do we declare this object here?
