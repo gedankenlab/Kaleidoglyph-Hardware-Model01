@@ -1,16 +1,16 @@
 #include <Arduino.h>
-#include "KeyboardioScanner.h"
+#include "Scanner.h"
 
 // why extern "C"? Because twi.c is not C++!
 extern "C" {
 #include "twi/twi.h"
-#include "twi/wire-protocol-constants.h"
 }
+#include "twi/wire-protocol-constants.h"
 
-// I'm not sure "kaleidoscope" is the best namespace here. Maybe it should be "keyboardio"?
+
 namespace kaleidoscope {
-// Likewise, maybe this should be "scanner"?
-namespace hardware {
+
+namespace model01 {
 
 // Magic constant with no documentation...
 constexpr byte SCANNER_I2C_ADDR_BASE = 0x58;
@@ -42,7 +42,7 @@ const byte PROGMEM gamma8[] = {
 
 
 // Constructor
-KeyboardioScanner::KeyboardioScanner(byte ad01) {
+Scanner::Scanner(byte ad01) {
   ad01_ = ad01;
   addr_ = SCANNER_I2C_ADDR_BASE | ad01_;
   if (twi_uninitialized--) {
@@ -54,7 +54,7 @@ KeyboardioScanner::KeyboardioScanner(byte ad01) {
 // This function should just return a KeyData object, and not bother storing it as a
 // member of the Scanner object. This reference parameter needs testing to see if it works
 // as I expect.
-bool KeyboardioScanner::readKeys(KeyData& key_data) {
+bool Scanner::readKeys(KeyData& key_data) {
   byte rx_buffer[5];
 
   // perform blocking read into buffer
@@ -88,7 +88,7 @@ void setLedColor(byte led, Color color) {
 
 // This function gets called to set led status on one bank (eight LEDs) at a time. Each
 // time it's called, it updates the next bank. I'm renaming it to be more clear.
-void KeyboardioScanner::updateNextLedBank() {
+void Scanner::updateNextLedBank() {
   updateLedBank(next_led_bank_++);
   if (next_led_bank_ == LED_BANKS) {
     next_led_bank_ = 0;
@@ -97,7 +97,7 @@ void KeyboardioScanner::updateNextLedBank() {
 
 
 // This function is private, and only gets called by updateNextLedBank() (see above)
-void KeyboardioScanner::updateLedBank(byte bank) {
+void Scanner::updateLedBank(byte bank) {
   if (! bitRead(led_banks_changed_, bank))
     return;
   byte data[LED_BYTES_PER_BANK + 1];
@@ -111,7 +111,7 @@ void KeyboardioScanner::updateLedBank(byte bank) {
 
 
 // An efficient way to set the value of just one LED, without having to update everything
-void KeyboardioScanner::updateLed(byte led, Color color) {
+void Scanner::updateLed(byte led, Color color) {
   byte data[] = {TWI_CMD_LED_SET_ONE_TO,
                  led,
                  pgm_read_byte(&gamma8[color.b]),
@@ -124,7 +124,7 @@ void KeyboardioScanner::updateLed(byte led, Color color) {
 
 
 // An efficient way to set all LEDs to the same color at once
-void KeyboardioScanner::updateAllLeds(Color color) {
+void Scanner::updateAllLeds(Color color) {
   byte data[] = {TWI_CMD_LED_SET_ALL_TO,
                  pgm_read_byte(&gamma8[color.b]),
                  pgm_read_byte(&gamma8[color.g]),
@@ -156,7 +156,7 @@ void KeyboardioScanner::updateAllLeds(Color color) {
 //
 // returns the Wire.endTransmission code (0 = success)
 // https://www.arduino.cc/en/Reference/WireEndTransmission
-byte KeyboardioScanner::setKeyscanInterval(byte delay) {
+byte Scanner::setKeyscanInterval(byte delay) {
   byte data[] = {TWI_CMD_KEYSCAN_INTERVAL, delay};
   byte result = twi_writeTo(addr_, data, ELEMENTS(data), 1, 0);
 
@@ -167,7 +167,7 @@ byte KeyboardioScanner::setKeyscanInterval(byte delay) {
 // These functions seem to be here only for debugging purposes, and can probably be removed
 
 // This is called from other debugging functions
-int KeyboardioScanner::readRegister(byte cmd) {
+int Scanner::readRegister(byte cmd) {
   byte return_value = 0;
 
   byte data[] = {cmd};
@@ -190,17 +190,17 @@ int KeyboardioScanner::readRegister(byte cmd) {
 }
 
 // returns -1 on error, otherwise returns the scanner version integer
-int KeyboardioScanner::readVersion() {
+int Scanner::readVersion() {
   return readRegister(TWI_CMD_VERSION);
 }
 
 // returns -1 on error, otherwise returns the scanner keyscan interval
-int KeyboardioScanner::readKeyscanInterval() {
+int Scanner::readKeyscanInterval() {
   return readRegister(TWI_CMD_KEYSCAN_INTERVAL);
 }
 
 // returns -1 on error, otherwise returns the LED SPI Frequncy
-int KeyboardioScanner::readLedSpiFrequency() {
+int Scanner::readLedSpiFrequency() {
   return readRegister(TWI_CMD_LED_SPI_FREQUENCY);
 }
 
@@ -211,12 +211,12 @@ int KeyboardioScanner::readLedSpiFrequency() {
 //
 // returns the Wire.endTransmission code (0 = success)
 // https://www.arduino.cc/en/Reference/WireEndTransmission
-byte KeyboardioScanner::setLedSpiFrequency(byte frequency) {
+byte Scanner::setLedSpiFrequency(byte frequency) {
   byte data[] = {TWI_CMD_LED_SPI_FREQUENCY, frequency};
   byte result = twi_writeTo(addr_, data, ELEMENTS(data), 1, 0);
 
   return result;
 }
 
-} // namespace hardware {
+} // namespace model01 {
 } // namespace kaleidoscope {
