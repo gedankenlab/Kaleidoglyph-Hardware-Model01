@@ -1,7 +1,12 @@
-// Why don't we #include "Model01.h"? I guess we get it via <Kaleidoscope.h>
-#include <Kaleidoscope.h>
-// todo: look up wdt.h
+#include "Keyboard.h"
+
 #include <avr/wdt.h>
+
+#include "Color.h"
+#include "KeyAddr.h"
+#include "LedAddr.h"
+#include "Scanner.h"
+
 
 namespace kaleidoscope {
 namespace model01 {
