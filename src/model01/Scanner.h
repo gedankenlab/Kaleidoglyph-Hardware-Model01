@@ -27,8 +27,13 @@ SOFTWARE.
 
 #pragma once
 
-#include <Arduino.h>
+#include "Kaleidoscope-Constants.h"
+
 #include "model01/Color.h"
+
+// I'm uncertain of how to manage these constants
+#define LEDS_PER_BANK 8
+#define TOTAL_LEDS 32
 
 // See .cpp file for comments regarding appropriate namespaces
 namespace kaleidoscope {
@@ -36,9 +41,9 @@ namespace model01 {
 
 
 // used to configure interrupts, configuration for a particular controller
-class KeyboardioScanner {
+class Scanner {
  public:
-  KeyboardioScanner(byte setAd01);
+  Scanner(byte setAd01);
 
   // only here for debugging, I think; it's unused in firmware
   byte readVersion();
@@ -68,8 +73,8 @@ class KeyboardioScanner {
   byte readRegister(byte cmd);
 
   // These constants might be wasting some space vs #define
-  static constexpr byte total_leds_         = 32;  // per controller
-  static constexpr byte leds_per_bank_      = 8;   // CHAR_BIT
+  static constexpr byte total_leds_         = TOTAL_LEDS;  // per controller
+  static constexpr byte leds_per_bank_      = LEDS_PER_BANK;   // CHAR_BIT
   static constexpr byte led_banks_          = TOTAL_LEDS / LEDS_PER_BANK;
   static constexpr byte led_bytes_per_bank_ = LEDS_PER_BANK * sizeof(Color);
 
@@ -88,7 +93,7 @@ class KeyboardioScanner {
 
   void updateLedBank(byte bank);
 
-}; // class KeyboardioScanner {
+}; // class Scanner {
 
 } // namespace model01 {
 } // namespace kaleidoscope {
