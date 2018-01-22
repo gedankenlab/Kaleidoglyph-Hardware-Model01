@@ -8,6 +8,7 @@
 #include "model01/KeyAddr.h"
 #include "model01/LedAddr.h"
 #include "model01/Scanner.h"
+#include "model01/KeyswitchData.h"
 
 // I'm not sure this is the best way to export these symbols
 #define UNKNOWN_KEY_ADDR  kaleidoscope::model01::Keyboard::total_keys;
@@ -53,21 +54,12 @@ class Keyboard {
  private:
   static constexpr byte HAND_BIT = B00100000;
 
-  // The scanner and KeyData types shouldn't be part of the interface, but if they're
-  // members, there's no way to hide those types from anything that needs to access class
-  // model01::Keyboard. I could define them in Model01.cpp instead, as static variables,
-  // but that doesn't seem like a great approach, either.
   static Scanner scanners_[2];
-  // I'm still not sure about these needing to be static -- it's because we really don't
-  // want multiple instances of Keyboard, especially not multiple instances of the same
-  // Scanner/Controller object
-  //static KeyboardioScanner scanner_l_;
-  //static KeyboardioScanner scanner_r_;
 
   union KeyboardState {
     struct {
-      KeyData left_hand;
-      KeyData right_hand;
+      KeyswitchData left_hand;
+      KeyswitchData right_hand;
     };
     byte rows[TOTAL_KEYS / 8];  // CHAR_BIT
   };

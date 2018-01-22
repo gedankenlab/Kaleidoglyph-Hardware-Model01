@@ -28,6 +28,7 @@ SOFTWARE.
 #include <Arduino.h>
 
 #include "model01/Color.h"
+#include "model01/KeyswitchData.h"
 
 
 // why extern "C"? Because twi.c is not C++!
@@ -80,10 +81,10 @@ Scanner::Scanner(byte ad01) {
 }
 
 
-// This function should just return a KeyData object, and not bother storing it as a
+// This function should just return a KeyswitchData object, and not bother storing it as a
 // member of the Scanner object. This reference parameter needs testing to see if it works
 // as I expect.
-bool Scanner::readKeys(KeyData& key_data) {
+bool Scanner::readKeys(KeyswitchData& key_data) {
   byte rx_buffer[5];
 
   // perform blocking read into buffer
