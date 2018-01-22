@@ -34,14 +34,13 @@ static constexpr uint8_t key_led_map[TOTAL_KEYS] PROGMEM = {
 
 void Keyboard::scanMatrix() {
   // copy current keyswitch state array to previous
-  memcpy(prev_state_, curr_state_, sizeof(prev_state_));
+  memcpy(prev_keyboard_state_, keyboard_state_, sizeof(prev_keyboard_state_));
 
   // scan left hand
-  if (scanners_[0].readKeys())
-    curr_state_[0] = scanners_[0].getKeyData();
+  scanners_[0].readKeys(keyboard_state_.left_hand);
+
   // scan right hand
-  if (scanners_[1].readKeys())
-    curr_state_[1] = scanners_[1].getKeyData();
+  scanners_[1].readKeys(keyboard_state_.right_hand);
 }
 
 
