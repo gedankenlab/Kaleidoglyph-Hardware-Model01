@@ -193,8 +193,5 @@ void Keyboard::setKeyscanInterval(uint8_t interval) {
   scanners_[1].setKeyscanInterval(interval);
 }
 
-// Why do we declare this object here?
-HARDWARE_IMPLEMENTATION KeyboardHardware;
-
 } // namespace hardware {
 } // namespace kaleidoscope {

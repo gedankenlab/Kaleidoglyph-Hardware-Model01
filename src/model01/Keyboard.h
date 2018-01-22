@@ -5,11 +5,6 @@
 // Do we need to include this? Or Kaleidoscope.h?
 #include <Arduino.h>
 
-// instead of this:
-#define HARDWARE_IMPLEMENTATION Model01
-// try this:
-namespace kaleidoscope::hardware = kaleidoscope::mode01;
-
 #include "model01/Color.h"
 #include "model01/KeyAddr.h"
 #include "model01/LedAddr.h"
