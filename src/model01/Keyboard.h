@@ -61,6 +61,7 @@ class Keyboard {
       KeyswitchData left_hand;
       KeyswitchData right_hand;
     };
+    KeyswitchData hands[2];
     byte rows[TOTAL_KEYS / 8];  // CHAR_BIT
   };
   KeyboardState keyboard_state_;

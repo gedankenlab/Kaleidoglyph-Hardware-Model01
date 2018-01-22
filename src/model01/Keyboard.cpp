@@ -37,10 +37,10 @@ void Keyboard::scanMatrix() {
   memcpy(prev_keyboard_state_, keyboard_state_, sizeof(prev_keyboard_state_));
 
   // scan left hand
-  scanners_[0].readKeys(keyboard_state_.left_hand);
+  scanners_[0].readKeys(keyboard_state_.hands[0]);
 
   // scan right hand
-  scanners_[1].readKeys(keyboard_state_.right_hand);
+  scanners_[1].readKeys(keyboard_state_.hands[1]);
 }
 
 
