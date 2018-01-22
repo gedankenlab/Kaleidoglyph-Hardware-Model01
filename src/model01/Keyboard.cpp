@@ -1,6 +1,8 @@
 #include "Keyboard.h"
 
+#include <Arduino.h>
 #include <avr/wdt.h>
+#include <stdint.h>
 
 #include "Color.h"
 #include "KeyAddr.h"
@@ -174,11 +176,11 @@ void Keyboard::rebootBootloader() {
   // These values are the same as those defined in
   // Caterina.c
 
-  uint16_t bootKey = 0x7777;
-  uint16_t *const bootKeyPtr = reinterpret_cast<uint16_t *>(0x0800);
+  uint16_t boot_key = 0x7777;
+  uint16_t *const boot_key_ptr = reinterpret_cast<uint16_t *>(0x0800);
 
   // Stash the magic key
-  *bootKeyPtr = bootKey;
+  *boot_key_ptr = boot_key;
 
   // Set a watchdog timer
   wdt_enable(WDTO_120MS);

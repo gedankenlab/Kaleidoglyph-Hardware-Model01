@@ -2,7 +2,6 @@
 
 #pragma once
 
-// Do we need to include this? Or Kaleidoscope.h?
 #include <Arduino.h>
 
 #include "model01/Color.h"
