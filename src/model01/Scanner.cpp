@@ -23,9 +23,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Scanner.h"
+#include "model01/Scanner.h"
 
 #include <Arduino.h>
+
+#include "model01/Color.h"
+
 
 // why extern "C"? Because twi.c is not C++!
 extern "C" {
