@@ -82,6 +82,7 @@ class Scanner {
   // scanner/controller
   union {
     Color leds[leds_per_hand_];
+    Color led_banks[led_banks_][leds_per_bank_];
     byte banks[led_banks_][led_bytes_per_bank_];
   } led_states_;
 

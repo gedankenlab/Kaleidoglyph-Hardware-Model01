@@ -128,8 +128,13 @@ void Scanner::updateLedBank(byte bank) {
     return;
   byte data[LED_BYTES_PER_BANK + 1];
   data[0] = TWI_CMD_LED_BASE + bank;
-  for (byte i = 0 ; i < LED_BYTES_PER_BANK; i++) {
-    data[i + 1] = pgm_read_byte(&gamma8[led_states_.banks[bank][i]]);
+  for (byte i = 0 ; i < leds_per_bank_; ++i) {
+    Color color = led_states_.led_banks[bank][i];
+    static_assert(sizeof(color) == 3);
+    byte j = i * sizeof(color);
+    data[++j] = pgm_read_byte(&gamma8[color.b]);
+    data[++j] = pgm_read_byte(&gamma8[color.g]);
+    data[++j] = pgm_read_byte(&gamma8[color.r]);
   }
   byte result = twi_writeTo(addr_, data, ELEMENTS(data), 1, 0);
   bitClear(led_banks_changed_, bank);
