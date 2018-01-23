@@ -58,7 +58,7 @@ class Keyboard {
 
   union KeyboardState {
     KeyswitchData hands[2];
-    byte rows[TOTAL_KEYS / 8];  // CHAR_BIT
+    byte banks[TOTAL_KEYS / 8];  // CHAR_BIT
   };
   KeyboardState keyboard_state_;
   KeyboardState prev_keyboard_state_;

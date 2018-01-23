@@ -90,10 +90,10 @@ bool Scanner::readKeys(KeyswitchData& key_data) {
   // perform blocking read into buffer
   byte read = twi_readFrom(addr_, rx_buffer, ELEMENTS(rx_buffer), true);
   if (rx_buffer[0] == TWI_REPLY_KEYDATA) {
-    key_data.rows[0] = rx_buffer[1];
-    key_data.rows[1] = rx_buffer[2];
-    key_data.rows[2] = rx_buffer[3];
-    key_data.rows[3] = rx_buffer[4];
+    key_data.banks[0] = rx_buffer[1];
+    key_data.banks[1] = rx_buffer[2];
+    key_data.banks[2] = rx_buffer[3];
+    key_data.banks[3] = rx_buffer[4];
     return true;
   } else {
     return false;

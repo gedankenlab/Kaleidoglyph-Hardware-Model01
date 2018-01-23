@@ -6,8 +6,8 @@ namespace kaleidoscope {
 namespace hardware {
 
 // As with "Key", this name should be changed to make it clear what's represented
-union KeyData {
-  byte rows[4];
+union KeyswitchData {
+  byte banks[4]; // 32 keys per scanner / 8 bits per byte
   uint32_t all;
 };
 
