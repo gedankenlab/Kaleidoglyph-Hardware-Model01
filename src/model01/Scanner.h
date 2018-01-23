@@ -30,6 +30,7 @@ SOFTWARE.
 #include "Kaleidoscope-Constants.h"
 
 #include "model01/Color.h"
+#include "model01/KeyswitchData.h"
 
 // I'm uncertain of how to manage these constants
 #define LEDS_PER_BANK 8
@@ -64,7 +65,7 @@ class Scanner {
   void updateLed(byte led, Color color);
   void updateAllLeds(Color color);
 
-  bool scanKeys();
+  bool scanKeys(KeyswitchData& key_data);
 
  private:
   byte addr_;
