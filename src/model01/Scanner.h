@@ -46,6 +46,8 @@ class Scanner {
  public:
   Scanner(byte setAd01);
 
+  bool readKeys(KeyswitchData& key_data);
+
   // only here for debugging, I think; it's unused in firmware
   byte readVersion();
 
@@ -64,8 +66,6 @@ class Scanner {
 
   void updateLed(byte led, Color color);
   void updateAllLeds(Color color);
-
-  bool scanKeys(KeyswitchData& key_data);
 
  private:
   byte addr_;
