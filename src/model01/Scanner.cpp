@@ -85,15 +85,14 @@ Scanner::Scanner(byte ad01) {
 // member of the Scanner object. This reference parameter needs testing to see if it works
 // as I expect.
 bool Scanner::readKeys(KeyswitchData& key_data) {
-  byte rx_buffer[5];
+  byte rx_buffer[sizeof(key_data) + 1];
 
   // perform blocking read into buffer
   byte read = twi_readFrom(addr_, rx_buffer, ELEMENTS(rx_buffer), true);
   if (rx_buffer[0] == TWI_REPLY_KEYDATA) {
-    key_data.banks[0] = rx_buffer[1];
-    key_data.banks[1] = rx_buffer[2];
-    key_data.banks[2] = rx_buffer[3];
-    key_data.banks[3] = rx_buffer[4];
+    for (byte i = 0; i < sizeof(key_data); ++i) {
+      key_data.banks[i] = rx_buffer[i + 1];
+    }
     return true;
   } else {
     return false;
