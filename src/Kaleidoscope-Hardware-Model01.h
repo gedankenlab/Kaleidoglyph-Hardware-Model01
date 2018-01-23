@@ -6,14 +6,18 @@
 // Kaleidoscope
 #include "model01/Keyboard.h"
 
-#include "model01/Color.h"
 #include "model01/KeyAddr.h"
 #include "model01/LedAddr.h"
+#include "model01/Color.h"
 
 namespace kaleidoscope {
 
 // Not sure this is the correct syntax
 namespace hardware = mode01;
+
+// Maybe this is a better way to get the one object we want to export, as opposed to the
+// whole namespace alias above:
+using hardware::Keyboard = model01::Keyboard;
 
 // These aliases are the types exported for other modules to use
 using KeyAddr = model01::KeyAddr;
