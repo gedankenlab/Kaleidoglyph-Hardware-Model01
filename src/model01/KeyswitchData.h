@@ -2,6 +2,9 @@
 
 #pragma once
 
+#include <Arduino.h>
+
+
 namespace kaleidoscope {
 namespace hardware {
 

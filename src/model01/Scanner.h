@@ -27,6 +27,8 @@ SOFTWARE.
 
 #pragma once
 
+#include <Arduino.h>
+
 #include "Kaleidoscope-Constants.h"
 
 #include "model01/Color.h"
