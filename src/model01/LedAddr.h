@@ -12,6 +12,10 @@ namespace model01 {
 // "KeyAddr" & "LedAddr" are actually the same type, so we can't use two functions, one of
 // which takes a KeyAddr, and a different one that takes LedAddr as a param. The compiler
 // will catch it, though.
+
+// ...or, maybe we should make this a struct with lots of operator overloading, just like
+// KeyAddr
+
 typedef byte LedAddr;
 
 } // namespace model01 {

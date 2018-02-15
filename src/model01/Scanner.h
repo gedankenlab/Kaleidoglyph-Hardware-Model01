@@ -31,22 +31,20 @@ SOFTWARE.
 
 #include "Kaleidoscope-Constants.h"
 
-#include "model01/Color.h"
-#include "model01/KeyswitchData.h"
-
-// I'm uncertain of how to manage these constants
-#define LEDS_PER_BANK 8
-#define TOTAL_LEDS 32
+#include "KeyswitchData.h"
 
 // See .cpp file for comments regarding appropriate namespaces
 namespace kaleidoscope {
 namespace model01 {
 
+// I'm uncertain of how to manage these constants
+constexpr byte LEDS_PER_BANK = 8;
+constexpr byte TOTAL_LEDS    = 32;
 
 // used to configure interrupts, configuration for a particular controller
 class Scanner {
  public:
-  Scanner(byte setAd01);
+  Scanner(byte ad01);
 
   bool readKeys(KeyswitchData& key_data);
 

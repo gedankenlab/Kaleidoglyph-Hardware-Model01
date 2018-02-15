@@ -14,11 +14,11 @@ namespace kaleidoscope {
 namespace model01 {
 
 // Why don't we do these things in the constructor? Why are they static? There's only one object...
-Scanner Keyboard::scanners_[0](0);
-Scanner Keyboard::scanners_[1](3);
+static Scanner Keyboard::scanners_[0](0);
+static Scanner Keyboard::scanners_[1](3);
 
 // *INDENT-OFF*
-static constexpr uint8_t key_led_map[TOTAL_KEYS] PROGMEM = {
+static constexpr PROGMEM uint8_t key_led_map[Keyboard::total_keys] = {
   27, 26, 20, 19, 12, 11,  4,  3,
   28, 25, 21, 18, 13, 10,  5,  2,
   29, 24, 22, 17, 14,  9,  6,  1,
@@ -44,22 +44,33 @@ void Keyboard::scanMatrix() {
 }
 
 
-// get the address of the next key that changed state (if any)
-KeyAddr Keyboard::getNextKeyswitchEvent(KeyAddr key_addr) {
+// get the address of the next key that changed state (if any), starting from the last one
+// checked (or at least, that's the expected usage). Return true if we found an event;
+// false if we didn't find a keyswitch in a different state. Maybe it should return the
+// state value instead.
+byte Keyboard::nextKeyswitchEvent(KeyAddr& key_addr) {
+  // compare state bitfield one byte at a time until we find one that differs
   for (byte r = (key_addr / 8); r < 8; ++r) {
-    if (keyboard_state_[r] == prev_keyboard_state_[r])
+    if (keyboard_state_[r] == prev_keyboard_state_[r]) {
       continue;
+    }
+    // next compare the bits one at a time
     for (byte c = (key_addr % 8); c < 8; ++c) {
-      if (bitRead(keyboard_state_[r], c) != bitRead(prev_keyboard_state_[r], c))
-	return keyaddr::addr(r, c);
+      byte prev_state = bitRead(prev_keyboard_state[r], c);
+      byte curr_state = bitRead(keyboard_state_[r], c);
+      if (prev_state != curr_state) {
+        key_addr = (r << 3) | c;
+        return (prev_state << 1) | curr_state;
+      }
     }
   }
-  return UNKNOWN_KEY_ADDR;
+  // key_addr = Keyboard::total_keys;
+  return 0;
 }
 
 
 // return the state of the keyswitch as a bitfield
-byte Keyboard::getKeyswitchState(KeyAddr key_addr) {
+byte Keyboard::keyswitchState(KeyAddr key_addr) {
   byte state = 0;
   byte r = key_addr / 8;
   byte c = key_addr % 8;

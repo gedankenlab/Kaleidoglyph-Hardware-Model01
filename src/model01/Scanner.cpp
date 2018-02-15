@@ -23,12 +23,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "model01/Scanner.h"
+#include "Scanner.h"
 
 #include <Arduino.h>
 
-#include "model01/Color.h"
-#include "model01/KeyswitchData.h"
+#include "Color.h"
+#include "KeyswitchData.h"
 
 
 // why extern "C"? Because twi.c is not C++!
@@ -39,7 +39,6 @@ extern "C" {
 
 
 namespace kaleidoscope {
-
 namespace model01 {
 
 // Magic constant with no documentation...
@@ -47,8 +46,6 @@ constexpr byte SCANNER_I2C_ADDR_BASE = 0x58;
 // Can't figure out a simple way of making this type-safe & constexpr. Since it's confined
 // to this file, it's not that important.
 #define ELEMENTS(array)  (sizeof(array) / sizeof((array)[0]))
-
-byte twi_uninitialized = 1;
 
 // This array translates LED values to corrected values
 const byte PROGMEM gamma8[] = {
@@ -75,11 +72,25 @@ const byte PROGMEM gamma8[] = {
 Scanner::Scanner(byte ad01) {
   ad01_ = ad01;
   addr_ = SCANNER_I2C_ADDR_BASE | ad01_;
-  if (twi_uninitialized--) {
+  // I think twi_init() just sets things up on the controller, so it only gets called
+  // once. Maybe this shouldn't be in the constructor, but in an init() method instead.
+  static bool twi_uninitialized = true;
+  if (twi_uninitialized) {
     twi_init();
+    twi_unininitialized = false;
   }
 }
 
+/*
+void Scanner::init() {
+  // Maybe it's better to do the initialization in a separate function, not the constructor
+  static bool twi_uninitialized = true;
+  if (twi_uninitialized) {
+    twi_init();
+    twi_unininitialized = false;
+  }
+}
+*/
 
 // This function should just return a KeyswitchData object, and not bother storing it as a
 // member of the Scanner object. This reference parameter needs testing to see if it works

@@ -4,28 +4,23 @@
 
 #include <Arduino.h>
 
-#include "model01/Color.h"
-#include "model01/KeyAddr.h"
-#include "model01/LedAddr.h"
-#include "model01/Scanner.h"
-#include "model01/KeyswitchData.h"
+#include "KeyswitchData.h"
 
-// I'm not sure this is the best way to export these symbols
-#define UNKNOWN_KEY_ADDR  kaleidoscope::model01::Keyboard::total_keys;
-#define TOTAL_KEYS        kaleidoscope::model01::Keyboard::total_keys;
+// This needs to be a macro so we can check the keymap definitions
+#define TOTAL_KEYS 64
 
 
 namespace kaleidoscope {
-
 namespace model01 {
+
 
 class Keyboard {
  public:
   // This class should really be a singleton, but it probably costs a few bytes for the
   // extra getInstance() method that would be required to do that.
-  Model01();
+  Keyboard();
 
-  static constexpr KeyAddr total_keys = 64;
+  static constexpr KeyAddr total_keys = TOTAL_KEYS;
 
   // New API
   void scanMatrix();
@@ -58,7 +53,7 @@ class Keyboard {
 
   union KeyboardState {
     KeyswitchData hands[2];
-    byte banks[TOTAL_KEYS / 8];  // CHAR_BIT
+    byte banks[Keyboard::total_keys / 8];  // CHAR_BIT
   };
   KeyboardState keyboard_state_;
   KeyboardState prev_keyboard_state_;
@@ -77,42 +72,4 @@ class Keyboard {
 };
 
 } // namespace model01 {
-
 } // namespace kaleidoscope {
-
-
-// These macros will need to be revised, or possibly removed entirely
-#define KEYMAP_STACKED(                                                 \
-               r0c0, r0c1, r0c2, r0c3, r0c4, r0c5, r0c6,                \
-               r1c0, r1c1, r1c2, r1c3, r1c4, r1c5, r1c6,                \
-               r2c0, r2c1, r2c2, r2c3, r2c4, r2c5,                      \
-               r3c0, r3c1, r3c2, r3c3, r3c4, r3c5, r2c6,                \
-               r0c7, r1c7, r2c7, r3c7,                                  \
-               r3c6,                                                    \
-                                                                        \
-               r0c9,  r0c10, r0c11, r0c12, r0c13, r0c14, r0c15,         \
-               r1c9,  r1c10, r1c11, r1c12, r1c13, r1c14, r1c15,         \
-                      r2c10, r2c11, r2c12, r2c13, r2c14, r2c15,         \
-               r2c9,  r3c10, r3c11, r3c12, r3c13, r3c14, r3c15,         \
-               r3c8,  r2c8,  r1c8, r0c8,                                \
-               r3c9)                                                    \
-  {                                                                     \
-    {r0c0, r0c1, r0c2, r0c3, r0c4, r0c5, r0c6, r0c7, r0c8, r0c9, r0c10, r0c11, r0c12, r0c13, r0c14, r0c15}, \
-    {r1c0, r1c1, r1c2, r1c3, r1c4, r1c5, r1c6, r1c7, r1c8, r1c9, r1c10, r1c11, r1c12, r1c13, r1c14, r1c15}, \
-    {r2c0, r2c1, r2c2, r2c3, r2c4, r2c5, r2c6, r2c7, r2c8, r2c9, r2c10, r2c11, r2c12, r2c13, r2c14, r2c15}, \
-    {r3c0, r3c1, r3c2, r3c3, r3c4, r3c5, r3c6, r3c7, r3c8, r3c9, r3c10, r3c11, r3c12, r3c13, r3c14, r3c15}, \
-  }
-
-#define KEYMAP(                                                                                     \
-  r0c0, r0c1, r0c2, r0c3, r0c4, r0c5, r0c6,        r0c9,  r0c10, r0c11, r0c12, r0c13, r0c14, r0c15, \
-  r1c0, r1c1, r1c2, r1c3, r1c4, r1c5, r1c6,        r1c9,  r1c10, r1c11, r1c12, r1c13, r1c14, r1c15, \
-  r2c0, r2c1, r2c2, r2c3, r2c4, r2c5,                     r2c10, r2c11, r2c12, r2c13, r2c14, r2c15, \
-  r3c0, r3c1, r3c2, r3c3, r3c4, r3c5, r2c6,        r2c9,  r3c10, r3c11, r3c12, r3c13, r3c14, r3c15, \
-              r0c7, r1c7, r2c7, r3c7,                             r3c8,  r2c8,  r1c8, r0c8,         \
-                          r3c6,                                          r3c9)                      \
-  {                                                                                                 \
-    {r0c0, r0c1, r0c2, r0c3, r0c4, r0c5, r0c6, r0c7, r0c8, r0c9, r0c10, r0c11, r0c12, r0c13, r0c14, r0c15}, \
-    {r1c0, r1c1, r1c2, r1c3, r1c4, r1c5, r1c6, r1c7, r1c8, r1c9, r1c10, r1c11, r1c12, r1c13, r1c14, r1c15}, \
-    {r2c0, r2c1, r2c2, r2c3, r2c4, r2c5, r2c6, r2c7, r2c8, r2c9, r2c10, r2c11, r2c12, r2c13, r2c14, r2c15}, \
-    {r3c0, r3c1, r3c2, r3c3, r3c4, r3c5, r3c6, r3c7, r3c8, r3c9, r3c10, r3c11, r3c12, r3c13, r3c14, r3c15}, \
-  }
