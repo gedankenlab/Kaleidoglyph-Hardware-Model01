@@ -22,13 +22,21 @@ union Key {
   uint16_t raw;
   struct {
     // AVR is little-endian, which is why this file is here instead of in the core. In the
-    // event of an MCU that's big-endian, these two bytes would need to be swapped
+    // event of an MCU that's big-endian, these two bytes would need to be swapped. This
+    // struct should probably be dropped entirely; it's just here for historical reasons
+    // at this point. The comment about endian-ness is still important, though.
     uint8_t ldata;  // low bits (keycode)
     uint8_t hdata;  // high bits (flags)
   };
 
+  // For the following members, I would use a uint16_t for all the bitfields for clarity
+  // (and I think it would make the endian-ness issue moot), but it would mean that every
+  // time a single-byte or smaller bitfield component was accessed, we'd get two bytes
+  // because it always uses the underlying type. That could be a big performance hit on an
+  // 8-bit processor, so I'm just using a uint16_t where it's needed.
+
   // Keyboard key type: 8 bits for keycode, 4 modifier flags, one modifier hand flag, and
-  // three bits for type identification (type is all zeros)
+  // three bits for type identification (type is all zeros).
   struct {
     byte keycode;
     byte mods : 4, mods_right : 1, type : 3;

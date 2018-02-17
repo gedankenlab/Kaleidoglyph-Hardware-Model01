@@ -4,6 +4,12 @@
 
 #include <Arduino.h>
 
+// Can this class be used as an iterator for range-based for loops? Layer classes would
+// need appropriate begin() & end() methods. See:
+// https://www.cprogramming.com/c++11/c++11-ranged-for-loop.html
+
+// I think it won't work; a separate iterator is needed because we'd need to store a
+// pointer, which would triple the storage size of a KeyAddr.
 
 namespace kaleidoscope {
 namespace model01 {
