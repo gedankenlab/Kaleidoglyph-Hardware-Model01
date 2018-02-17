@@ -69,26 +69,6 @@ struct KeyAddr {
     return this->addr_ <= other.addr_;
   }
 
-  // Comparison operators for use with basic integer types
-  constexpr bool operator==(byte addr) const {
-    return addr_ == addr;
-  }
-  constexpr bool operator!=(byte addr) const {
-    return addr_ != addr;
-  }
-  constexpr bool operator>(byte addr) const {
-    return addr_ > addr;
-  }
-  constexpr bool operator<(byte addr) const {
-    return addr_ < addr;
-  }
-  constexpr bool operator>=(byte addr) const {
-    return addr_ >= addr;
-  }
-  constexpr bool operator<=(byte addr) const {
-    return addr_ <= addr;
-  }
-
   // Note: we can't use `constexpr` with these ones with C++11, because that implies
   // `const`, which we don't want. So, we use `inline` instead, which amounts to the same
   // thing. In C++14, these can become `constexpr`, but without the `const`.
@@ -104,20 +84,6 @@ struct KeyAddr {
   }
   inline KeyAddr& operator-=(const KeyAddr& other) {
     this->addr_ -= other.addr_;
-    return *this;
-  }
-
-  // Assignment & arithmetic operators (integers)
-  inline KeyAddr& operator=(byte addr) {
-    addr_ = addr;
-    return *this;
-  }
-  inline KeyAddr& operator+=(byte addr) {
-    addr_ += addr;
-    return *this;
-  }
-  inline KeyAddr& operator-=(byte addr) {
-    addr_ -= addr;
     return *this;
   }
 
@@ -139,12 +105,6 @@ struct KeyAddr {
     return tmp;
   }
 
-  // Any key address that's out of bounds is not valid. I'm not sure this is really
-  // desirable, but I'm leaving this here for now.
-  constexpr bool operator!() const {
-    return KeyAddr >= Keyboard::total_keys;
-  }
-
   // The big thing that's missing here is some way to use a KeyAddr object as a subscript
   // operand. I'll have to experiment to find out if that can work. Using the cast
   // operator does the trick, but maybe it's better to overload the subscript operator of
@@ -158,6 +118,7 @@ struct KeyAddr {
 } // namespace model01 {
 
 
+#if 0
 namespace keyaddr {
 
 // Everything past this point should be unnecessary, but could possibly be helpful for
@@ -187,5 +148,6 @@ constexpr KeyAddr addr(byte row, byte col) {
 }
 
 } // namespace keyaddr {
+#endif
 
 } // namespace kaleidoscope {
