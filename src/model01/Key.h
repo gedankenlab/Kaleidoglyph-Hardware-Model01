@@ -31,7 +31,7 @@ union Key {
   // three bits for type identification (type is all zeros)
   struct {
     byte keycode;
-    byte mods : 4, hand : 1, type : 3;
+    byte mods : 4, mods_right : 1, type : 3;
   } keyboard;
 
   // Consumer Control key type: 10 bits for keycode, 6 for type
@@ -84,24 +84,32 @@ union Key {
     return new_key;
   }
 
-  static constexpr byte mod_control = B0001;
-  static constexpr byte mod_shift   = B0010;
-  static constexpr byte mod_alt     = B0100;
-  static constexpr byte mod_gui     = B1000;
+  // These mod bits are in the same order as the mod bits in the HID keyboard report for
+  // efficiency in passing them on. If they get rearranged, that will mess things up.
+  static constexpr byte mod_control = B0001;  // (1 << 0)
+  static constexpr byte mod_shift   = B0010;  // (1 << 1)
+  static constexpr byte mod_alt     = B0100;  // (1 << 2)
+  static constexpr byte mod_gui     = B1000;  // (1 << 3)
 
-  static constexpr byte mods_left  = B0;
-  static constexpr byte mods_right = B1;
-
-  // get a modifiers byte that can be passed to the key report directly
+  // get a modifiers byte that can be passed to the keyboard HID report directly
   byte mods() {
-    if (keyboard.type != Key::keyboard_type)
+    // If it's not a keyboard key, no mods are applied, so bail out. This test is probably
+    // inefficient, because we should always be doing it before calling this function, but
+    // it's safer this way.
+    if (this->keyboard.type != Key::keyboard_type_id)
       return 0;
-    byte modifiers(keyboard.mods);
-    if (keyboard.hand == Key::mods_right)
+
+    byte modifiers(this->keyboard.mods);
+    // If the fifth bit (mods_right) is set, that means we have to shift the mods four
+    // bits to match the right-hand modifier bits in the HID report modifiers byte.
+    if (this->keyboard.mods_right)
       modifiers <<= 4;
     return modifiers;
   }
 
+  // Very commonly-used test functions. I've decided to use `Blank` instead of `NoKey`
+  // because I think it's much clearer, especially in the light of my intention to
+  // implement sparse layers.
   constexpr bool isTransparent() const {
     return (raw == 0xFFFF);
   }
@@ -187,27 +195,30 @@ union Key {
     return Key(this->raw - other.raw);
   }
 
-  static constexpr byte keyboard_type = B000;
-  static constexpr byte consumer_type = B001000;
-  static constexpr byte   system_type = B00100100;
-  static constexpr byte    mouse_type = B00100101;
-  static constexpr byte    layer_type = B00100110;
-  static constexpr byte   plugin_type = B01;
+  // These *_type_id constants are used to identify the type of the Key object
+  static constexpr byte keyboard_type_id = B000;
+  static constexpr byte consumer_type_id = B001000;
+  static constexpr byte   system_type_id = B00100100;
+  static constexpr byte    mouse_type_id = B00100101;
+  static constexpr byte    layer_type_id = B00100110;
+  static constexpr byte   plugin_type_id = B01;
 
-  // returns the correct type of the Key object
+  // Return the correct type (KeyClass) of the Key object. I expect KeyClass::plugin to be
+  // more common than most of the core types, so I moved it up higher. These should be
+  // sorted in descending order of frequency of use; I'm just guessing here.
   KeyClass type() {
-    if (keyboard.type == Key::keyboard_type)
+    if (this->keyboard.type == Key::keyboard_type_id)
       return KeyClass::keyboard;
-    if (consumer.type == Key::consumer_type)
-      return KeyClass::consumer;
-    if (system.type == Key::system_type)
-      return KeyClass::system;
-    if (mouse.type == Key::mouse_type)
-      return KeyClass::mouse;
-    if (layer.type == Key::layer_type)
-      return KeyClass::layer;
-    if (plugin.type == Key::plugin_type)
+    if (this->plugin.type == Key::plugin_type_id)
       return KeyClass::plugin;
+    if (this->layer.type == Key::layer_type_id)
+      return KeyClass::layer;
+    if (this->mouse.type == Key::mouse_type_id)
+      return KeyClass::mouse;
+    if (this->consumer.type == Key::consumer_type_id)
+      return KeyClass::consumer;
+    if (this->system.type == Key::system_type_id)
+      return KeyClass::system;
     return KeyClass::unknown;
   }
 
