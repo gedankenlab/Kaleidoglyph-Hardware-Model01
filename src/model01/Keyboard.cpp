@@ -4,6 +4,9 @@
 #include <avr/wdt.h>
 #include <stdint.h>
 
+// backcompat
+#include <Kaleidoscope.h>
+
 #include "Color.h"
 #include "KeyAddr.h"
 #include "LedAddr.h"
@@ -41,8 +44,24 @@ void Keyboard::scanMatrix() {
 
   // scan right hand
   scanners_[1].readKeys(keyboard_state_.hands[1]);
+
+  // backcompat
+  actOnMatrixScan();
 }
 
+// backcompat
+void Keyboard::actOnMatrixScan() {
+  for (byte hand = 0; hand < 2; hand++) {
+    for (byte row = 0; row < 4; row++) {
+      for (byte col = 0; col < 8; col++) {
+        byte bank = (hand << 0) | (row << 1);
+        byte key_state = ((bitRead(keyboard_state_.banks[bank], col) << 1) |
+                          (bitRead(prev_keyboard_state_.banks[bank], col) << 0));
+        handleKeyswitchEvent(Key_NoKey, row, (hand << 3) | col, key_state);
+      }
+    }
+  }
+}
 
 // get the address of the next key that changed state (if any), starting from the last one
 // checked (or at least, that's the expected usage). Return true if we found an event;

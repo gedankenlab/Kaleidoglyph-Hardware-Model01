@@ -4,10 +4,26 @@
 
 #include <Arduino.h>
 
+//#include "Color.h"
 #include "KeyswitchData.h"
+
+// I think all we need is a forward declaration here
+struct Color;
 
 // This needs to be a macro so we can check the keymap definitions
 #define TOTAL_KEYS 64
+
+// Backward compatibility stuff here
+
+#define HARDWARE_IMPLEMENTATION kaleidoscope::model01::Keyboard
+
+#define COLS 16
+#define ROWS 4
+
+typedef Color cRGB;
+typedef Color CRGB;
+
+// End backcompat
 
 
 namespace kaleidoscope {
@@ -21,6 +37,39 @@ class Keyboard {
   Keyboard();
 
   static constexpr KeyAddr total_keys = TOTAL_KEYS;
+
+  // Backcompat
+
+  // Forward led functions
+  void syncLeds() {
+    return updateLeds();
+  }
+  void setCrgbAt(byte row, byte col, cRGB color) {
+    return setLedColor(KeyAddr(row * 8 + col), color);
+  }
+  void setCrgbAt(uint8_t i, cRGB crgb) {
+    return setLedColor(LedAddr(i), crgb);
+  }
+  cRGB getCrgbAt(uint8_t i) {
+    return getLedColor(LedAddr(i));
+  }
+
+  // Just ignore key masking for now; it will be handled elsewhere
+  void maskKey(byte row, byte col) {}
+  void unMaskKey(byte row, byte col) {}
+  bool isKeyMasked(byte row, byte col) { return false; }
+  void maskHeldKeys(void) {}
+
+  // void actOnMatrixScan(void); // private!
+
+  // These are only used by TestMode & MagicCombo
+  // keydata_t leftHandState;
+  // keydata_t rightHandState;
+  // keydata_t previousLeftHandState;
+  // keydata_t previousRightHandState;
+
+  // End backcompat
+
 
   // New API
   void scanMatrix();
