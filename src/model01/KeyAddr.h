@@ -3,6 +3,8 @@
 #pragma once
 
 #include <Arduino.h>
+#include <stdint.h>
+
 
 // Can this class be used as an iterator for range-based for loops? Layer classes would
 // need appropriate begin() & end() methods. See:
@@ -27,27 +29,30 @@ struct KeyAddr {
   byte addr_;
 
  public:
-  // Default constructor initializes with an invalid addr
-  KeyAddr() : addr_(Keyboard::total_keys) {}
 
-  constexpr KeyAddr(byte addr) : addr_(addr) {}
+  // Default constructor initializes with an invalid addr
+  KeyAddr() = default;
+
+  explicit constexpr KeyAddr(byte addr) : addr_{addr} {}
 
   // I feel like `((row << 3) | col)` should be faster
   constexpr KeyAddr(byte row, byte col) : addr_((row * 8) + col) {}
 
   // This avoids copying, so maybe it's more efficient than using the cast operator
-  inline byte& addr() {
-    return addr;
+  byte& addr() {
+    return addr_;
   }
 
-  inline void readFromProgmem(const KeyAddr& pgm_key_addr) {
+#if 0
+  void readFromProgmem(const KeyAddr& pgm_key_addr) {
     addr_ = pgm_read_byte(&pgm_key_addr.addr_);
   }
-  static inline KeyAddr createFromProgmem(const KeyAddr& pgm_key_addr) {
+  static KeyAddr createFromProgmem(const KeyAddr& pgm_key_addr) {
     KeyAddr key_addr;
     key_addr.addr_ = pgm_read_byte(&pgm_key_addr.addr_);
     return key_addr;
   }
+#endif
 
   // Comparison operators for use with other KeyAddr objects
   constexpr bool operator==(const KeyAddr& other) const {
@@ -74,49 +79,40 @@ struct KeyAddr {
   // thing. In C++14, these can become `constexpr`, but without the `const`.
 
   // Assignment & arithmetic operators (KeyAddr)
-  inline KeyAddr& operator=(const KeyAddr& other) {
+  KeyAddr& operator=(const KeyAddr& other) {
     this->addr_ = other.addr_;
     return *this;
   }
-  inline KeyAddr& operator+=(const KeyAddr& other) {
+  KeyAddr& operator+=(const KeyAddr& other) {
     this->addr_ += other.addr_;
     return *this;
   }
-  inline KeyAddr& operator-=(const KeyAddr& other) {
+  KeyAddr& operator-=(const KeyAddr& other) {
     this->addr_ -= other.addr_;
     return *this;
   }
 
   // Increment & decrement unary operators
-  inline KeyAddr& operator++() { // prefix
+  KeyAddr& operator++() { // prefix
     ++addr_;
     return *this;
   }
-  inline KeyAddr& operator--() { // prefix
+  KeyAddr& operator--() { // prefix
     --addr_;
     return *this;
   }
-  inline KeyAddr operator++(int) { // postfix
+  KeyAddr operator++(int) { // postfix
     KeyAddr tmp(addr_++);
     return tmp;
   }
-  inline KeyAddr operator--(int) { // postfix
+  KeyAddr operator--(int) { // postfix
     KeyAddr tmp(addr_--);
     return tmp;
   }
 
-  // The big thing that's missing here is some way to use a KeyAddr object as a subscript
-  // operand. I'll have to experiment to find out if that can work. Using the cast
-  // operator does the trick, but maybe it's better to overload the subscript operator of
-  // classes that should be using it as a subscript.
-  operator byte() {
-    return addr_;
-  }
+  // Maybe I should provide a cast operator to convert to LedAddr from KeyAddr?
 
 };
-
-} // namespace model01 {
-
 
 #if 0
 namespace keyaddr {
@@ -150,4 +146,5 @@ constexpr KeyAddr addr(byte row, byte col) {
 } // namespace keyaddr {
 #endif
 
+} // namespace model01 {
 } // namespace kaleidoscope {

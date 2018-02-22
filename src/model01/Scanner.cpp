@@ -77,7 +77,7 @@ Scanner::Scanner(byte ad01) {
   static bool twi_uninitialized = true;
   if (twi_uninitialized) {
     twi_init();
-    twi_unininitialized = false;
+    twi_uninitialized = false;
   }
 }
 
@@ -111,12 +111,12 @@ bool Scanner::readKeys(KeyswitchData& key_data) {
 }
 
 
-Color getLedColor(byte led) {
+const Color& Scanner::getLedColor(byte led) const {
   //assert(led < LEDS_PER_HAND);
   return led_states_.leds[led];
 }
 
-void setLedColor(byte led, Color color) {
+void Scanner::setLedColor(byte led, Color color) {
   //assert(led < LEDS_PER_HAND);
   if (led_states_.leds[led] != color) {
     led_states_.leds[led] = color;
@@ -130,7 +130,7 @@ void setLedColor(byte led, Color color) {
 // time it's called, it updates the next bank. I'm renaming it to be more clear.
 void Scanner::updateNextLedBank() {
   updateLedBank(next_led_bank_++);
-  if (next_led_bank_ == LED_BANKS) {
+  if (next_led_bank_ == total_led_banks_) {
     next_led_bank_ = 0;
   }
 }
@@ -140,11 +140,11 @@ void Scanner::updateNextLedBank() {
 void Scanner::updateLedBank(byte bank) {
   if (! bitRead(led_banks_changed_, bank))
     return;
-  byte data[LED_BYTES_PER_BANK + 1];
+  byte data[led_bytes_per_bank_ + 1];
   data[0] = TWI_CMD_LED_BASE + bank;
   for (byte i = 0 ; i < leds_per_bank_; ++i) {
     Color color = led_states_.led_banks[bank][i];
-    static_assert(sizeof(color) == 3);
+    static_assert(sizeof(color) == 3, "Wrong size of color object");
     byte j = i * sizeof(color);
     data[++j] = pgm_read_byte(&gamma8[color.b]);
     data[++j] = pgm_read_byte(&gamma8[color.g]);
@@ -177,7 +177,7 @@ void Scanner::updateAllLeds(Color color) {
                 };
   byte result = twi_writeTo(addr_, data, ELEMENTS(data), 1, 0);
   // we should set all the values of led_states_ here
-  for (byte led = 0; led < TOTAL_LEDS; ++led) {
+  for (byte led = 0; led < leds_per_hand_; ++led) {
     led_states_.leds[led] = color;
   }
   led_banks_changed_ = 0;

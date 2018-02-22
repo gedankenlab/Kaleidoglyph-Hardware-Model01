@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <Arduino.h>
+#include <stdint.h>
 
 
 namespace kaleidoscope {
@@ -16,16 +16,27 @@ namespace model01 {
 // those calls, not this struct.
 
 struct Color {
-  byte b;
-  byte g;
-  byte r;
+  uint8_t b;
+  uint8_t g;
+  uint8_t r;
 
   Color() = default; // Does not initialize to zeros without `Color c = {};`
   // I'm not really sure why constexpr would help here. I should experiment to see if it
   // produces smaller code. I'm also not sure about the constructor above; this is obtuse
   // C++ magic.
-  constexpr Color(byte red, byte green, byte blue)
-    : r(red), g(green), b(blue) {}
+  constexpr Color(uint8_t red, uint8_t green, uint8_t blue)
+    : b(blue), g(green), r(red) {}
+
+  // Comparison operators
+  bool operator==(const Color& other) const {
+    return ((this->b == other.b) &&
+            (this->g == other.g) &&
+            (this->r == other.r));
+  }
+  bool operator!=(const Color& other) const {
+    return !(*this == other);
+  }
+
 };
 
 } // namespace model01 {

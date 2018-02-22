@@ -17,11 +17,15 @@ namespace kaleidoscope {
 namespace model01 {
 
 // Why don't we do these things in the constructor? Why are they static? There's only one object...
-static Scanner Keyboard::scanners_[0](0);
-static Scanner Keyboard::scanners_[1](3);
+// static Scanner scanners[] = {
+//   Scanner(0), Scanner(1)
+// };
+
+//Keyboard::scanners_[0] = Scanner(0);
+//Keyboard::scanners_[1] = Scanner(3);
 
 // *INDENT-OFF*
-static constexpr PROGMEM uint8_t key_led_map[Keyboard::total_keys] = {
+static constexpr PROGMEM uint8_t key_led_map[total_keys] = {
   27, 26, 20, 19, 12, 11,  4,  3,
   28, 25, 21, 18, 13, 10,  5,  2,
   29, 24, 22, 17, 14,  9,  6,  1,
@@ -34,10 +38,12 @@ static constexpr PROGMEM uint8_t key_led_map[Keyboard::total_keys] = {
 };
 // *INDENT-ON*
 
+Keyboard::Keyboard() : scanners_{Scanner(0), Scanner(3)} {}
+
 
 void Keyboard::scanMatrix() {
   // copy current keyswitch state array to previous
-  memcpy(prev_keyboard_state_, keyboard_state_, sizeof(prev_keyboard_state_));
+  memcpy(&prev_keyboard_state_, &keyboard_state_, sizeof(prev_keyboard_state_));
 
   // scan left hand
   scanners_[0].readKeys(keyboard_state_.hands[0]);
@@ -63,6 +69,7 @@ void Keyboard::actOnMatrixScan() {
   }
 }
 
+#if 0
 // get the address of the next key that changed state (if any), starting from the last one
 // checked (or at least, that's the expected usage). Return true if we found an event;
 // false if we didn't find a keyswitch in a different state. Maybe it should return the
@@ -89,7 +96,7 @@ byte Keyboard::nextKeyswitchEvent(KeyAddr& key_addr) {
 
 
 // return the state of the keyswitch as a bitfield
-byte Keyboard::keyswitchState(KeyAddr key_addr) {
+byte Keyboard::keyswitchState(KeyAddr key_addr) const {
   byte state = 0;
   byte r = key_addr / 8;
   byte c = key_addr % 8;
@@ -97,15 +104,15 @@ byte Keyboard::keyswitchState(KeyAddr key_addr) {
   state |= bitRead(keyboard_state_[r], c);
   return state;
 }
-
+#endif
 
 constexpr byte HAND_BIT = B00100000;
 
-LedAddr Keyboard::getLedAddr(KeyAddr key_addr) {
-  return pgm_read_byte(&(key_led_map[key_addr]));
+LedAddr Keyboard::getLedAddr(KeyAddr key_addr) const {
+  return LedAddr(pgm_read_byte(&(key_led_map[key_addr.addr()])));
 }
 
-Color Keyboard::getLedColor(LedAddr led_addr) {
+const Color& Keyboard::getLedColor(LedAddr led_addr) const {
   bool hand = led_addr & HAND_BIT; // B00100000
   return scanners_[hand].getLedColor(led_addr & ~HAND_BIT);
 }
@@ -115,7 +122,7 @@ void Keyboard::setLedColor(LedAddr led_addr, Color color) {
   scanners_[hand].setLedColor(led_addr & ~HAND_BIT, color);
 }
 
-Color Keyboard::getKeyColor(KeyAddr key_addr) {
+const Color& Keyboard::getKeyColor(KeyAddr key_addr) const {
   LedAddr led_addr = getLedAddr(key_addr);
   return getLedColor(led_addr);
 }
@@ -155,8 +162,8 @@ void Keyboard::setup() {
   // boot up, to make it easier to rescue things
   // in case of power draw issues.
   enableHighPowerLeds();
-  memset(keyboard_state_, 0, sizeof(keyboard_state_));
-  memset(prev_keyboard_state_, 0, sizeof(prev_keyboard_state_));
+  memset(&keyboard_state_, 0, sizeof(keyboard_state_));
+  memset(&prev_keyboard_state_, 0, sizeof(prev_keyboard_state_));
 
   TWBR = 12; // This is 400mhz, which is the fastest we can drive the ATTiny
 }
@@ -226,3 +233,6 @@ void Keyboard::setKeyscanInterval(uint8_t interval) {
 
 } // namespace hardware {
 } // namespace kaleidoscope {
+
+// backcompat
+HARDWARE_IMPLEMENTATION KeyboardHardware;
