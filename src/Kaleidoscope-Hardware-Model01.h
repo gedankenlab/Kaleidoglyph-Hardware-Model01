@@ -24,7 +24,7 @@ typedef model01::Color   Color;
 //typedef model01::Keyboard Keyboard;
 
 // In order to use it with preprocessor macros, TOTAL_KEYS needs to be a macro
-//constexpr KeyAddr total_keys = model01::Keyboard::total_keys;
+constexpr KeyAddr total_keys { model01::total_keys };
 //constexpr KeyAddr TOTAL_KEYS       = model01::Keyboard::total_keys;
 //constexpr KeyAddr UNKNOWN_KEY_ADDR = model01::Keyboard::total_keys;
 
