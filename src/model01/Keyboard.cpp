@@ -42,14 +42,15 @@ Keyboard::Keyboard() : scanners_{Scanner(0), Scanner(3)} {}
 
 
 void Keyboard::scanMatrix() {
-  // copy current keyswitch state array to previous
-  memcpy(&prev_keyboard_state_, &keyboard_state_, sizeof(prev_keyboard_state_));
+  // copy current keyswitch state array to previous. With the new iterator, this shouldn't
+  // be necessary.
+  memcpy(&prev_scan_, &curr_scan_, sizeof(prev_scan_));
 
   // scan left hand
-  scanners_[0].readKeys(keyboard_state_.hands[0]);
+  scanners_[0].readKeys(curr_scan_.hands[0]);
 
   // scan right hand
-  scanners_[1].readKeys(keyboard_state_.hands[1]);
+  scanners_[1].readKeys(curr_scan_.hands[1]);
 
   // backcompat
   actOnMatrixScan();
@@ -61,8 +62,8 @@ void Keyboard::actOnMatrixScan() {
     for (byte row = 0; row < 4; row++) {
       for (byte col = 0; col < 8; col++) {
         byte bank = (hand << 0) | (row << 1);
-        byte key_state = ((bitRead(keyboard_state_.banks[bank], col) << 1) |
-                          (bitRead(prev_keyboard_state_.banks[bank], col) << 0));
+        byte key_state = ((bitRead(curr_scan_.banks[bank], col) << 1) |
+                          (bitRead(prev_scan_.banks[bank], col) << 0));
         handleKeyswitchEvent(Key_NoKey, row, (hand << 3) | col, key_state);
       }
     }
@@ -77,13 +78,13 @@ void Keyboard::actOnMatrixScan() {
 byte Keyboard::nextKeyswitchEvent(KeyAddr& key_addr) {
   // compare state bitfield one byte at a time until we find one that differs
   for (byte r = (key_addr / 8); r < 8; ++r) {
-    if (keyboard_state_[r] == prev_keyboard_state_[r]) {
+    if (curr_scan_[r] == prev_scan_[r]) {
       continue;
     }
     // next compare the bits one at a time
     for (byte c = (key_addr % 8); c < 8; ++c) {
-      byte prev_state = bitRead(prev_keyboard_state[r], c);
-      byte curr_state = bitRead(keyboard_state_[r], c);
+      byte prev_state = bitRead(prev_scan_[r], c);
+      byte curr_state = bitRead(curr_scan_[r], c);
       if (prev_state != curr_state) {
         key_addr = (r << 3) | c;
         return (prev_state << 1) | curr_state;
@@ -100,15 +101,15 @@ byte Keyboard::keyswitchState(KeyAddr key_addr) const {
   byte state = 0;
   byte r = key_addr / 8;
   byte c = key_addr % 8;
-  state |= bitRead(prev_keyboard_state_[r], c) << 1;
-  state |= bitRead(keyboard_state_[r], c);
+  state |= bitRead(prev_scan_[r], c) << 1;
+  state |= bitRead(curr_scan_[r], c);
   return state;
 }
 
 bool Keyboard::isKeyswitchPressed(KeyAddr key_addr) const {
   byte r = key_addr / 8;
   byte c = key_addr & 8;
-  return bitRead(keyboard_state_[r], c);
+  return bitRead(curr_scan_[r], c);
 }
 #endif
 
@@ -168,8 +169,8 @@ void Keyboard::setup() {
   // boot up, to make it easier to rescue things
   // in case of power draw issues.
   enableHighPowerLeds();
-  memset(&keyboard_state_, 0, sizeof(keyboard_state_));
-  memset(&prev_keyboard_state_, 0, sizeof(prev_keyboard_state_));
+  memset(&curr_scan_, 0, sizeof(curr_scan_));
+  memset(&prev_scan_, 0, sizeof(prev_scan_));
 
   TWBR = 12; // This is 400mhz, which is the fastest we can drive the ATTiny
 }
