@@ -25,17 +25,23 @@ namespace model01 {
 // this operator overloading. Now that I've done it, I'm going to try it out anyway, even
 // though it doesn't solve the problem I thought it would.
 struct KeyAddr {
+
  private:
+  // I'm really not sure it's worth the bother to keep this private
   byte addr_;
 
  public:
 
-  // Default constructor initializes with an invalid addr
   KeyAddr() = default;
 
-  explicit constexpr KeyAddr(byte addr) : addr_{addr} {}
+  // Without the `explicit` keyword, this constructor acts as the counterpart to the cast
+  // operator overload: if a function `f(KeyAddr k)` gets passed an integer: `f(12)`, the
+  // integer will be automatically passed to this constructor, creating a temporary
+  // KeyAddr object.
+  constexpr KeyAddr(byte addr) : addr_{addr} {}
 
-  // I feel like `((row << 3) | col)` should be faster
+  // I feel like `((row << 3) | col)` should be faster. This is only for backwards
+  // compatibility
   constexpr KeyAddr(byte row, byte col) : addr_((row * 8) + col) {}
 
   // This avoids copying, so maybe it's more efficient than using the cast operator
@@ -44,10 +50,10 @@ struct KeyAddr {
   }
 
 #if 0
-  void readFromProgmem(const KeyAddr& pgm_key_addr) {
+  void readFromProgmem(KeyAddr const & pgm_key_addr) {
     addr_ = pgm_read_byte(&pgm_key_addr.addr_);
   }
-  static KeyAddr createFromProgmem(const KeyAddr& pgm_key_addr) {
+  static KeyAddr createFromProgmem(KeyAddr const & pgm_key_addr) {
     KeyAddr key_addr;
     key_addr.addr_ = pgm_read_byte(&pgm_key_addr.addr_);
     return key_addr;
@@ -55,22 +61,22 @@ struct KeyAddr {
 #endif
 
   // Comparison operators for use with other KeyAddr objects
-  constexpr bool operator==(const KeyAddr& other) const {
+  constexpr bool operator==(KeyAddr const & other) const {
     return this->addr_ == other.addr_;
   }
-  constexpr bool operator!=(const KeyAddr& other) const {
+  constexpr bool operator!=(KeyAddr const & other) const {
     return this->addr_ != other.addr_;
   }
-  constexpr bool operator>(const KeyAddr& other) const {
+  constexpr bool operator>(KeyAddr const & other) const {
     return this->addr_ > other.addr_;
   }
-  constexpr bool operator<(const KeyAddr& other) const {
+  constexpr bool operator<(KeyAddr const & other) const {
     return this->addr_ < other.addr_;
   }
-  constexpr bool operator>=(const KeyAddr& other) const {
+  constexpr bool operator>=(KeyAddr const & other) const {
     return this->addr_ >= other.addr_;
   }
-  constexpr bool operator<=(const KeyAddr& other) const {
+  constexpr bool operator<=(KeyAddr const & other) const {
     return this->addr_ <= other.addr_;
   }
 
@@ -79,15 +85,15 @@ struct KeyAddr {
   // thing. In C++14, these can become `constexpr`, but without the `const`.
 
   // Assignment & arithmetic operators (KeyAddr)
-  KeyAddr& operator=(const KeyAddr& other) {
+  KeyAddr& operator=(KeyAddr const & other) {
     this->addr_ = other.addr_;
     return *this;
   }
-  KeyAddr& operator+=(const KeyAddr& other) {
+  KeyAddr& operator+=(KeyAddr const & other) {
     this->addr_ += other.addr_;
     return *this;
   }
-  KeyAddr& operator-=(const KeyAddr& other) {
+  KeyAddr& operator-=(KeyAddr const & other) {
     this->addr_ -= other.addr_;
     return *this;
   }
@@ -110,8 +116,10 @@ struct KeyAddr {
     return tmp;
   }
 
-  // Maybe I should provide a cast operator to convert to LedAddr from KeyAddr?
-  operator byte() {
+  // This cast operator returns a reference, so when a KeyAddr object is used as a
+  // parameter to a function such as `f(byte& b)`, and that function mutates `b`, the
+  // KeyAddr object will also be mutated.
+  operator byte&() {
     return addr_;
   }
 
