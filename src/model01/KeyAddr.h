@@ -111,6 +111,9 @@ struct KeyAddr {
   }
 
   // Maybe I should provide a cast operator to convert to LedAddr from KeyAddr?
+  operator byte() {
+    return addr_;
+  }
 
 };
 
