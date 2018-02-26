@@ -163,7 +163,7 @@ class Keyboard {
         // Compare the next bank (r). If it hasn't changed, skip ahead to the next one:
         if (keyboard_.curr_scan_.banks[r] == keyboard_.prev_scan_.banks[r]) {
           ++r;
-          addr = r << 3;
+          c = 0;
           continue;
         }
         // We found a bank that changed. Test the current bit:
