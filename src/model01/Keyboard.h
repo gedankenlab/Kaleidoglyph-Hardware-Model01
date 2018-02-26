@@ -161,28 +161,30 @@ class Keyboard {
       // First, the actual end condition test:
       while (addr != other.addr) {
         // Compare the next bank (r). If it hasn't changed, skip ahead to the next one:
-        if (keyboard_.curr_scan_.banks[r] == keyboard_.prev_scan_.banks[r]) {
+        if (keyboard_.curr_scan_.banks[r] != keyboard_.prev_scan_.banks[r]) {
+          // We found a bank that changed. Test the current bit:
+          do {
+            byte curr_state = bitRead(keyboard_.curr_scan_.banks[r], c);
+            byte prev_state = bitRead(keyboard_.prev_scan_.banks[r], c);
+            if (curr_state != prev_state) {
+              // We found a bit that changed; get the event ready and return true:
+              event.state = KeyswitchState(curr_state, prev_state);
+              event.addr = addr;
+              bitWrite(keyboard_.prev_scan_.banks[r], c, curr_state);
+              return true;
+            } else {
+              // If this bit hasn't changed, check the next one:
+              ++addr; // Incrementing addr also increments c (which overflows to r)
+            }
+            // If c == 0, that means we've reached the end of the current bank, and can go
+            // on to the next one (starting back at the beginning of the enclosing loop)
+          } while (c != 0);
+          continue; // this is superfluous, but maybe clearer?
+        } else {
+          // no keyswitch states changed in this bank; advance to the next one:
           ++r;
           c = 0;
-          continue;
         }
-        // We found a bank that changed. Test the current bit:
-        do {
-          byte curr_state = bitRead(keyboard_.curr_scan_.banks[r], c);
-          byte prev_state = bitRead(keyboard_.prev_scan_.banks[r], c);
-          if (curr_state == prev_state) { // swap this condition, and the two blocks following
-            // If this bit hasn't changed, check the next one:
-            ++addr; // Incrementing addr also increments c (which overflows to r)
-          } else {
-            // We found a bit that changed; get the event ready and return true:
-            event.state = KeyswitchState(curr_state, prev_state);
-            event.addr = addr;
-            bitWrite(keyboard_.prev_scan_.banks[r], c, curr_state);
-            return true;
-          }
-          // If c == 0, that means we've reached the end of the current bank, and can go
-          // on to the next one (starting back at the beginning of the enclosing loop)
-        } while (c != 0);
       } // while (addr != other.addr) {
       return false;
     }
