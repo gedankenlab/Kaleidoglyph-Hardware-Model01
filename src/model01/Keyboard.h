@@ -150,7 +150,7 @@ class Keyboard {
   class Iterator {
    public:
     Iterator(Keyboard & keyboard, KeyAddr addr)
-        : keyboard_(keyboard), addr_(addr), event{} {}
+        : keyboard_(keyboard), addr_(addr) {}
 
     // __builtin_expect might make sense to use in these branches; the vast majority of
     // cases, there won't be an event, but maybe when there is we want it to resolve
@@ -173,6 +173,7 @@ class Keyboard {
             } else {
               // If this bit hasn't changed, check the next one:
               ++addr; // Incrementing addr also increments c (which overflows to r)
+              continue; // superfluous (goes to the bottom of do/while c != 0)
             }
             // If c == 0, that means we've reached the end of the current bank, and can go
             // on to the next one (starting back at the beginning of the enclosing loop)
@@ -219,7 +220,7 @@ class Keyboard {
 
 // Keyboard::Iterator is used like this:
 Keyboard keyboard;
-for (KeyswitchEvent event : keyboard) {
+for (KeyswitchEvent & event : keyboard) {
   // You'll only get an `event` here if at least one keyswitch changed state during a
   // scan. If more than one changed, you'll get each one in KeyAddr order.
 
@@ -238,4 +239,12 @@ for (KeyswitchEvent event : keyboard) {
   // when reading from the scanners, because it should already be done at that point.
 }
 
+// This should be equivalent to:
+Keyboard keyboard;
+for (Keyboard::Iterator i = keyboard.begin(), end = keyboard.end();
+     i != end;
+     ++i) {
+  KeyswitchEvent & event = *i;
+  // caller's code block goes here
+}
 #endif
