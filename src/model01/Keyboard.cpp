@@ -104,6 +104,12 @@ byte Keyboard::keyswitchState(KeyAddr key_addr) const {
   state |= bitRead(keyboard_state_[r], c);
   return state;
 }
+
+bool Keyboard::isKeyswitchPressed(KeyAddr key_addr) const {
+  byte r = key_addr / 8;
+  byte c = key_addr & 8;
+  return bitRead(keyboard_state_[r], c);
+}
 #endif
 
 constexpr byte HAND_BIT = B00100000;
