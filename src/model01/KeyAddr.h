@@ -38,7 +38,7 @@ struct KeyAddr {
   // operator overload: if a function `f(KeyAddr k)` gets passed an integer: `f(12)`, the
   // integer will be automatically passed to this constructor, creating a temporary
   // KeyAddr object.
-  constexpr KeyAddr(byte addr) : addr_{addr} {}
+  constexpr explicit KeyAddr(byte addr) : addr_{addr} {}
 
   // I feel like `((row << 3) | col)` should be faster. This is only for backwards
   // compatibility
@@ -114,13 +114,6 @@ struct KeyAddr {
   KeyAddr operator--(int) { // postfix
     KeyAddr tmp(addr_--);
     return tmp;
-  }
-
-  // This cast operator returns a reference, so when a KeyAddr object is used as a
-  // parameter to a function such as `f(byte& b)`, and that function mutates `b`, the
-  // KeyAddr object will also be mutated.
-  operator byte&() {
-    return addr_;
   }
 
 };
