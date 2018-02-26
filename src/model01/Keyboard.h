@@ -106,19 +106,12 @@ class Keyboard {
 
   Scanner scanners_[2];
 
-  union KeyboardState {
+  union KeyswitchScan {
     KeyswitchData hands[2];
     byte banks[total_keys / 8];  // CHAR_BIT
   };
-  KeyboardState keyboard_state_;
-  KeyboardState prev_keyboard_state_;
-
-  union KeyswitchStates {
-    KeyswitchData hands[2];
-    byte banks[total_keys / 8];  // CHAR_BIT
-  };
-  KeyboardState curr_scan_;
-  KeyboardState prev_scan_;
+  KeyswitchScan curr_scan_; // maybe `this_scan_`?
+  KeyswitchScan prev_scan_; // maybe `last_scan_`?
 
   // I'm not sure we need this conversion function. On the other hand, maybe it should be
   // public...
@@ -132,11 +125,13 @@ class Keyboard {
   // This doesn't seem to be called anywhere
   void rebootBootloader();
 
+  // End publc API (except rang-based for loop describe below)
+
  private:
   class Iterator;
   friend class Keyboard::Iterator;
 
- public:
+ public: // These methods are only public out of necessity
   Iterator begin() const {
     return Iterator{*this, cKeyAddr::start};
   }
@@ -154,11 +149,14 @@ class Keyboard {
   // checking with the next keyswitch.
   class Iterator {
    public:
-    Iterator(Keyboard& keyboard, KeyAddr addr)
-        : keyboard_(keyboard), addr_(addr.addr()), event{} {}
+    Iterator(Keyboard & keyboard, KeyAddr addr)
+        : keyboard_(keyboard), addr_(addr), event{} {}
 
-    bool operator!=(Iterator& other) const {
-      // First, the actual end condition test:
+    // __builtin_expect might make sense to use in these branches; the vast majority of
+    // cases, there won't be an event, but maybe when there is we want it to resolve
+    // faster. I'm honestly not sure which would be preferable.
+    bool operator!=(Iterator const & other) const {
+      // First, the actual end condition test (maybe better to use < instead of !=):
       while (addr != other.addr) {
         // Compare the next bank (r). If it hasn't changed, skip ahead to the next one:
         if (keyboard_.curr_scan_.banks[r] != keyboard_.prev_scan_.banks[r]) {
@@ -169,8 +167,8 @@ class Keyboard {
             if (curr_state != prev_state) {
               // We found a bit that changed; get the event ready and return true:
               event.state = KeyswitchState(curr_state, prev_state);
-              event.addr = addr;
-              bitWrite(keyboard_.prev_scan_.banks[r], c, curr_state);
+              event.addr = KeyAddr(addr);
+              event.key = cKey::transparent;
               return true;
             } else {
               // If this bit hasn't changed, check the next one:
@@ -184,24 +182,30 @@ class Keyboard {
           // no keyswitch states changed in this bank; advance to the next one:
           ++r;
           c = 0;
+          continue; // also superfluous, but maybe clearer?
         }
       } // while (addr != other.addr) {
       return false;
     }
 
-    KeyswitchEvent& operator*() {
+    KeyswitchEvent & operator*() {
       return event; // reference, probably
     }
 
-    void operator++() {
+    void operator++() { // We don't bother returning a value because it won't be used
+      // After the event has been processed, write the appropriate bit in the previous
+      // scan state data before incrementing the addr
+      bitWrite(keyboard_.prev_scan_.banks[r], c, curr_state);
       ++addr; // also affects r & c
     }
 
    private:
-    Keyboard& keyboard_;
+    Keyboard & keyboard_;
     union {
       byte addr;
-      byte c : 3, r : 3;
+      struct {
+        byte c : 3, r : 3; // "col" & "row"
+      };
     };
     KeyswitchEvent event;
   };
@@ -209,3 +213,29 @@ class Keyboard {
 
 } // namespace model01 {
 } // namespace kaleidoscope {
+
+
+#if 0
+
+// Keyboard::Iterator is used like this:
+Keyboard keyboard;
+for (KeyswitchEvent event : keyboard) {
+  // You'll only get an `event` here if at least one keyswitch changed state during a
+  // scan. If more than one changed, you'll get each one in KeyAddr order.
+
+  // Note: The KeyswitchEvent `event` will have correct values for the `addr` & `state`
+  // members, but not the `key`, because this module doesn't do any lookups on the keymap,
+  // so one of the most important things for the caller to do is that lookup.
+
+  // Also note: The `event` is returned by non-const reference, so it can continue to be
+  // passed along to other functions, and gets reused. This may not be the best design; I
+  // don't know. Since it gets overwritten every time it's used, the `key` member is not
+  // reliable until the caller does a lookup.
+
+  // Also: The `keyboard.prev_scan_` state gets updated after every event is processed
+  // (only one key's bit gets changed), so when the next one gets updated, both scan
+  // states are accurate. In fact, it shouldn't be necessary to copy the last scan state
+  // when reading from the scanners, because it should already be done at that point.
+}
+
+#endif
