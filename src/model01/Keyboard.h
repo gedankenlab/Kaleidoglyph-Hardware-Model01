@@ -4,6 +4,8 @@
 
 #include <Arduino.h>
 
+#include "Kaleidoscope.h"
+
 // Backward compatibility stuff here
 
 #define HARDWARE_IMPLEMENTATION kaleidoscope::model01::Keyboard
@@ -19,6 +21,8 @@
 #include "LedAddr.h"
 #include "KeyAddr.h"
 #include "Scanner.h"
+#include "kaleidoscope/cKeyAddr.h"
+#include "kaleidoscope/KeyswitchEvent.h"
 
 namespace kaleidoscope {
 namespace model01 {
@@ -132,13 +136,14 @@ class Keyboard {
   friend class Keyboard::Iterator;
 
  public: // These methods are only public out of necessity
-  Iterator begin() const {
+  Iterator begin() {
     return Iterator{*this, cKeyAddr::start};
   }
-  Iterator end() const {
+  Iterator end() {
     return Iterator{*this, cKeyAddr::end}
   }
 
+ private:
   // Very strange iterator where almost everything is done in the comparison. We iterate
   // through the key addresses, but 8 keys (a "bank") at a time, until we find a bank
   // that's changed since the previous scan. Then, we check the bits one at a time, until
@@ -150,12 +155,12 @@ class Keyboard {
   class Iterator {
    public:
     Iterator(Keyboard & keyboard, KeyAddr addr)
-        : keyboard_(keyboard), addr_(addr) {}
+        : keyboard_(keyboard), addr(addr) {}
 
     // __builtin_expect might make sense to use in these branches; the vast majority of
     // cases, there won't be an event, but maybe when there is we want it to resolve
     // faster. I'm honestly not sure which would be preferable.
-    bool operator!=(Iterator const & other) const {
+    bool operator!=(Iterator const & other) {
       // First, the actual end condition test (maybe better to use < instead of !=):
       while (addr != other.addr) {
         // Compare the next bank (r). If it hasn't changed, skip ahead to the next one:
@@ -196,7 +201,8 @@ class Keyboard {
     void operator++() { // We don't bother returning a value because it won't be used
       // After the event has been processed, write the appropriate bit in the previous
       // scan state data before incrementing the addr
-      bitWrite(keyboard_.prev_scan_.banks[r], c, curr_state);
+      bitWrite(keyboard_.prev_scan_.banks[r], c,
+               bitRead(keyboard_.curr_scan_.banks[r], c));
       ++addr; // also affects r & c
     }
 
