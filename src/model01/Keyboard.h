@@ -81,12 +81,12 @@ class Keyboard {
 
   // New API
   void scanMatrix();
-  #if 0
+
   // should probably return KeyswitchEvent instead
-  byte nextKeyswitchEvent(KeyAddr k);
+  byte nextKeyswitchEvent(KeyAddr& k);
   // I really don't think we need this function, but maybe it will be useful
   byte keyswitchState(KeyAddr k) const;
-  #endif
+
   // Update all LEDs to values set by set*Color() functions below
   void updateLeds();
 
