@@ -10,6 +10,7 @@
 
 #define COLS 16
 #define ROWS 4
+#define TOTAL_KEYS 64
 
 // End backcompat
 #include "KeyswitchData.h"
@@ -51,8 +52,8 @@ class Keyboard {
   void syncLeds() {
     return updateLeds();
   }
-  void setCrgbAt(byte row, byte col, cRGB color) {
-    return setKeyColor(KeyAddr(row * 8 + col), color);
+  void setCrgbAt(KeyAddr k, cRGB color) {
+    return setKeyColor(k, color);
   }
   void setCrgbAt(uint8_t i, cRGB crgb) {
     return setLedColor(LedAddr(i), crgb);
@@ -62,9 +63,9 @@ class Keyboard {
   }
 
   // Just ignore key masking for now; it will be handled elsewhere
-  void maskKey(byte row, byte col) {}
-  void unMaskKey(byte row, byte col) {}
-  bool isKeyMasked(byte row, byte col) { return false; }
+  void maskKey(KeyAddr k) {}
+  void unMaskKey(KeyAddr k) {}
+  bool isKeyMasked(KeyAddr k) { return false; }
   void maskHeldKeys(void) {}
 
   void actOnMatrixScan(void); // private!
@@ -82,9 +83,9 @@ class Keyboard {
   void scanMatrix();
   #if 0
   // should probably return KeyswitchEvent instead
-  byte nextKeyswitchEvent(KeyAddr key_addr);
+  byte nextKeyswitchEvent(KeyAddr k);
   // I really don't think we need this function, but maybe it will be useful
-  byte keyswitchState(KeyAddr key_addr) const;
+  byte keyswitchState(KeyAddr k) const;
   #endif
   // Update all LEDs to values set by set*Color() functions below
   void updateLeds();

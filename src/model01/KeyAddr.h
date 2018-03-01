@@ -25,53 +25,46 @@ namespace model01 {
 // this operator overloading. Now that I've done it, I'm going to try it out anyway, even
 // though it doesn't solve the problem I thought it would.
 struct KeyAddr {
- private:
-  byte addr_;
 
- public:
+  byte addr;
 
   // Default constructor initializes with an invalid addr
   KeyAddr() = default;
 
-  explicit constexpr KeyAddr(byte addr) : addr_{addr} {}
+  explicit constexpr KeyAddr(byte addr) : addr{addr} {}
 
   // I feel like `((row << 3) | col)` should be faster
-  constexpr KeyAddr(byte row, byte col) : addr_((row * 8) + col) {}
-
-  // This avoids copying, so maybe it's more efficient than using the cast operator
-  byte& addr() {
-    return addr_;
-  }
+  constexpr KeyAddr(byte row, byte col) : addr((row * 8) + col) {}
 
 #if 0
   void readFromProgmem(const KeyAddr& pgm_key_addr) {
-    addr_ = pgm_read_byte(&pgm_key_addr.addr_);
+    addr = pgm_read_byte(&pgm_key_addr.addr);
   }
   static KeyAddr createFromProgmem(const KeyAddr& pgm_key_addr) {
-    KeyAddr key_addr;
-    key_addr.addr_ = pgm_read_byte(&pgm_key_addr.addr_);
-    return key_addr;
+    KeyAddr k;
+    k.addr = pgm_read_byte(&pgm_key_addr.addr);
+    return k;
   }
 #endif
 
   // Comparison operators for use with other KeyAddr objects
   constexpr bool operator==(const KeyAddr& other) const {
-    return this->addr_ == other.addr_;
+    return this->addr == other.addr;
   }
   constexpr bool operator!=(const KeyAddr& other) const {
-    return this->addr_ != other.addr_;
+    return this->addr != other.addr;
   }
   constexpr bool operator>(const KeyAddr& other) const {
-    return this->addr_ > other.addr_;
+    return this->addr > other.addr;
   }
   constexpr bool operator<(const KeyAddr& other) const {
-    return this->addr_ < other.addr_;
+    return this->addr < other.addr;
   }
   constexpr bool operator>=(const KeyAddr& other) const {
-    return this->addr_ >= other.addr_;
+    return this->addr >= other.addr;
   }
   constexpr bool operator<=(const KeyAddr& other) const {
-    return this->addr_ <= other.addr_;
+    return this->addr <= other.addr;
   }
 
   // Note: we can't use `constexpr` with these ones with C++11, because that implies
@@ -80,33 +73,33 @@ struct KeyAddr {
 
   // Assignment & arithmetic operators (KeyAddr)
   KeyAddr& operator=(const KeyAddr& other) {
-    this->addr_ = other.addr_;
+    this->addr = other.addr;
     return *this;
   }
   KeyAddr& operator+=(const KeyAddr& other) {
-    this->addr_ += other.addr_;
+    this->addr += other.addr;
     return *this;
   }
   KeyAddr& operator-=(const KeyAddr& other) {
-    this->addr_ -= other.addr_;
+    this->addr -= other.addr;
     return *this;
   }
 
   // Increment & decrement unary operators
   KeyAddr& operator++() { // prefix
-    ++addr_;
+    ++addr;
     return *this;
   }
   KeyAddr& operator--() { // prefix
-    --addr_;
+    --addr;
     return *this;
   }
   KeyAddr operator++(int) { // postfix
-    KeyAddr tmp(addr_++);
+    KeyAddr tmp(addr++);
     return tmp;
   }
   KeyAddr operator--(int) { // postfix
-    KeyAddr tmp(addr_--);
+    KeyAddr tmp(addr--);
     return tmp;
   }
 

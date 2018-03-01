@@ -57,15 +57,15 @@ void Keyboard::scanMatrix() {
 
 // backcompat
 void Keyboard::actOnMatrixScan() {
-  for (byte hand = 0; hand < 2; hand++) {
-    for (byte row = 0; row < 4; row++) {
-      for (byte col = 0; col < 8; col++) {
-        byte bank = (hand << 0) | (row << 1);
-        byte key_state = ((bitRead(keyboard_state_.banks[bank], col) << 1) |
-                          (bitRead(prev_keyboard_state_.banks[bank], col) << 0));
-        handleKeyswitchEvent(Key_NoKey, row, (hand << 3) | col, key_state);
-      }
-    }
+  // static const byte HAND_BIT = B00100000;
+  // static const byte ROW_BITS = B00111000;
+  // static const byte COL_BITS = B00000111;
+  for (KeyAddr k{0}; k.addr < TOTAL_KEYS; ++k) {
+    byte row = k.addr / 8;
+    byte col = k.addr % 8;
+    byte key_state = ((bitRead(keyboard_state_.banks[row], col) << 1) |
+                      (bitRead(prev_keyboard_state_.banks[row], col) << 0));
+    handleKeyswitchEvent(Key_NoKey, k, key_state);
   }
 }
 
@@ -108,8 +108,8 @@ byte Keyboard::keyswitchState(KeyAddr key_addr) const {
 
 constexpr byte HAND_BIT = B00100000;
 
-LedAddr Keyboard::getLedAddr(KeyAddr key_addr) const {
-  return LedAddr(pgm_read_byte(&(key_led_map[key_addr.addr()])));
+LedAddr Keyboard::getLedAddr(KeyAddr k) const {
+  return LedAddr(pgm_read_byte(&(key_led_map[k.addr])));
 }
 
 const Color& Keyboard::getLedColor(LedAddr led_addr) const {
