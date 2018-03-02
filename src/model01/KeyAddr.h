@@ -24,71 +24,69 @@ namespace model01 {
 // though it doesn't solve the problem I thought it would.
 struct KeyAddr {
 
+  // Default addr value is invalid (or, at least, not a physical keyswitch)
   byte addr {0xFF};
 
-  // Default constructor initializes with an invalid addr
   KeyAddr() = default;
 
-  explicit constexpr KeyAddr(byte addr) : addr{addr} {}
+  // The single-argument constructor is `explicit` to prevent automatic casting of
+  // integers to KeyAddr objects, and constexpr to allow the creation of compile-time
+  // constant KeyAddr objects.
+  explicit constexpr
+  KeyAddr(byte addr) : addr{addr} {}
 
-  // I feel like `((row << 3) | col)` should be faster
-  constexpr KeyAddr(byte row, byte col) : addr((row * 8) + col) {}
+  // This (row,col) constructor was conceived as a transitional helper, but should
+  // probably just be removed, since the "row" and "col" values don't match the old ones.
+  constexpr
+  KeyAddr(byte row, byte col) : addr((row * 8) + col) {}
 
-#if 0
-  void readFromProgmem(const KeyAddr& pgm_key_addr) {
+  // Read a KeyAddr from an address in PROGMEM. This should be useful for sparse layers,
+  // which will contain (KeyAddr,Key) pairs.
+  void readFromProgmem(KeyAddr const & pgm_key_addr) {
     addr = pgm_read_byte(&pgm_key_addr.addr);
   }
-  static KeyAddr createFromProgmem(const KeyAddr& pgm_key_addr) {
-    KeyAddr k;
-    k.addr = pgm_read_byte(&pgm_key_addr.addr);
-    return k;
-  }
-#endif
 
+  
   // Comparison operators for use with other KeyAddr objects
-  constexpr bool operator==(const KeyAddr& other) const {
+  bool operator==(KeyAddr const & other) const {
     return this->addr == other.addr;
   }
-  constexpr bool operator!=(const KeyAddr& other) const {
+  bool operator!=(KeyAddr const & other) const {
     return this->addr != other.addr;
   }
-  constexpr bool operator>(const KeyAddr& other) const {
+  bool operator>(KeyAddr const & other) const {
     return this->addr > other.addr;
   }
-  constexpr bool operator<(const KeyAddr& other) const {
+  bool operator<(KeyAddr const & other) const {
     return this->addr < other.addr;
   }
-  constexpr bool operator>=(const KeyAddr& other) const {
+  bool operator>=(KeyAddr const & other) const {
     return this->addr >= other.addr;
   }
-  constexpr bool operator<=(const KeyAddr& other) const {
+  bool operator<=(KeyAddr const & other) const {
     return this->addr <= other.addr;
   }
 
-  // Note: we can't use `constexpr` with these ones with C++11, because that implies
-  // `const`, which we don't want. So, we use `inline` instead, which amounts to the same
-  // thing. In C++14, these can become `constexpr`, but without the `const`.
-
   // Assignment & arithmetic operators (KeyAddr)
-  KeyAddr& operator=(const KeyAddr& other) {
+  KeyAddr & operator=(KeyAddr const & other) {
     this->addr = other.addr;
     return *this;
   }
-  KeyAddr& operator+=(const KeyAddr& other) {
+  KeyAddr & operator+=(KeyAddr const & other) {
     this->addr += other.addr;
     return *this;
   }
-  KeyAddr& operator-=(const KeyAddr& other) {
+  KeyAddr & operator-=(KeyAddr const & other) {
     this->addr -= other.addr;
     return *this;
   }
 
   // Increment & decrement unary operators
-  KeyAddr& operator++() { // prefix
+  KeyAddr & operator++() { // prefix
     ++addr;
     return *this;
   }
-  KeyAddr& operator--() { // prefix
+  KeyAddr & operator--() { // prefix
     --addr;
     return *this;
   }
