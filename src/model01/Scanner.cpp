@@ -48,7 +48,7 @@ constexpr byte SCANNER_I2C_ADDR_BASE = 0x58;
 #define ELEMENTS(array)  (sizeof(array) / sizeof((array)[0]))
 
 // This array translates LED values to corrected values
-const byte PROGMEM gamma8[] = {
+const PROGMEM byte gamma8[] = {
   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  1,  1,  1,
   1,  1,  1,  1,  1,  1,  1,  1,  1,  2,  2,  2,  2,  2,  2,  2,
