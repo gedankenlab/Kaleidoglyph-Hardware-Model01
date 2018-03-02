@@ -85,7 +85,7 @@ byte Keyboard::nextKeyswitchEvent(KeyAddr& k) {
       byte curr_state = bitRead(keyboard_state_.banks[r], c);
       if (prev_state != curr_state) {
         k.addr = (r << 3) | c;
-        return (prev_state << 1) | curr_state;
+        return (prev_state << 0) | (curr_state << 1);
       }
     }
   }
