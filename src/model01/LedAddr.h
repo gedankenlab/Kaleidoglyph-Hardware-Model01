@@ -21,6 +21,8 @@ struct LedAddr {
   explicit constexpr
   LedAddr(byte addr) : addr{addr} {}
 
+  // Translate from KeyAddr to LedAddr by using this table. The index in the array is the
+  // KeyAddr; the value is the LedAddr.
   static constexpr PROGMEM byte key_led_map[] = {
     27, 26, 20, 19, 12, 11,  4,  3,
     28, 25, 21, 18, 13, 10,  5,  2,
