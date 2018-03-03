@@ -29,12 +29,12 @@ SOFTWARE.
 
 #include <Arduino.h>
 
-#include "KeyswitchData.h"
-#include "Color.h"
+#include "model01/KeyswitchData.h"
+#include "model01/Color.h"
 
 // See .cpp file for comments regarding appropriate namespaces
 namespace kaleidoscope {
-namespace model01 {
+namespace hardware {
 
 // I'm uncertain of how to manage these constants
 constexpr byte LEDS_PER_BANK = 8;
@@ -45,7 +45,7 @@ class Scanner {
  public:
   Scanner(byte ad01);
 
-  bool readKeys(KeyswitchData& key_data);
+  bool readKeys(KeyswitchData &key_data);
 
   // only here for debugging, I think; it's unused in firmware
   byte readVersion();
@@ -57,7 +57,7 @@ class Scanner {
   byte readLedSpiFrequency();
 
   // interface to LED color array
-  const Color& getLedColor(byte i) const;
+  Color const &getLedColor(byte i) const;
   void setLedColor(byte i, Color color);
 
   // send message to controller to change physical LEDs
@@ -97,5 +97,5 @@ class Scanner {
 
 }; // class Scanner {
 
-} // namespace model01 {
+} // namespace hardware {
 } // namespace kaleidoscope {

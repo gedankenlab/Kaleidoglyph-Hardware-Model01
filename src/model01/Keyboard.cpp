@@ -2,19 +2,18 @@
 
 #include <Arduino.h>
 #include <avr/wdt.h>
-#include <stdint.h>
 
 // backcompat
 #include <Kaleidoscope.h>
 
-#include "Color.h"
-#include "KeyAddr.h"
-#include "LedAddr.h"
-#include "Scanner.h"
+#include "model01/Color.h"
+#include "model01/KeyAddr.h"
+#include "model01/LedAddr.h"
+#include "model01/Scanner.h"
 
 
 namespace kaleidoscope {
-namespace model01 {
+namespace hardware {
 
 // Why don't we do these things in the constructor? Why are they static? There's only one object...
 // static Scanner scanners[] = {

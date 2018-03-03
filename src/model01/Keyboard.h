@@ -6,23 +6,23 @@
 
 // Backward compatibility stuff here
 
-#define HARDWARE_IMPLEMENTATION kaleidoscope::model01::Keyboard
+#define HARDWARE_IMPLEMENTATION kaleidoscope::hardware::Keyboard
 
 #define COLS 16
 #define ROWS 4
 #define TOTAL_KEYS 64
 
 // End backcompat
-#include "KeyswitchData.h"
+#include "model01/KeyswitchData.h"
 
 // I think all we need is a forward declaration here
-#include "Color.h"
-#include "LedAddr.h"
-#include "KeyAddr.h"
-#include "Scanner.h"
+#include "model01/Color.h"
+#include "model01/LedAddr.h"
+#include "model01/KeyAddr.h"
+#include "model01/Scanner.h"
 
 namespace kaleidoscope {
-namespace model01 {
+namespace hardware {
 
 
 
@@ -91,18 +91,18 @@ class Keyboard {
   void updateLeds();
 
   // These functions operate on LedAddr values, which are different from corresponding KeyAddr values
-  const Color& getLedColor(LedAddr led_addr) const;
-  void setLedColor(LedAddr led_addr, Color color);
+  Color const &getLedColor(LedAddr led) const;
+  void setLedColor(LedAddr led, Color color);
 
   // These are the KeyAddr versions, which call the LedAddr functions
-  const Color& getKeyColor(KeyAddr key_addr) const;
-  void setKeyColor(KeyAddr key_addr, Color color);
+  Color const &getKeyColor(KeyAddr k) const;
+  void setKeyColor(KeyAddr k, Color color);
 
   // I'm leaving these functions alone for now; they shall remain mysterious
   void setup();
 
   // This function is used by TestMode
-  void setKeyscanInterval(uint8_t interval);
+  void setKeyscanInterval(byte interval);
 
  private:
   static constexpr byte HAND_BIT = B00100000;

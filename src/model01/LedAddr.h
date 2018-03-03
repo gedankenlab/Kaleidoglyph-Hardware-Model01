@@ -3,13 +3,15 @@
 #pragma once
 
 #include <Arduino.h>
-#include "KeyAddr.h"
+
+#include "model01/KeyAddr.h"
+
 
 namespace kaleidoscope {
 
 struct LedAddr {
 
-  // Default addr value is invalid (or, at least, not a physical keyswitch)
+  // Default addr value is invalid (or, at least, not a real LED)
   byte addr {0xFF};
 
   LedAddr() = default;
@@ -40,51 +42,51 @@ struct LedAddr {
 
   // Read a LedAddr from an address in PROGMEM. This should be useful for sparse layers,
   // which will contain (LedAddr,Key) pairs.
-  void readFromProgmem(LedAddr const & pgm_key_addr) {
+  void readFromProgmem(LedAddr const &pgm_key_addr) {
     addr = pgm_read_byte(&pgm_key_addr.addr);
   }
 
   
   // Comparison operators for use with other LedAddr objects
-  bool operator==(LedAddr const & other) const {
+  bool operator==(LedAddr const &other) const {
     return this->addr == other.addr;
   }
-  bool operator!=(LedAddr const & other) const {
+  bool operator!=(LedAddr const &other) const {
     return this->addr != other.addr;
   }
-  bool operator>(LedAddr const & other) const {
+  bool operator>(LedAddr const &other) const {
     return this->addr > other.addr;
   }
-  bool operator<(LedAddr const & other) const {
+  bool operator<(LedAddr const &other) const {
     return this->addr < other.addr;
   }
-  bool operator>=(LedAddr const & other) const {
+  bool operator>=(LedAddr const &other) const {
     return this->addr >= other.addr;
   }
-  bool operator<=(LedAddr const & other) const {
+  bool operator<=(LedAddr const &other) const {
     return this->addr <= other.addr;
   }
 
   // Assignment & arithmetic operators (LedAddr)
-  LedAddr & operator=(LedAddr const & other) {
+  LedAddr &operator=(LedAddr const &other) {
     this->addr = other.addr;
     return *this;
   }
-  LedAddr & operator+=(LedAddr const & other) {
+  LedAddr &operator+=(LedAddr const &other) {
     this->addr += other.addr;
     return *this;
   }
-  LedAddr & operator-=(LedAddr const & other) {
+  LedAddr &operator-=(LedAddr const &other) {
     this->addr -= other.addr;
     return *this;
   }
 
   // Increment & decrement unary operators
-  LedAddr & operator++() { // prefix
+  LedAddr &operator++() { // prefix
     ++addr;
     return *this;
   }
-  LedAddr & operator--() { // prefix
+  LedAddr &operator--() { // prefix
     --addr;
     return *this;
   }

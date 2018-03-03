@@ -23,12 +23,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Scanner.h"
+#include "model01/Scanner.h"
 
 #include <Arduino.h>
 
-#include "Color.h"
-#include "KeyswitchData.h"
+#include "model01/Color.h"
+#include "model01/KeyswitchData.h"
 
 
 // why extern "C"? Because twi.c is not C++!
@@ -39,7 +39,7 @@ extern "C" {
 
 
 namespace kaleidoscope {
-namespace model01 {
+namespace hardware {
 
 // Magic constant with no documentation...
 constexpr byte SCANNER_I2C_ADDR_BASE = 0x58;
@@ -81,21 +81,10 @@ Scanner::Scanner(byte ad01) {
   }
 }
 
-/*
-void Scanner::init() {
-  // Maybe it's better to do the initialization in a separate function, not the constructor
-  static bool twi_uninitialized = true;
-  if (twi_uninitialized) {
-    twi_init();
-    twi_unininitialized = false;
-  }
-}
-*/
-
 // This function should just return a KeyswitchData object, and not bother storing it as a
 // member of the Scanner object. This reference parameter needs testing to see if it works
 // as I expect.
-bool Scanner::readKeys(KeyswitchData& key_data) {
+bool Scanner::readKeys(KeyswitchData &key_data) {
   byte rx_buffer[sizeof(key_data) + 1];
 
   // perform blocking read into buffer
@@ -111,7 +100,7 @@ bool Scanner::readKeys(KeyswitchData& key_data) {
 }
 
 
-const Color& Scanner::getLedColor(byte led) const {
+Color const &Scanner::getLedColor(byte led) const {
   //assert(led < LEDS_PER_HAND);
   return led_states_.leds[led];
 }
@@ -263,5 +252,5 @@ byte Scanner::setLedSpiFrequency(byte frequency) {
   return result;
 }
 
-} // namespace model01 {
+} // namespace hardware {
 } // namespace kaleidoscope {

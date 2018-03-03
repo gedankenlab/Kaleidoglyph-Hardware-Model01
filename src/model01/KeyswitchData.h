@@ -6,7 +6,7 @@
 
 
 namespace kaleidoscope {
-namespace model01 {
+namespace hardware {
 
 // As with "Key", this name should be changed to make it clear what's represented
 union KeyswitchData {
