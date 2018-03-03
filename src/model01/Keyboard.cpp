@@ -165,6 +165,10 @@ void Keyboard::setup() {
   memset(&prev_keyboard_state_, 0, sizeof(prev_keyboard_state_));
 
   TWBR = 12; // This is 400mhz, which is the fastest we can drive the ATTiny
+
+  // Turn off all LEDs at startup. TODO: move this elsewhere?
+  scanners_[0].updateAllLeds(Color{0,0,0});
+  scanners_[1].updateAllLeds(Color{0,0,0});
 }
 
 
