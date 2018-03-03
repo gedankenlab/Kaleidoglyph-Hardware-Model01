@@ -111,24 +111,24 @@ LedAddr Keyboard::getLedAddr(KeyAddr k) const {
   return LedAddr(pgm_read_byte(&(key_led_map[k.addr])));
 }
 
-const Color& Keyboard::getLedColor(LedAddr led_addr) const {
-  bool hand = led_addr & HAND_BIT; // B00100000
-  return scanners_[hand].getLedColor(led_addr & ~HAND_BIT);
+const Color& Keyboard::getLedColor(LedAddr led) const {
+  bool hand = led.addr & HAND_BIT; // B00100000
+  return scanners_[hand].getLedColor(led.addr & ~HAND_BIT);
 }
 
-void Keyboard::setLedColor(LedAddr led_addr, Color color) {
-  bool hand = led_addr & HAND_BIT; // B00100000
-  scanners_[hand].setLedColor(led_addr & ~HAND_BIT, color);
+void Keyboard::setLedColor(LedAddr led, Color color) {
+  bool hand = led.addr & HAND_BIT; // B00100000
+  scanners_[hand].setLedColor(led.addr & ~HAND_BIT, color);
 }
 
-const Color& Keyboard::getKeyColor(KeyAddr key_addr) const {
-  LedAddr led_addr = getLedAddr(key_addr);
-  return getLedColor(led_addr);
+const Color& Keyboard::getKeyColor(KeyAddr k) const {
+  LedAddr led = getLedAddr(k);
+  return getLedColor(led);
 }
 
-void Keyboard::setKeyColor(KeyAddr key_addr, Color color) {
-  LedAddr led_addr = getLedAddr(key_addr);
-  setLedColor(led_addr, color);
+void Keyboard::setKeyColor(KeyAddr k, Color color) {
+  LedAddr led = getLedAddr(k);
+  setLedColor(led, color);
 }
 
 
