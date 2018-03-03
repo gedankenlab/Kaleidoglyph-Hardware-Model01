@@ -6,7 +6,6 @@
 #include "KeyAddr.h"
 
 namespace kaleidoscope {
-namespace model01 {
 
 struct LedAddr {
 
@@ -102,5 +101,4 @@ struct LedAddr {
 
 };
 
-} // namespace model01 {
 } // namespace kaleidoscope {

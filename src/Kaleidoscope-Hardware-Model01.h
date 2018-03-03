@@ -16,9 +16,9 @@ namespace kaleidoscope {
 
 // `using` won't work; it will be confined to this block, and have no effect.
 //typedef model01::Key     Key;
-typedef model01::KeyAddr KeyAddr;
-typedef model01::LedAddr LedAddr;
-typedef model01::Color   Color;
+//typedef model01::KeyAddr KeyAddr;
+//typedef model01::LedAddr LedAddr;
+//typedef model01::Color   Color;
 
 // Maybe hiding this would be better, but here goes for now:
 //typedef model01::Keyboard Keyboard;

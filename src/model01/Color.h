@@ -6,7 +6,6 @@
 
 
 namespace kaleidoscope {
-namespace model01 {
 
 // In the old cRGB struct, the order of the bytes (b,g,r) was important because brace
 // initialization was used. for the Color struct, I'm using a real constructor, so that
@@ -39,5 +38,4 @@ struct Color {
 
 };
 
-} // namespace model01 {
 } // namespace kaleidoscope {

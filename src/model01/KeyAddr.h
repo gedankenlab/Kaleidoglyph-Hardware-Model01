@@ -12,7 +12,6 @@
 // pointer, which would triple the storage size of a KeyAddr.
 
 namespace kaleidoscope {
-namespace model01 {
 
 // The Model01 has only 64 keys, and we only need one extra value to indicate an invalid
 // key address, so that all fits in one byte.
@@ -103,5 +102,4 @@ struct KeyAddr {
 
 };
 
-} // namespace model01 {
 } // namespace kaleidoscope {
