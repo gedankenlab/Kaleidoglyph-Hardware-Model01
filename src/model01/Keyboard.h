@@ -63,12 +63,12 @@ class Keyboard {
 
   Scanner scanners_[2];
 
-  union KeyboardState {
+  union KeyswitchScan {
     KeyswitchData hands[2];
     byte banks[total_keys / 8];  // CHAR_BIT
   };
-  KeyboardState keyboard_state_;
-  KeyboardState prev_keyboard_state_;
+  KeyswitchScan keyboard_state_;
+  KeyswitchScan prev_keyboard_state_;
 
   // I'm not sure we need this conversion function. On the other hand, maybe it should be
   // public...
