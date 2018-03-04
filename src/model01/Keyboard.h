@@ -67,8 +67,8 @@ class Keyboard {
     KeyswitchData hands[2];
     byte banks[total_keys / 8];  // CHAR_BIT
   };
-  KeyswitchScan keyboard_state_;
-  KeyswitchScan prev_keyboard_state_;
+  KeyswitchScan curr_scan_;
+  KeyswitchScan prev_scan_;
 
   // I'm not sure we need this conversion function. On the other hand, maybe it should be
   // public...

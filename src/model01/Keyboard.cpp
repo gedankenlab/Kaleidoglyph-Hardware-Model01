@@ -44,13 +44,13 @@ Keyboard::Keyboard() : scanners_{Scanner(0), Scanner(3)} {}
 
 void Keyboard::scanMatrix() {
   // copy current keyswitch state array to previous
-  memcpy(&prev_keyboard_state_, &keyboard_state_, sizeof(prev_keyboard_state_));
+  memcpy(&prev_scan_, &curr_scan_, sizeof(prev_scan_));
 
   // scan left hand
-  scanners_[0].readKeys(keyboard_state_.hands[0]);
+  scanners_[0].readKeys(curr_scan_.hands[0]);
 
   // scan right hand
-  scanners_[1].readKeys(keyboard_state_.hands[1]);
+  scanners_[1].readKeys(curr_scan_.hands[1]);
 
   // backcompat
   //actOnMatrixScan();
@@ -63,13 +63,13 @@ void Keyboard::scanMatrix() {
 KeyswitchEvent Keyboard::nextKeyswitchEvent(KeyAddr& k) {
   // compare state bitfield one byte at a time until we find one that differs
   for (byte r = (k.addr / 8); r < 8; ++r) {
-    if (keyboard_state_.banks[r] == prev_keyboard_state_.banks[r]) {
+    if (curr_scan_.banks[r] == prev_scan_.banks[r]) {
       continue;
     }
     // next compare the bits one at a time
     for (byte c = (k.addr % 8); c < 8; ++c) {
-      byte prev_state = bitRead(prev_keyboard_state_.banks[r], c);
-      byte curr_state = bitRead(keyboard_state_.banks[r], c);
+      byte prev_state = bitRead(prev_scan_.banks[r], c);
+      byte curr_state = bitRead(curr_scan_.banks[r], c);
       if (prev_state != curr_state) {
         k.addr = (r << 3) | c;
         return {Key_NoKey, k, KeyswitchState(curr_state, prev_state)};
@@ -86,8 +86,8 @@ KeyswitchState Keyboard::keyswitchState(KeyAddr k) const {
   byte state = 0;
   byte r = k.addr / 8;
   byte c = k.addr % 8;
-  return KeyswitchState(bitRead(keyboard_state_.banks[r], c),
-                        bitRead(prev_keyboard_state_.banks[r], c));
+  return KeyswitchState(bitRead(curr_scan_.banks[r], c),
+                        bitRead(prev_scan_.banks[r], c));
 }
 
 
@@ -147,8 +147,8 @@ void Keyboard::setup() {
   // boot up, to make it easier to rescue things
   // in case of power draw issues.
   enableHighPowerLeds();
-  memset(&keyboard_state_, 0, sizeof(keyboard_state_));
-  memset(&prev_keyboard_state_, 0, sizeof(prev_keyboard_state_));
+  memset(&curr_scan_, 0, sizeof(curr_scan_));
+  memset(&prev_scan_, 0, sizeof(prev_scan_));
 
   TWBR = 12; // This is 400mhz, which is the fastest we can drive the ATTiny
 
