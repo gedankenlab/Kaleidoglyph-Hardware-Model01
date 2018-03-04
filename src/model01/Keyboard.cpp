@@ -55,20 +55,6 @@ void Keyboard::scanMatrix() {
   //actOnMatrixScan();
 }
 
-// backcompat
-void Keyboard::actOnMatrixScan() {
-  // static const byte HAND_BIT = B00100000;
-  // static const byte ROW_BITS = B00111000;
-  // static const byte COL_BITS = B00000111;
-  for (KeyAddr k{0}; k.addr < TOTAL_KEYS; ++k) {
-    byte row = k.addr / 8;
-    byte col = k.addr % 8;
-    byte key_state = ((bitRead(keyboard_state_.banks[row], col) << 1) |
-                      (bitRead(prev_keyboard_state_.banks[row], col) << 0));
-    handleKeyswitchEvent(Key_NoKey, k, key_state);
-  }
-}
-
 // get the address of the next key that changed state (if any), starting from the last one
 // checked (or at least, that's the expected usage). Return true if we found an event;
 // false if we didn't find a keyswitch in a different state. Maybe it should return the

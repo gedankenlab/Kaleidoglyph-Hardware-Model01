@@ -47,39 +47,6 @@ class Keyboard {
   // extra getInstance() method that would be required to do that.
   Keyboard();
 
-  // Backcompat
-
-  // Forward led functions
-  void syncLeds() {
-    return updateLeds();
-  }
-  void setCrgbAt(KeyAddr k, cRGB color) {
-    return setKeyColor(k, color);
-  }
-  void setCrgbAt(uint8_t i, cRGB crgb) {
-    return setLedColor(LedAddr(i), crgb);
-  }
-  cRGB getCrgbAt(uint8_t i) {
-    return getLedColor(LedAddr(i));
-  }
-
-  // Just ignore key masking for now; it will be handled elsewhere
-  void maskKey(KeyAddr k) {}
-  void unMaskKey(KeyAddr k) {}
-  bool isKeyMasked(KeyAddr k) { return false; }
-  void maskHeldKeys(void) {}
-
-  void actOnMatrixScan(void); // private!
-
-  // These are only used by TestMode & MagicCombo
-  // keydata_t leftHandState;
-  // keydata_t rightHandState;
-  // keydata_t previousLeftHandState;
-  // keydata_t previousRightHandState;
-
-  // End backcompat
-
-
   // New API
   void scanMatrix();
 
