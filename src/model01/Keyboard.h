@@ -5,21 +5,16 @@
 #include <Arduino.h>
 
 // Backward compatibility stuff here
-
 #define HARDWARE_IMPLEMENTATION kaleidoscope::hardware::Keyboard
-
-#define TOTAL_KEYS 64
-
 // End backcompat
-#include "model01/KeyswitchData.h"
 
-// I think all we need is a forward declaration here
+#include "model01/KeyswitchData.h"
 #include "model01/Color.h"
 #include "model01/LedAddr.h"
 #include "model01/KeyAddr.h"
 #include "model01/Scanner.h"
-#include "kaleidoscope/KeyswitchState.h"
-#include "kaleidoscope/KeyswitchEvent.h"
+#include <kaleidoscope/KeyswitchState.h>
+#include <kaleidoscope/KeyswitchEvent.h>
 
 namespace kaleidoscope {
 namespace hardware {
