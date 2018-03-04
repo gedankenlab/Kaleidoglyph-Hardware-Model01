@@ -57,7 +57,7 @@ class Scanner {
   byte readLedSpiFrequency();
 
   // interface to LED color array
-  Color const &getLedColor(byte i) const;
+  const Color& getLedColor(byte i) const;
   void setLedColor(byte i, Color color);
 
   // send message to controller to change physical LEDs

@@ -92,11 +92,11 @@ class Keyboard {
   void updateLeds();
 
   // These functions operate on LedAddr values, which are different from corresponding KeyAddr values
-  Color const &getLedColor(LedAddr led) const;
+  const Color& getLedColor(LedAddr led) const;
   void setLedColor(LedAddr led, Color color);
 
   // These are the KeyAddr versions, which call the LedAddr functions
-  Color const &getKeyColor(KeyAddr k) const;
+  const Color& getKeyColor(KeyAddr k) const;
   void setKeyColor(KeyAddr k, Color color);
 
   // I'm leaving these functions alone for now; they shall remain mysterious

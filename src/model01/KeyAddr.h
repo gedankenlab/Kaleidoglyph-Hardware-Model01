@@ -35,51 +35,51 @@ struct KeyAddr {
 
   // Read a KeyAddr from an address in PROGMEM. This should be useful for sparse layers,
   // which will contain (KeyAddr,Key) pairs.
-  void readFromProgmem(KeyAddr const &pgm_key_addr) {
+  void readFromProgmem(const KeyAddr&pgm_key_addr) {
     addr = pgm_read_byte(&pgm_key_addr.addr);
   }
 
   
   // Comparison operators for use with other KeyAddr objects
-  bool operator==(KeyAddr const &other) const {
+  bool operator==(const KeyAddr& other) const {
     return this->addr == other.addr;
   }
-  bool operator!=(KeyAddr const &other) const {
+  bool operator!=(const KeyAddr& other) const {
     return this->addr != other.addr;
   }
-  bool operator>(KeyAddr const &other) const {
+  bool operator>(const KeyAddr& other) const {
     return this->addr > other.addr;
   }
-  bool operator<(KeyAddr const &other) const {
+  bool operator<(const KeyAddr& other) const {
     return this->addr < other.addr;
   }
-  bool operator>=(KeyAddr const &other) const {
+  bool operator>=(const KeyAddr& other) const {
     return this->addr >= other.addr;
   }
-  bool operator<=(KeyAddr const &other) const {
+  bool operator<=(const KeyAddr& other) const {
     return this->addr <= other.addr;
   }
 
   // Assignment & arithmetic operators (KeyAddr)
-  KeyAddr &operator=(KeyAddr const &other) {
+  KeyAddr& operator=(const KeyAddr& other) {
     this->addr = other.addr;
     return *this;
   }
-  KeyAddr &operator+=(KeyAddr const &other) {
+  KeyAddr& operator+=(const KeyAddr& other) {
     this->addr += other.addr;
     return *this;
   }
-  KeyAddr &operator-=(KeyAddr const &other) {
+  KeyAddr& operator-=(const KeyAddr& other) {
     this->addr -= other.addr;
     return *this;
   }
 
   // Increment & decrement unary operators
-  KeyAddr &operator++() { // prefix
+  KeyAddr& operator++() { // prefix
     ++addr;
     return *this;
   }
-  KeyAddr &operator--() { // prefix
+  KeyAddr& operator--() { // prefix
     --addr;
     return *this;
   }

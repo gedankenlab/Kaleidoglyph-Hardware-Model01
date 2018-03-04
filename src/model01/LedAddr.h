@@ -42,41 +42,41 @@ struct LedAddr {
 
   // Read a LedAddr from an address in PROGMEM. This should be useful for sparse layers,
   // which will contain (LedAddr,Key) pairs.
-  void readFromProgmem(LedAddr const &pgm_key_addr) {
+  void readFromProgmem(const LedAddr& pgm_key_addr) {
     addr = pgm_read_byte(&pgm_key_addr.addr);
   }
 
   
   // Comparison operators for use with other LedAddr objects
-  bool operator==(LedAddr const &other) const {
+  bool operator==(const LedAddr& other) const {
     return this->addr == other.addr;
   }
-  bool operator!=(LedAddr const &other) const {
+  bool operator!=(const LedAddr& other) const {
     return this->addr != other.addr;
   }
-  bool operator>(LedAddr const &other) const {
+  bool operator>(const LedAddr& other) const {
     return this->addr > other.addr;
   }
-  bool operator<(LedAddr const &other) const {
+  bool operator<(const LedAddr& other) const {
     return this->addr < other.addr;
   }
-  bool operator>=(LedAddr const &other) const {
+  bool operator>=(const LedAddr& other) const {
     return this->addr >= other.addr;
   }
-  bool operator<=(LedAddr const &other) const {
+  bool operator<=(const LedAddr& other) const {
     return this->addr <= other.addr;
   }
 
   // Assignment & arithmetic operators (LedAddr)
-  LedAddr &operator=(LedAddr const &other) {
+  LedAddr &operator=(const LedAddr& other) {
     this->addr = other.addr;
     return *this;
   }
-  LedAddr &operator+=(LedAddr const &other) {
+  LedAddr &operator+=(const LedAddr& other) {
     this->addr += other.addr;
     return *this;
   }
-  LedAddr &operator-=(LedAddr const &other) {
+  LedAddr &operator-=(const LedAddr& other) {
     this->addr -= other.addr;
     return *this;
   }
