@@ -20,6 +20,7 @@
 #include "model01/LedAddr.h"
 #include "model01/KeyAddr.h"
 #include "model01/Scanner.h"
+#include "kaleidoscope/KeyswitchState.h"
 
 namespace kaleidoscope {
 namespace hardware {
@@ -83,9 +84,9 @@ class Keyboard {
   void scanMatrix();
 
   // should probably return KeyswitchEvent instead
-  byte nextKeyswitchEvent(KeyAddr& k);
+  KeyswitchState nextKeyswitchEvent(KeyAddr& k);
   // I really don't think we need this function, but maybe it will be useful
-  byte keyswitchState(KeyAddr k) const;
+  KeyswitchState keyswitchState(KeyAddr k) const;
 
   // Update all LEDs to values set by set*Color() functions below
   void updateLeds();

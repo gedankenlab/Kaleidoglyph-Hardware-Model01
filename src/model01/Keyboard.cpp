@@ -10,6 +10,7 @@
 #include "model01/KeyAddr.h"
 #include "model01/LedAddr.h"
 #include "model01/Scanner.h"
+#include "kaleidoscope/KeyswitchState.h"
 
 
 namespace kaleidoscope {
@@ -72,7 +73,7 @@ void Keyboard::actOnMatrixScan() {
 // checked (or at least, that's the expected usage). Return true if we found an event;
 // false if we didn't find a keyswitch in a different state. Maybe it should return the
 // state value instead.
-byte Keyboard::nextKeyswitchEvent(KeyAddr& k) {
+KeyswitchState Keyboard::nextKeyswitchEvent(KeyAddr& k) {
   // compare state bitfield one byte at a time until we find one that differs
   for (byte r = (k.addr / 8); r < 8; ++r) {
     if (keyboard_state_.banks[r] == prev_keyboard_state_.banks[r]) {
@@ -84,23 +85,22 @@ byte Keyboard::nextKeyswitchEvent(KeyAddr& k) {
       byte curr_state = bitRead(keyboard_state_.banks[r], c);
       if (prev_state != curr_state) {
         k.addr = (r << 3) | c;
-        return prev_state | (curr_state << 1);
+        return KeyswitchState(curr_state, prev_state);
       }
     }
   }
   // key_addr = Keyboard::total_keys;
-  return 0;
+  return KeyswitchState(0);
 }
 
 
 // return the state of the keyswitch as a bitfield
-byte Keyboard::keyswitchState(KeyAddr k) const {
+KeyswitchState Keyboard::keyswitchState(KeyAddr k) const {
   byte state = 0;
   byte r = k.addr / 8;
   byte c = k.addr % 8;
-  state |= bitRead(prev_keyboard_state_.banks[r], c);
-  state |= bitRead(keyboard_state_.banks[r], c) << 1;
-  return state;
+  return KeyswitchState(bitRead(keyboard_state_.banks[r], c),
+                        bitRead(prev_keyboard_state_.banks[r], c));
 }
 
 

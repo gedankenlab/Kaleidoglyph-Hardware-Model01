@@ -11,6 +11,10 @@
 #include "model01/LedAddr.h"
 #include "model01/Color.h"
 
+// This might be a solution to the faux circular dependency problem
+#define KALEIDOSCOPE_KEYADDR_H "model01/KeyAddr.h"
+#define KALEIDOSCOPE_LEDADDR_H "model01/LedAddr.h"
+#define KALEIDOSCOPE_COLOR_H   "model01/Color.h"
 
 namespace kaleidoscope {
 
