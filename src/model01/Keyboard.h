@@ -8,8 +8,6 @@
 
 #define HARDWARE_IMPLEMENTATION kaleidoscope::hardware::Keyboard
 
-#define COLS 16
-#define ROWS 4
 #define TOTAL_KEYS 64
 
 // End backcompat
@@ -26,19 +24,9 @@ namespace kaleidoscope {
 namespace hardware {
 
 
-
-// backcompat
-typedef Color cRGB;
-typedef Color CRGB;
-
 // This needs to be a macro so we can check the keymap definitions
 #define TOTAL_KEYS_STR "64"
 constexpr byte total_keys = 64;
-
-
-
-
-
 
 
 class Keyboard {
