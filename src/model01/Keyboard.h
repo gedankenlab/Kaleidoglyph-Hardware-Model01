@@ -13,12 +13,13 @@
 #include "model01/LedAddr.h"
 #include "model01/KeyAddr.h"
 #include "model01/Scanner.h"
+
 #include <kaleidoscope/KeyswitchState.h>
 #include <kaleidoscope/KeyswitchEvent.h>
 
+
 namespace kaleidoscope {
 namespace hardware {
-
 
 // This needs to be a macro so we can check the keymap definitions
 #define TOTAL_KEYS_STR "64"
@@ -26,6 +27,7 @@ constexpr byte total_keys = 64;
 
 
 class Keyboard {
+
  public:
   // This class should really be a singleton, but it probably costs a few bytes for the
   // extra getInstance() method that would be required to do that.
@@ -43,12 +45,12 @@ class Keyboard {
   void updateLeds();
 
   // These functions operate on LedAddr values, which are different from corresponding KeyAddr values
-  const Color& getLedColor(LedAddr led) const;
-  void setLedColor(LedAddr led, Color color);
+  Color getLedColor(LedAddr led) const;
+  void  setLedColor(LedAddr led, Color color);
 
   // These are the KeyAddr versions, which call the LedAddr functions
-  const Color& getKeyColor(KeyAddr k) const;
-  void setKeyColor(KeyAddr k, Color color);
+  Color getKeyColor(KeyAddr k) const;
+  void  setKeyColor(KeyAddr k, Color color);
 
   // I'm leaving these functions alone for now; they shall remain mysterious
   void setup();
