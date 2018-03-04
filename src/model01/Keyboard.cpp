@@ -3,15 +3,13 @@
 #include <Arduino.h>
 #include <avr/wdt.h>
 
-// backcompat
-#include <Kaleidoscope.h>
-
 #include "model01/Color.h"
 #include "model01/KeyAddr.h"
 #include "model01/LedAddr.h"
 #include "model01/Scanner.h"
-#include "kaleidoscope/KeyswitchState.h"
-#include "kaleidoscope/KeyswitchEvent.h"
+
+#include <kaleidoscope/KeyswitchState.h>
+#include <kaleidoscope/KeyswitchEvent.h>
 
 
 namespace kaleidoscope {
