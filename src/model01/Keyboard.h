@@ -19,6 +19,7 @@
 #include "model01/KeyAddr.h"
 #include "model01/Scanner.h"
 #include "kaleidoscope/KeyswitchState.h"
+#include "kaleidoscope/KeyswitchEvent.h"
 
 namespace kaleidoscope {
 namespace hardware {
@@ -39,7 +40,7 @@ class Keyboard {
   void scanMatrix();
 
   // should probably return KeyswitchEvent instead
-  KeyswitchState nextKeyswitchEvent(KeyAddr& k);
+  KeyswitchEvent nextKeyswitchEvent(KeyAddr& k);
   // I really don't think we need this function, but maybe it will be useful
   KeyswitchState keyswitchState(KeyAddr k) const;
 

@@ -11,6 +11,7 @@
 #include "model01/LedAddr.h"
 #include "model01/Scanner.h"
 #include "kaleidoscope/KeyswitchState.h"
+#include "kaleidoscope/KeyswitchEvent.h"
 
 
 namespace kaleidoscope {
@@ -59,7 +60,7 @@ void Keyboard::scanMatrix() {
 // checked (or at least, that's the expected usage). Return true if we found an event;
 // false if we didn't find a keyswitch in a different state. Maybe it should return the
 // state value instead.
-KeyswitchState Keyboard::nextKeyswitchEvent(KeyAddr& k) {
+KeyswitchEvent Keyboard::nextKeyswitchEvent(KeyAddr& k) {
   // compare state bitfield one byte at a time until we find one that differs
   for (byte r = (k.addr / 8); r < 8; ++r) {
     if (keyboard_state_.banks[r] == prev_keyboard_state_.banks[r]) {
@@ -71,12 +72,12 @@ KeyswitchState Keyboard::nextKeyswitchEvent(KeyAddr& k) {
       byte curr_state = bitRead(keyboard_state_.banks[r], c);
       if (prev_state != curr_state) {
         k.addr = (r << 3) | c;
-        return KeyswitchState(curr_state, prev_state);
+        return {Key_NoKey, k, KeyswitchState(curr_state, prev_state)};
       }
     }
   }
   // key_addr = Keyboard::total_keys;
-  return KeyswitchState(0);
+  return {Key_NoKey, k, KeyswitchState(0)};
 }
 
 
