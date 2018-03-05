@@ -16,7 +16,7 @@
 
 #include <kaleidoscope/KeyswitchState.h>
 #include <kaleidoscope/KeyswitchEvent.h>
-
+#include <kaleidoscope/cKeyAddr.h>
 
 namespace kaleidoscope {
 namespace hardware {
@@ -81,7 +81,57 @@ class Keyboard {
 
   // This doesn't seem to be called anywhere
   void rebootBootloader();
-};
+
+
+  // --------------------------------------------------------------------------------
+  // Iterator for range-based for loops
+ private:
+  class Iterator;
+  friend class Keyboard::Iterator;
+
+ public:
+  Iterator begin() {
+    return Iterator{*this, cKeyAddr::start};
+  }
+  Iterator end() {
+    return Iterator{*this, cKeyAddr::end};
+  }
+
+ private:
+  class Iterator {
+   public:
+    Iterator(Keyboard& keyboard, KeyAddr k) : keyboard_(keyboard), addr_(k.addr) {}
+
+    bool operator!=(const Iterator& other);
+
+    KeyswitchEvent& operator*();
+
+    void operator++();
+
+   private:
+    Keyboard& keyboard_;
+    union {
+      byte addr_;
+      struct { byte col_ : 3, row_ : 3; };
+    };
+    KeyswitchEvent event;
+
+  }; // class Iterator {
+
+}; // class Keyboard {
+
+
+inline KeyswitchEvent& Keyboard::Iterator::operator*() {
+  return event;
+}
+
+inline void Keyboard::Iterator::operator++() {
+  // Copy current scan bit to previous scan bit
+  bitWrite(keyboard_.prev_scan_.banks[row_], col_,
+           bitRead(keyboard_.curr_scan_.banks[row_], col_));
+  ++addr_;
+}
+
 
 } // namespace model01 {
 } // namespace kaleidoscope {

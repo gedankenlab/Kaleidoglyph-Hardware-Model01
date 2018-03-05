@@ -79,6 +79,41 @@ KeyswitchEvent Keyboard::nextKeyswitchEvent(KeyAddr& k) {
 }
 
 
+bool Keyboard::Iterator::operator!=(const Iterator& other) {
+  // First, the actual end condition test (maybe better to use < instead of !=):
+  while (addr_ < other.addr_) {
+    // Compare the next bank (row). If it hasn't changed, skip ahead to the next one:
+    if (keyboard_.curr_scan_.banks[row_] != keyboard_.prev_scan_.banks[row_]) {
+      // We found a bank that changed. Test the current bit:
+      do {
+        byte curr_state = bitRead(keyboard_.curr_scan_.banks[row_], col_);
+        byte prev_state = bitRead(keyboard_.prev_scan_.banks[row_], col_);
+        if (curr_state != prev_state) {
+          // We found a bit that changed; get the event ready and return true:
+          event.state = KeyswitchState(curr_state, prev_state);
+          event.addr = KeyAddr(addr_);
+          event.key = Key_Transparent;
+          return true;
+        } else {
+          // If this bit hasn't changed, check the next one:
+          ++addr_; // Incrementing addr_ also increments c (which overflows to r)
+          continue; // superfluous (goes to the bottom of do/while c != 0)
+        }
+        // If c == 0, that means we've reached the end of the current bank, and can go
+        // on to the next one (starting back at the beginning of the enclosing loop)
+      } while (col_ != 0);
+      continue; // this is superfluous, but maybe clearer?
+    } else {
+      // no keyswitch states changed in this bank; advance to the next one:
+      ++row_;
+      col_ = 0;
+      continue; // also superfluous, but maybe clearer?
+    }
+  } // while (addr_ != other.addr_) {
+  return false;
+}
+
+
 // return the state of the keyswitch as a bitfield
 KeyswitchState Keyboard::keyswitchState(KeyAddr k) const {
   byte state = 0;
