@@ -85,11 +85,10 @@ class Keyboard {
 
   // --------------------------------------------------------------------------------
   // Iterator for range-based for loops
- private:
+ public:
   class Iterator;
   friend class Keyboard::Iterator;
 
- public:
   Iterator begin() {
     return Iterator{*this, cKeyAddr::start};
   }
@@ -97,7 +96,6 @@ class Keyboard {
     return Iterator{*this, cKeyAddr::end};
   }
 
- private:
   class Iterator {
    public:
     Iterator(Keyboard& keyboard, KeyAddr k) : keyboard_(keyboard), addr_(k.addr) {}
@@ -110,28 +108,47 @@ class Keyboard {
 
    private:
     Keyboard& keyboard_;
-    union {
-      byte addr_;
-      struct { byte col_ : 3, row_ : 3; };
-    };
-    KeyswitchEvent event;
+    byte addr_;
+    KeyswitchEvent event_;
 
   }; // class Iterator {
 
 }; // class Keyboard {
 
 
+inline bool Keyboard::Iterator::operator!=(const Iterator& other) {
+  byte r = addr_ / 8;
+
+  while (addr_ < other.addr_) {
+    if (keyboard_.curr_scan_.banks[r] != keyboard_.prev_scan_.banks[r]) {
+      for (byte c = addr_ % 8; c < 8; ++c) {
+        byte curr_state = bitRead(keyboard_.curr_scan_.banks[r], c);
+        byte prev_state = bitRead(keyboard_.prev_scan_.banks[r], c);
+        if (curr_state != prev_state) {
+          addr_ = (r * 8) + c;
+          event_.state = KeyswitchState(curr_state, prev_state);
+          event_.addr = KeyAddr(addr_);
+          event_.key = Key_NoKey;
+          return true;
+        }
+      }
+    }
+    ++r;
+    addr_ = r * 8;
+  }
+  return false;
+}
+
 inline KeyswitchEvent& Keyboard::Iterator::operator*() {
-  return event;
+  return event_;
 }
 
 inline void Keyboard::Iterator::operator++() {
   // Copy current scan bit to previous scan bit
-  bitWrite(keyboard_.prev_scan_.banks[row_], col_,
-           bitRead(keyboard_.curr_scan_.banks[row_], col_));
+  // bitWrite(keyboard_.prev_scan_.banks[row_], col_,
+  //          bitRead(keyboard_.curr_scan_.banks[row_], col_));
   ++addr_;
 }
-
 
 } // namespace model01 {
 } // namespace kaleidoscope {

@@ -78,8 +78,35 @@ KeyswitchEvent Keyboard::nextKeyswitchEvent(KeyAddr& k) {
   return {Key_NoKey, k, KeyswitchState(0)};
 }
 
-
+#if 0
 bool Keyboard::Iterator::operator!=(const Iterator& other) {
+
+  byte r = addr_ / 8;
+  byte end = other.addr_ / 8;
+
+  while (r < end) {
+    if (keyboard_.curr_scan_.banks[r] != keyboard_.prev_scan_.banks[r]) {
+      for (byte c = addr_ % 8; c < 8; ++c) {
+        byte curr_state = bitRead(keyboard_.curr_scan_.banks[r], c);
+        byte prev_state = bitRead(keyboard_.prev_scan_.banks[r], c);
+        if (curr_state != prev_state) {
+          addr_ = (r * 8) + c;
+          event_.state = KeyswitchState(curr_state, prev_state);
+          event_.addr = KeyAddr(addr_);
+          event_.key = Key_NoKey;
+          return true;
+        }
+      }
+      addr_ = (r * 8) + c;
+    } else {
+      ++r;
+      c = 0;
+    }
+  }
+  return false;
+
+
+
   // First, the actual end condition test (maybe better to use < instead of !=):
   while (addr_ < other.addr_) {
     // Compare the next bank (row). If it hasn't changed, skip ahead to the next one:
@@ -112,7 +139,7 @@ bool Keyboard::Iterator::operator!=(const Iterator& other) {
   } // while (addr_ != other.addr_) {
   return false;
 }
-
+#endif
 
 // return the state of the keyswitch as a bitfield
 KeyswitchState Keyboard::keyswitchState(KeyAddr k) const {
