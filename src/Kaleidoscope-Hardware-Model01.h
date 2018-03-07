@@ -4,18 +4,18 @@
 
 // These macros allow other modules to include headers for classes defined in the hardware
 // library to be included without triggering any "circular" dependencies.
-#define KALEIDOSCOPE_KEYADDR_H "model01/KeyAddr.h"
-#define KALEIDOSCOPE_LEDADDR_H "model01/LedAddr.h"
-#define KALEIDOSCOPE_COLOR_H   "model01/Color.h"
+#define KALEIDOSCOPE_KEYADDR_H <model01/KeyAddr.h>
+#define KALEIDOSCOPE_LEDADDR_H <model01/LedAddr.h>
+#define KALEIDOSCOPE_COLOR_H   <model01/Color.h>
 
 // This is the main hardware class `kaleidoscope::hardware::Keyboard`. It provides both
 // that and widely-used constant `kaleidoscope::hardware::total_keys`:
-#define KALEIDOSCOPE_HARDWARE_KEYBOARD_H "model01/Keyboard.h"
+#define KALEIDOSCOPE_HARDWARE_KEYBOARD_H <model01/Keyboard.h>
 
 // Since the HID module that we need depends on the MCU, we need to define which one to
 // include here. This should be a reference to either the HIDAdapter or the HID library
 // itself:
-#define KALEIDOSCOPE_HID_H "KeyboardioHID.h"
+#define KALEIDOSCOPE_HID_H <Kaleidoscope-HIDAdaptor-KeyboardioHID.h>
 
 
 #define KEYMAP_STACKED(                                                 \
