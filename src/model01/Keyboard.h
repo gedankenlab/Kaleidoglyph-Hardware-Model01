@@ -17,6 +17,8 @@
 #include <kaleidoscope/KeyswitchState.h>
 #include <kaleidoscope/KeyswitchEvent.h>
 #include <kaleidoscope/cKeyAddr.h>
+#include <kaleidoscope/cKey.h>
+
 
 namespace kaleidoscope {
 namespace hardware {
@@ -143,7 +145,7 @@ inline bool Keyboard::Iterator::operator!=(const Iterator& other) {
           addr_ = (r * 8) + c;
           event_.state = KeyswitchState(curr_state, prev_state);
           event_.addr = KeyAddr(addr_);
-          event_.key = Key_NoKey;
+          event_.key = cKey::blank;
 
           // The `event_` will be returned by the dereference operator below, to be used
           // in the body of the loop:
