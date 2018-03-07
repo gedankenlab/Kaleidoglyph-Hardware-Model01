@@ -110,8 +110,6 @@ class Keyboard {
     Keyboard& keyboard_;
     byte addr_;
     KeyswitchEvent event_;
-    // byte r;
-    // byte c;
 
   }; // class Iterator {
 
@@ -147,10 +145,6 @@ inline bool Keyboard::Iterator::operator!=(const Iterator& other) {
           event_.addr = KeyAddr(addr_);
           event_.key = Key_NoKey;
 
-          // The following line could make things a bit faster, but seems to increase code
-          // size by ~100 bytes (maybe less, if bitWrite() is used elsewhere)
-          // bitWrite(keyboard_.prev_scan_.banks[r], c, curr_state);
-
           // The `event_` will be returned by the dereference operator below, to be used
           // in the body of the loop:
           return true;
@@ -173,19 +167,18 @@ inline KeyswitchEvent& Keyboard::Iterator::operator*() {
 }
 
 inline void Keyboard::Iterator::operator++() {
-  // Copy current scan bit to previous scan bit
-  // bitWrite(keyboard_.prev_scan_.banks[row_], col_,
-  //          bitRead(keyboard_.curr_scan_.banks[row_], col_));
   ++addr_;
-
-  // if (++c == 8) {
-  //   ++r;
-  //   c = 0;
-  // }
-
-  // r += ++c / 8;
-  // c = c % 8;
 }
+
+#if 0
+// To use the Keyboard::Iterator, write a loop like the following:
+Keyboard keyboard;
+for (KeyswitchEvent event : keyboard) {
+  // Here you'll get an `event` for each keyswitch that changed state in the current scan
+  // cycle, and only those keyswitches, so most of the time the code in this block won't
+  // execute at all.
+}
+#endif
 
 } // namespace model01 {
 } // namespace kaleidoscope {
