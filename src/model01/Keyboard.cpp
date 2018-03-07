@@ -284,4 +284,4 @@ void Keyboard::setKeyscanInterval(uint8_t interval) {
 } // namespace kaleidoscope {
 
 // backcompat
-HARDWARE_IMPLEMENTATION KeyboardHardware;
+kaleidoscope::hardware::Keyboard KeyboardHardware;

@@ -5,7 +5,7 @@
 #include <Arduino.h>
 
 // Backward compatibility stuff here
-#define HARDWARE_IMPLEMENTATION kaleidoscope::hardware::Keyboard
+//#define HARDWARE_IMPLEMENTATION kaleidoscope::hardware::Keyboard
 // End backcompat
 
 #include "model01/KeyswitchData.h"

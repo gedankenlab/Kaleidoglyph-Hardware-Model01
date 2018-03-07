@@ -2,39 +2,20 @@
 
 #pragma once
 
-// Basically, this file is here to make the model01::Keyboard class available to
-// Kaleidoscope
-//#include "model01/Keyboard.h"
-
-//#include "model01/Key.h"
-//#include "model01/KeyAddr.h"
-//#include "model01/LedAddr.h"
-//#include "model01/Color.h"
-
-// This might be a solution to the faux circular dependency problem
+// These macros allow other modules to include headers for classes defined in the hardware
+// library to be included without triggering any "circular" dependencies.
 #define KALEIDOSCOPE_KEYADDR_H "model01/KeyAddr.h"
 #define KALEIDOSCOPE_LEDADDR_H "model01/LedAddr.h"
 #define KALEIDOSCOPE_COLOR_H   "model01/Color.h"
 
+// This is the main hardware class `kaleidoscope::hardware::Keyboard`. It provides both
+// that and widely-used constant `kaleidoscope::hardware::total_keys`:
 #define KALEIDOSCOPE_HARDWARE_KEYBOARD_H "model01/Keyboard.h"
 
-namespace kaleidoscope {
-
-// `using` won't work; it will be confined to this block, and have no effect.
-//typedef model01::Key     Key;
-//typedef model01::KeyAddr KeyAddr;
-//typedef model01::LedAddr LedAddr;
-//typedef model01::Color   Color;
-
-// Maybe hiding this would be better, but here goes for now:
-//typedef model01::Keyboard Keyboard;
-
-// In order to use it with preprocessor macros, TOTAL_KEYS needs to be a macro
-//constexpr KeyAddr total_keys {model01::total_keys};
-//constexpr KeyAddr TOTAL_KEYS       = model01::Keyboard::total_keys;
-//constexpr KeyAddr UNKNOWN_KEY_ADDR = model01::Keyboard::total_keys;
-
-} // namespace kaleidoscope {
+// Since the HID module that we need depends on the MCU, we need to define which one to
+// include here. This should be a reference to either the HIDAdapter or the HID library
+// itself:
+#define KALEIDOSCOPE_HID_H "KeyboardioHID.h"
 
 
 #define KEYMAP_STACKED(                                                 \
