@@ -110,6 +110,8 @@ class Keyboard {
     Keyboard& keyboard_;
     byte addr_;
     KeyswitchEvent event_;
+    // byte r;
+    // byte c;
 
   }; // class Iterator {
 
@@ -117,25 +119,52 @@ class Keyboard {
 
 
 inline bool Keyboard::Iterator::operator!=(const Iterator& other) {
-  byte r = addr_ / 8;
+  // `r` stands for "row": really it's which set of eight keys we're testing, because the
+  // key scan data is stored as a bitfield.
+  byte r = addr_ / 8;  // 8 bits/byte
 
+  // First, the test for the end condition (return false when all the keyswitches have
+  // been tested)
   while (addr_ < other.addr_) {
+
+    // Compare key scan data one byte at a time. The vast majority of the time, at most
+    // one keyswitch will have changed states, so it's much more efficient to compare them
+    // eight at a time, rather than one by one.
     if (keyboard_.curr_scan_.banks[r] != keyboard_.prev_scan_.banks[r]) {
-      for (byte c = addr_ % 8; c < 8; ++c) {
+
+      // When we find a row (byte) that has changed, we compare each bit until we find
+      // each one that has changed state:
+      for (byte c = addr_ % 8; c < 8; ++c) {  // 8 bits/byte
+
         byte curr_state = bitRead(keyboard_.curr_scan_.banks[r], c);
         byte prev_state = bitRead(keyboard_.prev_scan_.banks[r], c);
+
         if (curr_state != prev_state) {
+          // We found a keyswitch that changed state, so we update the iterator's index
+          // (`addr_`) and set the `event_` values accordingly before returning:
           addr_ = (r * 8) + c;
           event_.state = KeyswitchState(curr_state, prev_state);
           event_.addr = KeyAddr(addr_);
           event_.key = Key_NoKey;
+
+          // The following line could make things a bit faster, but seems to increase code
+          // size by ~100 bytes (maybe less, if bitWrite() is used elsewhere)
+          // bitWrite(keyboard_.prev_scan_.banks[r], c, curr_state);
+
+          // The `event_` will be returned by the dereference operator below, to be used
+          // in the body of the loop:
           return true;
-        }
-      }
+        } // if (curr_state != prev_state) {
+
+      } // for (byte c = addr_ % 8; c < 8; ++c) { 
+
     }
+
+    // We're done checking one "row" (byte); move on to the next one:
     ++r;
     addr_ = r * 8;
-  }
+
+  } // while (addr_ < other.addr_) {
   return false;
 }
 
@@ -148,6 +177,14 @@ inline void Keyboard::Iterator::operator++() {
   // bitWrite(keyboard_.prev_scan_.banks[row_], col_,
   //          bitRead(keyboard_.curr_scan_.banks[row_], col_));
   ++addr_;
+
+  // if (++c == 8) {
+  //   ++r;
+  //   c = 0;
+  // }
+
+  // r += ++c / 8;
+  // c = c % 8;
 }
 
 } // namespace model01 {
