@@ -23,10 +23,6 @@
 namespace kaleidoscope {
 namespace hardware {
 
-// This needs to be a macro so we can check the keymap definitions
-#define TOTAL_KEYS_STR "64"
-constexpr byte total_keys = 64;
-
 
 class Keyboard {
 

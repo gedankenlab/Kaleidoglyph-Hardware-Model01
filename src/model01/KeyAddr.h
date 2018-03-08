@@ -9,7 +9,7 @@ namespace kaleidoscope {
 
 // I need to decide if this constant should be defined here or in Keyboard.h
 constexpr byte total_keys = 64;
-//#define TOTAL_KEYS_STR "64"
+#define TOTAL_KEYS_STR "64"
 
 // The Model01 has only 64 keys, and we only need one extra value to indicate an invalid
 // key address, so that all fits in one byte.
