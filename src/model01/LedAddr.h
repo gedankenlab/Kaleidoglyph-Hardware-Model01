@@ -42,8 +42,8 @@ struct LedAddr {
 
   // Read a LedAddr from an address in PROGMEM. This should be useful for sparse layers,
   // which will contain (LedAddr,Key) pairs.
-  void readFromProgmem(const LedAddr& pgm_key_addr) {
-    addr = pgm_read_byte(&pgm_key_addr.addr);
+  void readFromProgmem(const LedAddr& pgm_led_addr) {
+    addr = pgm_read_byte(&pgm_led_addr.addr);
   }
 
   
@@ -102,5 +102,9 @@ struct LedAddr {
   // Maybe I should provide a cast operator to convert to LedAddr from KeyAddr?
 
 };
+
+inline LedAddr getProgmemLedAddr(const LedAddr& pgm_led_addr) {
+  return LedAddr(pgm_read_byte(&pgm_led_addr.addr));
+}
 
 } // namespace kaleidoscope {

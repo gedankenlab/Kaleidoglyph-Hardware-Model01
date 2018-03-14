@@ -100,4 +100,8 @@ struct KeyAddr {
 
 };
 
+inline KeyAddr getProgmemKeyAddr(const KeyAddr& pgm_key_addr) {
+  return KeyAddr(pgm_read_byte(&pgm_key_addr.addr));
+}
+
 } // namespace kaleidoscope {

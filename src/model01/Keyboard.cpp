@@ -15,15 +15,7 @@
 namespace kaleidoscope {
 namespace hardware {
 
-// Why don't we do these things in the constructor? Why are they static? There's only one object...
-// static Scanner scanners[] = {
-//   Scanner(0), Scanner(1)
-// };
-
-//Keyboard::scanners_[0] = Scanner(0);
-//Keyboard::scanners_[1] = Scanner(3);
-
-// *INDENT-OFF*
+// Translation matrix from KeyAddr to LedAddr
 static constexpr PROGMEM uint8_t key_led_map[total_keys] = {
   27, 26, 20, 19, 12, 11,  4,  3,
   28, 25, 21, 18, 13, 10,  5,  2,
@@ -35,7 +27,7 @@ static constexpr PROGMEM uint8_t key_led_map[total_keys] = {
   62, 57, 54, 49, 46, 41, 39, 34,
   63, 56, 55, 48, 47, 40, 32, 33,
 };
-// *INDENT-ON*
+
 
 Keyboard::Keyboard() : scanners_{Scanner(0), Scanner(3)} {}
 
@@ -62,7 +54,7 @@ KeyswitchState Keyboard::keyswitchState(KeyAddr k) const {
 }
 
 
-constexpr byte HAND_BIT = B00100000;
+static constexpr byte HAND_BIT = B00100000;
 
 LedAddr Keyboard::getLedAddr(KeyAddr k) const {
   return LedAddr(pgm_read_byte(&(key_led_map[k.addr])));
