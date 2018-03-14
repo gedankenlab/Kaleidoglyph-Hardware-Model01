@@ -30,8 +30,6 @@ class Keyboard {
   // New API
   void scanMatrix();
 
-  // should probably return KeyswitchEvent instead
-  KeyswitchEvent nextKeyswitchEvent(KeyAddr& k);
   // I really don't think we need this function, but maybe it will be useful
   KeyswitchState keyswitchState(KeyAddr k) const;
 
