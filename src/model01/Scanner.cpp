@@ -47,7 +47,9 @@ constexpr byte SCANNER_I2C_ADDR_BASE = 0x58;
 // to this file, it's not that important.
 #define ELEMENTS(array)  (sizeof(array) / sizeof((array)[0]))
 
-// This array translates LED values to corrected values
+// This array translates LED values to corrected values. It can be cut in half, or even to
+// 1/4th the size, if we take a performance hit by bit-shifting the values before
+// translation. 64 different brightness levels should be plenty.
 const PROGMEM byte gamma8[] = {
   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   1,   1,   1,   1,
