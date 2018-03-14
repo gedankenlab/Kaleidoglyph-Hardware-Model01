@@ -42,104 +42,15 @@ Keyboard::Keyboard() : scanners_{Scanner(0), Scanner(3)} {}
 
 void Keyboard::scanMatrix() {
   // copy current keyswitch state array to previous
-  memcpy(&prev_scan_, &curr_scan_, sizeof(prev_scan_));
+  //memcpy(&prev_scan_, &curr_scan_, sizeof(prev_scan_));
+  prev_scan_ = curr_scan_;
 
   // scan left hand
   scanners_[0].readKeys(curr_scan_.hands[0]);
 
   // scan right hand
   scanners_[1].readKeys(curr_scan_.hands[1]);
-
-  // backcompat
-  //actOnMatrixScan();
 }
-
-// get the address of the next key that changed state (if any), starting from the last one
-// checked (or at least, that's the expected usage). Return true if we found an event;
-// false if we didn't find a keyswitch in a different state. Maybe it should return the
-// state value instead.
-KeyswitchEvent Keyboard::nextKeyswitchEvent(KeyAddr& k) {
-  // compare state bitfield one byte at a time until we find one that differs
-  for (byte r = (k.addr / 8); r < 8; ++r) {
-    if (curr_scan_.banks[r] == prev_scan_.banks[r]) {
-      continue;
-    }
-    // next compare the bits one at a time
-    for (byte c = (k.addr % 8); c < 8; ++c) {
-      byte prev_state = bitRead(prev_scan_.banks[r], c);
-      byte curr_state = bitRead(curr_scan_.banks[r], c);
-      if (prev_state != curr_state) {
-        k.addr = (r << 3) | c;
-        return {Key_NoKey, k, KeyswitchState(curr_state, prev_state)};
-      }
-    }
-  }
-  // key_addr = Keyboard::total_keys;
-  return {Key_NoKey, k, KeyswitchState(0)};
-}
-
-#if 0
-bool Keyboard::Iterator::operator!=(const Iterator& other) {
-
-  byte r = addr_ / 8;
-  byte end = other.addr_ / 8;
-
-  while (r < end) {
-    if (keyboard_.curr_scan_.banks[r] != keyboard_.prev_scan_.banks[r]) {
-      for (byte c = addr_ % 8; c < 8; ++c) {
-        byte curr_state = bitRead(keyboard_.curr_scan_.banks[r], c);
-        byte prev_state = bitRead(keyboard_.prev_scan_.banks[r], c);
-        if (curr_state != prev_state) {
-          addr_ = (r * 8) + c;
-          event_.state = KeyswitchState(curr_state, prev_state);
-          event_.addr = KeyAddr(addr_);
-          event_.key = Key_NoKey;
-          return true;
-        }
-      }
-      addr_ = (r * 8) + c;
-    } else {
-      ++r;
-      c = 0;
-    }
-  }
-  return false;
-
-
-
-  // First, the actual end condition test (maybe better to use < instead of !=):
-  while (addr_ < other.addr_) {
-    // Compare the next bank (row). If it hasn't changed, skip ahead to the next one:
-    if (keyboard_.curr_scan_.banks[row_] != keyboard_.prev_scan_.banks[row_]) {
-      // We found a bank that changed. Test the current bit:
-      do {
-        byte curr_state = bitRead(keyboard_.curr_scan_.banks[row_], col_);
-        byte prev_state = bitRead(keyboard_.prev_scan_.banks[row_], col_);
-        if (curr_state != prev_state) {
-          // We found a bit that changed; get the event ready and return true:
-          event.state = KeyswitchState(curr_state, prev_state);
-          event.addr = KeyAddr(addr_);
-          event.key = Key_Transparent;
-          return true;
-        } else {
-          // If this bit hasn't changed, check the next one:
-          ++addr_; // Incrementing addr_ also increments c (which overflows to r)
-          continue; // superfluous (goes to the bottom of do/while c != 0)
-        }
-        // If c == 0, that means we've reached the end of the current bank, and can go
-        // on to the next one (starting back at the beginning of the enclosing loop)
-      } while (col_ != 0);
-      continue; // this is superfluous, but maybe clearer?
-    } else {
-      // no keyswitch states changed in this bank; advance to the next one:
-      ++row_;
-      col_ = 0;
-      continue; // also superfluous, but maybe clearer?
-    }
-  } // while (addr_ != other.addr_) {
-  return false;
-}
-#endif
 
 // return the state of the keyswitch as a bitfield
 KeyswitchState Keyboard::keyswitchState(KeyAddr k) const {
