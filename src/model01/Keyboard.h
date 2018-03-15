@@ -117,25 +117,29 @@ inline bool Keyboard::Iterator::operator!=(const Iterator& other) {
   // been tested)
   while (addr_ < other.addr_) {
 
+    byte bank_prev = keyboard_.prev_scan_.banks[r];
+    byte bank_curr = keyboard_.curr_scan_.banks[r];
+
     // Compare key scan data one byte at a time. The vast majority of the time, at most
     // one keyswitch will have changed states, so it's much more efficient to compare them
     // eight at a time, rather than one by one.
-    if (keyboard_.curr_scan_.banks[r] != keyboard_.prev_scan_.banks[r]) {
+    if (bank_curr != bank_prev) {
 
       // When we find a row (byte) that has changed, we compare each bit until we find
       // each one that has changed state:
       for (byte c = addr_ % 8; c < 8; ++c) {  // 8 bits/byte
 
-        byte curr_state = bitRead(keyboard_.curr_scan_.banks[r], c);
-        byte prev_state = bitRead(keyboard_.prev_scan_.banks[r], c);
+        bool curr_state = bitRead(bank_curr, c);
+        bool prev_state = bitRead(bank_prev, c);
 
         if (curr_state != prev_state) {
           // We found a keyswitch that changed state, so we update the iterator's index
           // (`addr_`) and set the `event_` values accordingly before returning:
           addr_ = (r * 8) + c;
+
+          event_.addr  = KeyAddr(addr_);
+          event_.key   = cKey::blank;
           event_.state = KeyswitchState(curr_state, prev_state);
-          event_.addr = KeyAddr(addr_);
-          event_.key = cKey::blank;
 
           // The `event_` will be returned by the dereference operator below, to be used
           // in the body of the loop:
