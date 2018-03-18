@@ -14,6 +14,10 @@ namespace kaleidoscope {
 // commands to the LED controller module, and that's handled by the functions that make
 // those calls, not this struct.
 
+// TODO: consider changing this two a two-byte struct as a bitfield with 5 bits per
+// color. This would save space at the cost of speed. Would need to scale up to 8 bits by
+// multiplying by 8 (three-bit shift).
+
 struct Color {
 
  public:
@@ -41,6 +45,8 @@ struct Color {
   }
 
   // TODO: add math operators? They could be useful to some plugin or other
+
+  // TODO: add methods for getting Color objects from PROGMEM & EEPROM
 
 };
 
