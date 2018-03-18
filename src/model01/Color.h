@@ -16,7 +16,8 @@ namespace kaleidoscope {
 
 // TODO: consider changing this two a two-byte struct as a bitfield with 5 bits per
 // color. This would save space at the cost of speed. Would need to scale up to 8 bits by
-// multiplying by 8 (three-bit shift).
+// multiplying by 8 (three-bit shift). To change that, it would make sense to change from
+// struct to class, and make the data members private.
 
 struct Color {
 
