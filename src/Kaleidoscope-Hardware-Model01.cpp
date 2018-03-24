@@ -62,17 +62,30 @@ void Model01::setup(void) {
   TWBR = 12; // This is 400mhz, which is the fastest we can drive the ATTiny
 }
 
-
+namespace pbt {
+extern byte bpp;
+extern bool right;
+}
 void Model01::setCrgbAt(uint8_t i, cRGB crgb) {
   if (i < 32) {
     cRGB oldColor = getCrgbAt(i);
     isLEDChanged |= !(oldColor.r == crgb.r && oldColor.g == crgb.g && oldColor.b == crgb.b);
 
+    if (! pbt::right) {
+      crgb.r >>= (8 - pbt::bpp); crgb.r <<= (8 - pbt::bpp);
+      crgb.g >>= (8 - pbt::bpp); crgb.g <<= (8 - pbt::bpp);
+      crgb.b >>= (8 - pbt::bpp); crgb.b <<= (8 - pbt::bpp);
+    }
     leftHand.ledData.leds[i] = crgb;
   } else if (i < 64) {
     cRGB oldColor = getCrgbAt(i);
     isLEDChanged |= !(oldColor.r == crgb.r && oldColor.g == crgb.g && oldColor.b == crgb.b);
 
+    if (pbt::right) {
+      crgb.r >>= (8 - pbt::bpp); crgb.r <<= (8 - pbt::bpp);
+      crgb.g >>= (8 - pbt::bpp); crgb.g <<= (8 - pbt::bpp);
+      crgb.b >>= (8 - pbt::bpp); crgb.b <<= (8 - pbt::bpp);
+    }
     rightHand.ledData.leds[i - 32] = crgb;
   } else {
     // TODO(anyone):
