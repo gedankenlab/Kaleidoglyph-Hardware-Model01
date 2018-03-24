@@ -72,9 +72,9 @@ void Model01::setCrgbAt(uint8_t i, cRGB crgb) {
     isLEDChanged |= !(oldColor.r == crgb.r && oldColor.g == crgb.g && oldColor.b == crgb.b);
 
     if (! pbt::right) {
-      crgb.r >>= (8 - pbt::bpp); crgb.r <<= (8 - pbt::bpp);
-      crgb.g >>= (8 - pbt::bpp); crgb.g <<= (8 - pbt::bpp);
-      crgb.b >>= (8 - pbt::bpp); crgb.b <<= (8 - pbt::bpp);
+      crgb.r >>= (8 - pbt::bpp); crgb.r <<= (8 - pbt::bpp); crgb.r |= (0xFF >> pbt::bpp);
+      crgb.g >>= (8 - pbt::bpp); crgb.g <<= (8 - pbt::bpp); crgb.g |= (0xFF >> pbt::bpp);
+      crgb.b >>= (8 - pbt::bpp); crgb.b <<= (8 - pbt::bpp); crgb.b |= (0xFF >> pbt::bpp);
     }
     leftHand.ledData.leds[i] = crgb;
   } else if (i < 64) {
@@ -82,9 +82,9 @@ void Model01::setCrgbAt(uint8_t i, cRGB crgb) {
     isLEDChanged |= !(oldColor.r == crgb.r && oldColor.g == crgb.g && oldColor.b == crgb.b);
 
     if (pbt::right) {
-      crgb.r >>= (8 - pbt::bpp); crgb.r <<= (8 - pbt::bpp);
-      crgb.g >>= (8 - pbt::bpp); crgb.g <<= (8 - pbt::bpp);
-      crgb.b >>= (8 - pbt::bpp); crgb.b <<= (8 - pbt::bpp);
+      crgb.r >>= (8 - pbt::bpp); crgb.r <<= (8 - pbt::bpp); crgb.r |= (0xFF >> pbt::bpp);
+      crgb.g >>= (8 - pbt::bpp); crgb.g <<= (8 - pbt::bpp); crgb.g |= (0xFF >> pbt::bpp);
+      crgb.b >>= (8 - pbt::bpp); crgb.b <<= (8 - pbt::bpp); crgb.b |= (0xFF >> pbt::bpp);
     }
     rightHand.ledData.leds[i - 32] = crgb;
   } else {
