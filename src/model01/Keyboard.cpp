@@ -82,7 +82,8 @@ void Keyboard::setKeyColor(KeyAddr k, Color color) {
 
 
 // This function is a bit better now, but I still feel the desire to write this as an
-// explicit loop
+// explicit loop. I'm also thinking that it would make sense to update the LEDs only from
+// a timer interrupt.
 void Keyboard::updateLeds() {
   scanners_[0].updateNextLedBank();
   scanners_[1].updateNextLedBank();
