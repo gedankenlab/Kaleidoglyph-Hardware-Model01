@@ -92,6 +92,7 @@ bool Scanner::readKeys(KeyswitchData &key_data) {
   // perform blocking read into buffer
   byte read = twi_readFrom(addr_, rx_buffer, ELEMENTS(rx_buffer), true);
   if (rx_buffer[0] == TWI_REPLY_KEYDATA) {
+    // memcpy(&key_data, &rx_buffer[1], sizeof(key_data));
     for (byte i = 0; i < sizeof(key_data); ++i) {
       key_data.banks[i] = rx_buffer[i + 1];
     }
@@ -132,14 +133,12 @@ void Scanner::updateLedBank(byte bank) {
   if (! bitRead(led_banks_changed_, bank))
     return;
   byte data[led_bytes_per_bank_ + 1];
-  data[0] = TWI_CMD_LED_BASE + bank;
-  for (byte i = 0 ; i < leds_per_bank_; ++i) {
-    Color color = led_states_.led_banks[bank][i];
-    static_assert(sizeof(color) == 3, "Wrong size of color object");
-    byte j = i * sizeof(color);
-    data[++j] = pgm_read_byte(&gamma8[color.b]);
-    data[++j] = pgm_read_byte(&gamma8[color.g]);
-    data[++j] = pgm_read_byte(&gamma8[color.r]);
+  byte i{0};
+  data[i] = TWI_CMD_LED_BASE + bank;
+  for (Color color : led_states_.led_banks[bank]) {
+    data[++i] = pgm_read_byte(&gamma8[color.b]);
+    data[++i] = pgm_read_byte(&gamma8[color.g]);
+    data[++i] = pgm_read_byte(&gamma8[color.r]);
   }
   byte result = twi_writeTo(addr_, data, ELEMENTS(data), 1, 0);
   bitClear(led_banks_changed_, bank);
