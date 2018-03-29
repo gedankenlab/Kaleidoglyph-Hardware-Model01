@@ -39,7 +39,7 @@ struct KeyAddr {
 
   // Read a KeyAddr from an address in PROGMEM. This should be useful for sparse layers,
   // which will contain (KeyAddr,Key) pairs.
-  void readFromProgmem(const KeyAddr&pgm_key_addr) {
+  void readFromProgmem(const KeyAddr& pgm_key_addr) {
     addr = pgm_read_byte(&pgm_key_addr.addr);
   }
 
