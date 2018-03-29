@@ -19,6 +19,35 @@ namespace kaleidoscope {
 // multiplying by 8 (three-bit shift). To change that, it would make sense to change from
 // struct to class, and make the data members private.
 
+class Color {
+ private:
+  uint16_t r_ : 5, g_ : 5, b_ : 5;
+ public:
+  byte r() const { return r_; }
+  byte g() const { return g_; }
+  byte b() const { return b_; }
+
+  void r(byte red)   { r_ = red   >> 3; }
+  void g(byte green) { g_ = green >> 3; }
+  void b(byte blue)  { b_ = blue  >> 3; }
+
+  Color() = default;
+
+  constexpr
+  Color(byte red, byte green, byte blue) : r_(red   >> 3),
+                                           g_(green >> 3),
+                                           b_(blue  >> 3)  {}
+
+  bool operator!=(Color const &other) const {
+    return ((this->r_ != other.r_) ||
+            (this->g_ != other.g_) ||
+            (this->b_ != other.b_)   );
+  }
+  bool operator==(Color const &other) const {
+    return !(*this != other);
+  }
+};
+#if 0
 struct Color {
 
  public:
@@ -50,5 +79,5 @@ struct Color {
   // TODO: add methods for getting Color objects from PROGMEM & EEPROM
 
 };
-
+#endif
 } // namespace kaleidoscope {

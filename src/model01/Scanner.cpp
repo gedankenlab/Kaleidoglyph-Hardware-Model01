@@ -51,22 +51,22 @@ constexpr byte SCANNER_I2C_ADDR_BASE = 0x58;
 // 1/4th the size, if we take a performance hit by bit-shifting the values before
 // translation. 64 different brightness levels should be plenty.
 const PROGMEM byte gamma8[] = {
-  0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
-  0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   1,   1,   1,   1,
-  1,   1,   1,   1,   1,   1,   1,   1,   1,   2,   2,   2,   2,   2,   2,   2,
-  2,   3,   3,   3,   3,   3,   3,   3,   4,   4,   4,   4,   4,   5,   5,   5,
-  5,   6,   6,   6,   6,   7,   7,   7,   7,   8,   8,   8,   9,   9,   9,   10,
-  10,  10,  11,  11,  11,  12,  12,  13,  13,  13,  14,  14,  15,  15,  16,  16,
-  17,  17,  18,  18,  19,  19,  20,  20,  21,  21,  22,  22,  23,  24,  24,  25,
-  25,  26,  27,  27,  28,  29,  29,  30,  31,  32,  32,  33,  34,  35,  35,  36,
-  37,  38,  39,  39,  40,  41,  42,  43,  44,  45,  46,  47,  48,  49,  50,  50,
-  51,  52,  54,  55,  56,  57,  58,  59,  60,  61,  62,  63,  64,  66,  67,  68,
-  69,  70,  72,  73,  74,  75,  77,  78,  79,  81,  82,  83,  85,  86,  87,  89,
-  90,  92,  93,  95,  96,  98,  99,  101, 102, 104, 105, 107, 109, 110, 112, 114,
-  115, 117, 119, 120, 122, 124, 126, 127, 129, 131, 133, 135, 137, 138, 140, 142,
-  144, 146, 148, 150, 152, 154, 156, 158, 160, 162, 164, 167, 169, 171, 173, 175,
-  177, 180, 182, 184, 186, 189, 191, 193, 196, 198, 200, 203, 205, 208, 210, 213,
-  215, 218, 220, 223, 225, 228, 231, 233, 236, 239, 241, 244, 247, 249, 252, 255,
+  0,   0,
+  0,   1,
+  1,   2,
+  3,   5,
+  7,   10,
+  13,  16,
+  20,  25,
+  30,  36,
+  43,  50,
+  59,  68,
+  78,  89,
+  101, 114,
+  127, 142,
+  158, 175,
+  193, 213,
+  233, 255,
 };
 
 
@@ -136,9 +136,9 @@ void Scanner::updateLedBank(byte bank) {
   byte i{0};
   data[i] = TWI_CMD_LED_BASE + bank;
   for (Color color : led_states_.led_banks[bank]) {
-    data[++i] = pgm_read_byte(&gamma8[color.b]);
-    data[++i] = pgm_read_byte(&gamma8[color.g]);
-    data[++i] = pgm_read_byte(&gamma8[color.r]);
+    data[++i] = pgm_read_byte(&gamma8[color.b()]);
+    data[++i] = pgm_read_byte(&gamma8[color.g()]);
+    data[++i] = pgm_read_byte(&gamma8[color.r()]);
   }
   byte result = twi_writeTo(addr_, data, ELEMENTS(data), 1, 0);
   bitClear(led_banks_changed_, bank);
@@ -149,9 +149,9 @@ void Scanner::updateLedBank(byte bank) {
 void Scanner::updateLed(byte led, Color color) {
   byte data[] = {TWI_CMD_LED_SET_ONE_TO,
                  led,
-                 pgm_read_byte(&gamma8[color.b]),
-                 pgm_read_byte(&gamma8[color.g]),
-                 pgm_read_byte(&gamma8[color.r])
+                 pgm_read_byte(&gamma8[color.b()]),
+                 pgm_read_byte(&gamma8[color.g()]),
+                 pgm_read_byte(&gamma8[color.r()])
                 };
   byte result = twi_writeTo(addr_, data, ELEMENTS(data), 1, 0);
   led_states_.leds[led] = color;
@@ -161,9 +161,9 @@ void Scanner::updateLed(byte led, Color color) {
 // An efficient way to set all LEDs to the same color at once
 void Scanner::updateAllLeds(Color color) {
   byte data[] = {TWI_CMD_LED_SET_ALL_TO,
-                 pgm_read_byte(&gamma8[color.b]),
-                 pgm_read_byte(&gamma8[color.g]),
-                 pgm_read_byte(&gamma8[color.r])
+                 pgm_read_byte(&gamma8[color.b()]),
+                 pgm_read_byte(&gamma8[color.g()]),
+                 pgm_read_byte(&gamma8[color.r()])
                 };
   byte result = twi_writeTo(addr_, data, ELEMENTS(data), 1, 0);
   // we should set all the values of led_states_ here
