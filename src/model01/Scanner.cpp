@@ -93,7 +93,7 @@ bool Scanner::readKeys(KeyswitchData& key_data) {
   byte read = twi_readFrom(addr_, rx_buffer, ELEMENTS(rx_buffer), true);
   if (rx_buffer[0] == TWI_REPLY_KEYDATA) {
     // memcpy(&key_data, &rx_buffer[1], sizeof(key_data));
-    for (byte i = 0; i < sizeof(key_data); ++i) {
+    for (byte i{0}; i < sizeof(key_data); ++i) {
       key_data.banks[i] = rx_buffer[i + 1];
     }
     return true;
