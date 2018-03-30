@@ -11,8 +11,7 @@ namespace kaleidoscope {
 
 struct LedAddr {
 
-  // Default addr value is invalid (or, at least, not a real LED)
-  byte addr {0xFF};
+  byte addr;
 
   LedAddr() = default;
 

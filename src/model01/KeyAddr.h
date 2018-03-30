@@ -21,8 +21,7 @@ constexpr byte total_keys = 64;
 // though it doesn't solve the problem I thought it would.
 struct KeyAddr {
 
-  // Default addr value is invalid (or, at least, not a physical keyswitch)
-  byte addr {0xFF};
+  byte addr;
 
   KeyAddr() = default;
 
