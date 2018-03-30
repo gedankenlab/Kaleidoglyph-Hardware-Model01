@@ -86,7 +86,7 @@ Scanner::Scanner(byte ad01) {
 // This function should just return a KeyswitchData object, and not bother storing it as a
 // member of the Scanner object. This reference parameter needs testing to see if it works
 // as I expect.
-bool Scanner::readKeys(KeyswitchData &key_data) {
+bool Scanner::readKeys(KeyswitchData& key_data) {
   byte rx_buffer[sizeof(key_data) + 1];
 
   // perform blocking read into buffer
@@ -103,16 +103,25 @@ bool Scanner::readKeys(KeyswitchData &key_data) {
 }
 
 
-const Color& Scanner::getLedColor(byte led) const {
+Color Scanner::getLedColor(byte led) const {
   //assert(led < LEDS_PER_HAND);
-  return led_states_.leds[led];
+  // byte bank = led / LEDS_PER_BANK;
+  // led %= LEDS_PER_BANK;
+  // return led_states_[bank][led];
+  return led_colors_[led];
 }
 
 void Scanner::setLedColor(byte led, Color color) {
   //assert(led < LEDS_PER_HAND);
-  if (led_states_.leds[led] != color) {
-    led_states_.leds[led] = color;
-    byte bank = led / LEDS_PER_BANK;
+  // byte bank = led / LEDS_PER_BANK;
+  // led %= LEDS_PER_BANK;
+  // if (led_states_[bank][led] != color) {
+  //   led_states_[bank][led] = color;
+  //   bitSet(led_banks_changed_, bank);
+  // }
+  if (led_colors_[led] != color) {
+    led_colors_[led] = color;
+    byte bank = led / leds_per_bank_;
     bitSet(led_banks_changed_, bank);
   }
 }
@@ -135,11 +144,19 @@ void Scanner::updateLedBank(byte bank) {
   byte data[led_bytes_per_bank_ + 1];
   byte i{0};
   data[i] = TWI_CMD_LED_BASE + bank;
-  for (Color color : led_states_.led_banks[bank]) {
+  byte led = bank * leds_per_bank_;
+  //byte end = led + leds_per_bank_;
+  while (i < sizeof(data)) {
+    Color color = led_colors_[led++];
     data[++i] = pgm_read_byte(&gamma8[color.b()]);
     data[++i] = pgm_read_byte(&gamma8[color.g()]);
     data[++i] = pgm_read_byte(&gamma8[color.r()]);
   }
+  // for (Color color : led_states_[bank]) {
+  //   data[++i] = pgm_read_byte(&gamma8[color.b()]);
+  //   data[++i] = pgm_read_byte(&gamma8[color.g()]);
+  //   data[++i] = pgm_read_byte(&gamma8[color.r()]);
+  // }
   byte result = twi_writeTo(addr_, data, ELEMENTS(data), 1, 0);
   bitClear(led_banks_changed_, bank);
 }
@@ -154,7 +171,10 @@ void Scanner::updateLed(byte led, Color color) {
                  pgm_read_byte(&gamma8[color.r()])
                 };
   byte result = twi_writeTo(addr_, data, ELEMENTS(data), 1, 0);
-  led_states_.leds[led] = color;
+  led_colors_[led] = color;
+  // byte bank = led / LEDS_PER_BANK;
+  // led %= LEDS_PER_BANK;
+  // led_states_[bank][led] = color;
 }
 
 
@@ -166,10 +186,39 @@ void Scanner::updateAllLeds(Color color) {
                  pgm_read_byte(&gamma8[color.r()])
                 };
   byte result = twi_writeTo(addr_, data, ELEMENTS(data), 1, 0);
-  // we should set all the values of led_states_ here
-  for (byte led = 0; led < leds_per_hand_; ++led) {
-    led_states_.leds[led] = color;
+
+  // for (byte led{0}; led < leds_per_hand_; ++led) {
+  //   led_colors_[led] = color;
+  // }
+
+  for (Color& c : led_colors_) {
+    c = color;
   }
+
+  // we should set all the values of led_states_ here
+  // for (byte bank{0}; bank < total_led_banks_; ++bank) {
+  //   for (byte led{0}; led < leds_per_bank_; ++led) {
+  //     led_states_[bank][led] = color;
+  //   }
+  // }
+
+  // This one is the most efficient non-union version
+  // for (byte bank{0}; bank < total_led_banks_; ++bank) {
+  //   for (Color& c : led_states_[bank]) {
+  //     c = color;
+  //   }
+  // }
+
+  // for (auto& led_bank : led_states_) {
+  //   for (Color& c : led_bank) {
+  //     c = color;
+  //   }
+  // }
+
+  // for (byte led = 0; led < leds_per_hand_; ++led) {
+  //   led_states_.leds[led] = color;
+  // }
+
   led_banks_changed_ = 0;
 }
 

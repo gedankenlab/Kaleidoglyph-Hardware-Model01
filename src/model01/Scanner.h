@@ -38,7 +38,7 @@ namespace hardware {
 
 // I'm uncertain of how to manage these constants
 constexpr byte LEDS_PER_BANK = 8;
-constexpr byte TOTAL_LEDS    = 32;
+constexpr byte TOTAL_LEDS    = 64;
 
 // used to configure interrupts, configuration for a particular controller
 class Scanner {
@@ -57,8 +57,8 @@ class Scanner {
   byte readLedSpiFrequency();
 
   // interface to LED color array
-  const Color& getLedColor(byte i) const;
-  void setLedColor(byte i, Color color);
+  Color getLedColor(byte led) const;
+  void  setLedColor(byte led, Color color);
 
   // send message to controller to change physical LEDs
   void updateNextLedBank();
@@ -73,25 +73,27 @@ class Scanner {
   byte readRegister(byte cmd);
 
   // These constants might be wasting some space vs #define
-  static constexpr byte total_leds_         = TOTAL_LEDS;  // per controller
+  // static constexpr byte total_leds_         = TOTAL_LEDS;  // per controller
   static constexpr byte leds_per_hand_      = TOTAL_LEDS / 2;
   static constexpr byte leds_per_bank_      = LEDS_PER_BANK;   // CHAR_BIT
   static constexpr byte total_led_banks_    = TOTAL_LEDS / LEDS_PER_BANK;
-  static constexpr byte led_bytes_per_bank_ = LEDS_PER_BANK * sizeof(Color);
+  static constexpr byte led_bytes_per_bank_ = LEDS_PER_BANK * 3;
 
   // This union stores the (pending) color data for all the LEDs controlled by this
   // scanner/controller
-  union {
-    Color leds[leds_per_hand_];
-    Color led_banks[total_led_banks_][leds_per_bank_];
-    byte banks[total_led_banks_][led_bytes_per_bank_];
-  } led_states_;
+  // struct {
+  //   //Color leds[leds_per_hand_];
+  //   Color led_banks[total_led_banks_][leds_per_bank_];
+  //   //byte banks[total_led_banks_][led_bytes_per_bank_];
+  // } led_states_;
+  // Color led_states_[total_led_banks_][leds_per_bank_];
+  Color led_colors_[leds_per_hand_];
 
-  // the next LED bank that will be updated by updateLedBank()
-  byte next_led_bank_ = 0;
+  // the next LED bank that will be updated by updateNextLedBank()
+  byte next_led_bank_;
 
   // bitfield storing which LED banks need an update
-  byte led_banks_changed_ = 0;
+  byte led_banks_changed_;
 
   void updateLedBank(byte bank);
 
