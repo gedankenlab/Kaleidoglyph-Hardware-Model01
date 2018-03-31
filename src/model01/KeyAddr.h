@@ -19,88 +19,97 @@ constexpr byte total_keys = 64;
 // that would be solved by using a struct instead of a basic typedef, so I implemented all
 // this operator overloading. Now that I've done it, I'm going to try it out anyway, even
 // though it doesn't solve the problem I thought it would.
-struct KeyAddr {
+class KeyAddr {
 
-  byte addr;
+ private:
+  byte addr_;
 
+ public:
   KeyAddr() = default;
 
   // The single-argument constructor is `explicit` to prevent automatic casting of
   // integers to KeyAddr objects, and constexpr to allow the creation of compile-time
   // constant KeyAddr objects.
   explicit constexpr
-  KeyAddr(byte addr) : addr{addr} {}
+  KeyAddr(byte addr) : addr_(addr) {}
 
   // This (row,col) constructor was conceived as a transitional helper, but should
   // probably just be removed, since the "row" and "col" values don't match the old ones.
-  constexpr
-  KeyAddr(byte row, byte col) : addr((row * 8) + col) {}
+  // constexpr
+  // KeyAddr(byte row, byte col) : addr_((row * 8) + col) {}
 
   // Read a KeyAddr from an address in PROGMEM. This should be useful for sparse layers,
   // which will contain (KeyAddr,Key) pairs.
   void readFromProgmem(const KeyAddr& pgm_key_addr) {
-    addr = pgm_read_byte(&pgm_key_addr.addr);
+    addr_ = pgm_read_byte(&pgm_key_addr.addr_);
   }
 
+  byte addr() {
+    return addr_;
+  }
   
   // Comparison operators for use with other KeyAddr objects
   bool operator==(const KeyAddr& other) const {
-    return this->addr == other.addr;
+    return this->addr_ == other.addr_;
   }
   bool operator!=(const KeyAddr& other) const {
-    return this->addr != other.addr;
+    return this->addr_ != other.addr_;
   }
   bool operator>(const KeyAddr& other) const {
-    return this->addr > other.addr;
+    return this->addr_ > other.addr_;
   }
   bool operator<(const KeyAddr& other) const {
-    return this->addr < other.addr;
+    return this->addr_ < other.addr_;
   }
   bool operator>=(const KeyAddr& other) const {
-    return this->addr >= other.addr;
+    return this->addr_ >= other.addr_;
   }
   bool operator<=(const KeyAddr& other) const {
-    return this->addr <= other.addr;
+    return this->addr_ <= other.addr_;
   }
 
   // Assignment & arithmetic operators (KeyAddr)
   KeyAddr& operator=(const KeyAddr& other) {
-    this->addr = other.addr;
+    this->addr_ = other.addr_;
     return *this;
   }
   KeyAddr& operator+=(const KeyAddr& other) {
-    this->addr += other.addr;
+    this->addr_ += other.addr_;
     return *this;
   }
   KeyAddr& operator-=(const KeyAddr& other) {
-    this->addr -= other.addr;
+    this->addr_ -= other.addr_;
     return *this;
   }
 
   // Increment & decrement unary operators
   KeyAddr& operator++() { // prefix
-    ++addr;
+    ++addr_;
     return *this;
   }
   KeyAddr& operator--() { // prefix
-    --addr;
+    --addr_;
     return *this;
   }
   KeyAddr operator++(int) { // postfix
-    KeyAddr tmp(addr++);
+    KeyAddr tmp(addr_++);
     return tmp;
   }
   KeyAddr operator--(int) { // postfix
-    KeyAddr tmp(addr--);
+    KeyAddr tmp(addr_--);
     return tmp;
   }
 
+  explicit
+  operator byte() {
+    return addr_;
+  }
   // Maybe I should provide a cast operator to convert to LedAddr from KeyAddr?
 
 };
 
 inline KeyAddr getProgmemKeyAddr(const KeyAddr& pgm_key_addr) {
-  return KeyAddr(pgm_read_byte(&pgm_key_addr.addr));
+  return KeyAddr(pgm_read_byte(&pgm_key_addr));
 }
 
 } // namespace kaleidoscope {

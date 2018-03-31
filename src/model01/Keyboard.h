@@ -25,7 +25,7 @@ class Keyboard {
  public:
   // This class should really be a singleton, but it probably costs a few bytes for the
   // extra getInstance() method that would be required to do that.
-  Keyboard();
+  Keyboard() : scanners_{Scanner(0), Scanner(3)} {}
 
   // New API
   void scanMatrix();
@@ -35,6 +35,9 @@ class Keyboard {
 
   // Update all LEDs to values set by set*Color() functions below
   void updateLeds();
+
+  void setAllLeds(Color color);
+  void testLeds();
 
   // These functions operate on LedAddr values, which are different from corresponding KeyAddr values
   Color getLedColor(LedAddr led) const;
@@ -62,10 +65,6 @@ class Keyboard {
   KeyswitchScan curr_scan_;
   KeyswitchScan prev_scan_;
 
-  // I'm not sure we need this conversion function. On the other hand, maybe it should be
-  // public...
-  LedAddr getLedAddr(KeyAddr key_addr) const;
-
   // special functions for Model01; make private if possible
   void enableHighPowerLeds();
   void enableScannerPower();
@@ -90,7 +89,7 @@ class Keyboard {
 
   class Iterator {
    public:
-    Iterator(Keyboard& keyboard, KeyAddr k) : keyboard_(keyboard), addr_(k.addr) {}
+    Iterator(Keyboard& keyboard, KeyAddr k) : keyboard_(keyboard), addr_(byte(k)) {}
 
     bool operator!=(const Iterator& other);
 
@@ -165,6 +164,7 @@ inline KeyswitchEvent& Keyboard::Iterator::operator*() {
 inline void Keyboard::Iterator::operator++() {
   ++addr_;
 }
+
 
 #if 0
 // To use the Keyboard::Iterator, write a loop like the following:

@@ -69,6 +69,7 @@ const PROGMEM byte gamma8[] = {
   233, 255,
 };
 
+static bool twi_uninitialized = true;
 
 // Constructor
 Scanner::Scanner(byte ad01) {
@@ -76,10 +77,27 @@ Scanner::Scanner(byte ad01) {
   addr_ = SCANNER_I2C_ADDR_BASE | ad01_;
   // I think twi_init() just sets things up on the controller, so it only gets called
   // once. Maybe this shouldn't be in the constructor, but in an init() method instead.
-  static bool twi_uninitialized = true;
   if (twi_uninitialized) {
     twi_init();
     twi_uninitialized = false;
+  }
+}
+
+
+void Scanner::testLeds() {
+  Color bright{150, 200, 250};
+  Color off{0, 0, 0};
+  KeyswitchData kd;
+  for (byte i{0}; i < 32; ++i) {
+    uint16_t t0 = micros();
+    updateLed(i, bright);
+    uint16_t t1 = micros();
+    readKeys(kd);
+    Serial.println(t1 - t0);
+    delay(100);
+    updateLed(i, off);
+    readKeys(kd);
+    delay(50);
   }
 }
 
@@ -143,21 +161,28 @@ void Scanner::updateLedBank(byte bank) {
     return;
   byte data[led_bytes_per_bank_ + 1];
   byte i{0};
-  data[i] = TWI_CMD_LED_BASE + bank;
+  data[i++] = TWI_CMD_LED_BASE + bank;
   byte led = bank * leds_per_bank_;
   //byte end = led + leds_per_bank_;
   while (i < sizeof(data)) {
     Color color = led_colors_[led++];
-    data[++i] = pgm_read_byte(&gamma8[color.b()]);
-    data[++i] = pgm_read_byte(&gamma8[color.g()]);
-    data[++i] = pgm_read_byte(&gamma8[color.r()]);
+    data[i++] = pgm_read_byte(&gamma8[color.b()]);
+    data[i++] = pgm_read_byte(&gamma8[color.g()]);
+    data[i++] = pgm_read_byte(&gamma8[color.r()]);
   }
   // for (Color color : led_states_[bank]) {
   //   data[++i] = pgm_read_byte(&gamma8[color.b()]);
   //   data[++i] = pgm_read_byte(&gamma8[color.g()]);
   //   data[++i] = pgm_read_byte(&gamma8[color.r()]);
   // }
-  byte result = twi_writeTo(addr_, data, ELEMENTS(data), 1, 0);
+  delay(5);
+  byte result = twi_writeTo(addr_, data, sizeof(data), 1, 0);
+  // while (byte result = twi_writeTo(addr_, data, sizeof(data), 1, 0)) {
+  //   Serial.print(int(bank)), Serial.print(F(","));
+  //   Serial.print(int(led)), Serial.print(F(": "));
+  //   Serial.println(int(result));
+  //   // delay(5);
+  // }
   bitClear(led_banks_changed_, bank);
 }
 
@@ -170,7 +195,10 @@ void Scanner::updateLed(byte led, Color color) {
                  pgm_read_byte(&gamma8[color.g()]),
                  pgm_read_byte(&gamma8[color.r()])
                 };
-  byte result = twi_writeTo(addr_, data, ELEMENTS(data), 1, 0);
+  while (byte result = twi_writeTo(addr_, data, ELEMENTS(data), 1, 0)) {
+    Serial.print(int(led)); Serial.print(F(": ")); Serial.println(int(result));
+    delay(5);
+  }
   led_colors_[led] = color;
   // byte bank = led / LEDS_PER_BANK;
   // led %= LEDS_PER_BANK;
@@ -221,7 +249,6 @@ void Scanner::updateAllLeds(Color color) {
 
   led_banks_changed_ = 0;
 }
-
 
 // Sets the keyscan interval. We currently do three reads.
 // before declaring a key event debounced.

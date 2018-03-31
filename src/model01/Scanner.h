@@ -66,6 +66,10 @@ class Scanner {
   void updateLed(byte led, Color color);
   void updateAllLeds(Color color);
 
+  void testLeds();
+
+  void updateLedBank(byte bank);
+
  private:
   byte addr_;
   byte ad01_;
@@ -94,8 +98,6 @@ class Scanner {
 
   // bitfield storing which LED banks need an update
   byte led_banks_changed_;
-
-  void updateLedBank(byte bank);
 
 }; // class Scanner {
 
