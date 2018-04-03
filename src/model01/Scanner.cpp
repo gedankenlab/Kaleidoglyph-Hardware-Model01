@@ -26,6 +26,7 @@ SOFTWARE.
 #include "model01/Scanner.h"
 
 #include <Arduino.h>
+#include <assert.h>
 
 #include "model01/Color.h"
 #include "model01/KeyswitchData.h"
@@ -92,6 +93,8 @@ void Scanner::testLeds() {
     uint16_t t0 = micros();
     updateLed(i, bright);
     uint16_t t1 = micros();
+    // readKeys here avoids the bug where sending two consecutive writes to the same
+    // scanner returns an i2c error (address NACK)
     readKeys(kd);
     Serial.println(t1 - t0);
     delay(100);
@@ -157,13 +160,17 @@ void Scanner::updateNextLedBank() {
 
 // This function is private, and only gets called by updateNextLedBank() (see above)
 void Scanner::updateLedBank(byte bank) {
+  // TODO: make this assert do something useful
+  assert(bank < total_led_banks_);
   if (! bitRead(led_banks_changed_, bank))
     return;
   byte data[led_bytes_per_bank_ + 1];
   byte i{0};
   data[i++] = TWI_CMD_LED_BASE + bank;
   byte led = bank * leds_per_bank_;
-  //byte end = led + leds_per_bank_;
+  // I had a bug where we were running off the end of this array. It might still be
+  // there. It might not actually be here, but in the caller, because `bank` might be out
+  // of bounds.
   while (i < sizeof(data)) {
     Color color = led_colors_[led++];
     data[i++] = pgm_read_byte(&gamma8[color.b()]);
@@ -175,6 +182,7 @@ void Scanner::updateLedBank(byte bank) {
   //   data[++i] = pgm_read_byte(&gamma8[color.g()]);
   //   data[++i] = pgm_read_byte(&gamma8[color.r()]);
   // }
+  // TODO: get rid of this delay
   delay(5);
   byte result = twi_writeTo(addr_, data, sizeof(data), 1, 0);
   // while (byte result = twi_writeTo(addr_, data, sizeof(data), 1, 0)) {
@@ -197,7 +205,10 @@ void Scanner::updateLed(byte led, Color color) {
                 };
   while (byte result = twi_writeTo(addr_, data, ELEMENTS(data), 1, 0)) {
     Serial.print(int(led)); Serial.print(F(": ")); Serial.println(int(result));
-    delay(5);
+    // TODO: fix this so we don't need the delay at all. It may be that the best way is to
+    // guarantee that it only gets called once per scan cycle, or that updates are only
+    // allowed by whole banks or all LEDs at once.
+    delay(2);
   }
   led_colors_[led] = color;
   // byte bank = led / LEDS_PER_BANK;

@@ -17,6 +17,14 @@ namespace hardware {
 
 
 void Keyboard::scanMatrix() {
+
+  // I'm tempted to abuse this function and include the LED updating here, but it should
+  // probably be done the hard way with a plugin. I'm going to do it anyway to simplify
+  // things for now, but I'll leave this comment here as a reminder to do it right
+  // eventually. The simplest thing to do is just call updateLeds(), but a timer should
+  // really be used to keep them from updating too often.
+  updateLeds();
+
   // copy current keyswitch state array to previous
   //memcpy(&prev_scan_, &curr_scan_, sizeof(prev_scan_));
   prev_scan_ = curr_scan_;
@@ -61,21 +69,23 @@ void Keyboard::setKeyColor(KeyAddr k, Color color) {
 }
 
 
-// This function is a bit better now, but I still feel the desire to write this as an
-// explicit loop. I'm also thinking that it would make sense to update the LEDs only from
-// a timer interrupt.
+// Update one bank of LEDs at a time, until they've all been updated, then reset. Updates
+// will begin happening after a fixed number of milliseconds (`led_update_interval`) have
+// elapsed since the previous update began.
 void Keyboard::updateLeds() {
-  scanners_[0].updateNextLedBank();
-  scanners_[1].updateNextLedBank();
-
-  scanners_[0].updateNextLedBank();
-  scanners_[1].updateNextLedBank();
-
-  scanners_[0].updateNextLedBank();
-  scanners_[1].updateNextLedBank();
-
-  scanners_[0].updateNextLedBank();
-  scanners_[1].updateNextLedBank();
+  static byte t0{0};
+  static byte next_led_bank{0};
+  static constexpr byte total_led_banks{4};
+  static constexpr byte led_update_interval{32}; // milliseconds between frames (~30 fps)
+  if (next_led_bank < total_led_banks) {
+    scanners_[0].updateLedBank(next_led_bank);
+    scanners_[1].updateLedBank(next_led_bank);
+    ++next_led_bank;
+  } else if (millis() - t0 > led_update_interval) {
+    t0 += led_update_interval;
+    next_led_bank = 0;
+    // This is where led-mode plugins should get called to update the led values
+  }
 }
 
 void Keyboard::setAllLeds(Color color) {

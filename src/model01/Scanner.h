@@ -45,9 +45,10 @@ class Scanner {
  public:
   Scanner(byte ad01);
 
-  bool readKeys(KeyswitchData &key_data);
+  bool readKeys(KeyswitchData& key_data);
 
-  // only here for debugging, I think; it's unused in firmware
+  // I assume this will be used to detect different versions of the scanner firmware for
+  // dealing with interface changes
   byte readVersion();
 
   byte setKeyscanInterval(byte delay);

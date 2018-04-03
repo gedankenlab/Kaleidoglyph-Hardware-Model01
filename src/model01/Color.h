@@ -20,64 +20,66 @@ namespace kaleidoscope {
 // struct to class, and make the data members private.
 
 class Color {
+
  private:
   uint16_t r_ : 5, g_ : 5, b_ : 5;
+
  public:
+  // Public interface functions, using 8-bit values. The secondary two-bit shift is used
+  // so that we get the full range from zero to 255, even though the values are only 5
+  // bits internally.
+  byte red  () const { return (r_ << 3) | (r_ >> 2); }
+  byte green() const { return (g_ << 3) | (r_ >> 2); }
+  byte blue () const { return (b_ << 3) | (r_ >> 2); }
+
+  void red  (byte r8) { r_ = r8 >> 3; }
+  void green(byte g8) { g_ = g8 >> 3; }
+  void blue (byte b8) { b_ = b8 >> 3; }
+
+  // This is tricky -- these functions shouldn't be used outside the hardware module, so
+  // they should probably be private, accessible to the Scanner class as a friend. These
+  // access the 5-bit color values directly.
   byte r() const { return r_; }
   byte g() const { return g_; }
   byte b() const { return b_; }
 
-  void r(byte red)   { r_ = red   >> 3; }
-  void g(byte green) { g_ = green >> 3; }
-  void b(byte blue)  { b_ = blue  >> 3; }
+  void r(byte r5) { r_ = r5; }
+  void g(byte g5) { g_ = g5; }
+  void b(byte b5) { b_ = b5; }
 
   Color() = default;
 
   constexpr
-  Color(byte red, byte green, byte blue) : r_(red   >> 3),
-                                           g_(green >> 3),
-                                           b_(blue  >> 3)  {}
+  Color(byte r8, byte g8, byte b8) : r_(r8 >> 3),
+                                     g_(g8 >> 3),
+                                     b_(b8 >> 3)  {}
 
-  bool operator!=(Color const &other) const {
+  constexpr
+  Color(uint16_t raw) : r_(raw           ),
+                        g_(raw >>  5     ),
+                        b_(raw >> (5 + 5))  {}
+
+  bool operator!=(const Color& other) const {
     return ((this->r_ != other.r_) ||
             (this->g_ != other.g_) ||
             (this->b_ != other.b_)   );
   }
-  bool operator==(Color const &other) const {
+  bool operator==(const Color& other) const {
     return !(*this != other);
   }
-};
-#if 0
-struct Color {
 
- public:
-  // Don't give these member variables default values, or Scanner.cpp will have a
-  // compilation error in the `led_states_` union.
-  byte b;
-  byte g;
-  byte r;
-
-  Color() = default; // Does not initialize to zeros without `Color c = {};`
-  // I'm not really sure why constexpr would help here. I should experiment to see if it
-  // produces smaller code. I'm also not sure about the constructor above; this is obtuse
-  // C++ magic.
-  constexpr Color(byte red, byte green, byte blue)
-    : b(blue), g(green), r(red) {}
-
-  // Comparison operators
-  bool operator==(Color const &other) const {
-    return ((this->b == other.b) &&
-            (this->g == other.g) &&
-            (this->r == other.r));
-  }
-  bool operator!=(Color const &other) const {
-    return !(*this == other);
+  void readFromProgmem(const Color& pgm_color) {
+    uint16_t raw = pgm_read_word(&pgm_color);
+    this->r_ = raw;
+    this->g_ = raw >> 5;
+    this->b_ = raw >> 10;
   }
 
-  // TODO: add math operators? They could be useful to some plugin or other
-
-  // TODO: add methods for getting Color objects from PROGMEM & EEPROM
-
 };
-#endif
+
+inline
+Color getProgmemColor(const Color& pgm_color) {
+  return Color(pgm_read_word(&pgm_color));
+}
+
 } // namespace kaleidoscope {
