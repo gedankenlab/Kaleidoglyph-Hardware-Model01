@@ -179,7 +179,7 @@ void Keyboard::testLeds() {
 
   uint32_t t1 = micros();
 
-  // delay(1000);
+  delay(1000);
   for (byte i{0}; i < r; ++i) {
     Serial.print(int(results[i])), Serial.print(F(", "));
   }
@@ -197,8 +197,8 @@ void Keyboard::testLeds() {
   //   delay(500);
   // }
 
-  // scanners_[0].updateAllLeds({0,0,0});
-  // scanners_[1].updateAllLeds({0,0,0});
+  scanners_[0].updateAllLeds({0,0,0});
+  scanners_[1].updateAllLeds({0,0,0});
 }
 
 
