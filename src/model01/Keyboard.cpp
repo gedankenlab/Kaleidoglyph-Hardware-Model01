@@ -113,9 +113,10 @@ void Keyboard::setup() {
   // Turn off all LEDs at startup. TODO: move this elsewhere?
   scanners_[0].updateAllLeds(Color{0,0,0});
   scanners_[1].updateAllLeds(Color{0,0,0});
-
+#if 0
   scanners_[0].testLeds();
   scanners_[1].testLeds();
+#endif
 }
 
 // why extern "C"? Because twi.c is not C++!
