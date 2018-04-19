@@ -7,7 +7,7 @@
 #include "model01/KeyAddr.h"
 
 
-namespace kaleidoscope {
+namespace kaleidoglyph {
 
 class LedAddr {
 
@@ -112,4 +112,4 @@ inline LedAddr getProgmemLedAddr(const LedAddr& pgm_led_addr) {
   return LedAddr(pgm_read_byte(&pgm_led_addr));
 }
 
-} // namespace kaleidoscope {
+} // namespace kaleidoglyph {

@@ -8,11 +8,11 @@
 #include "model01/LedAddr.h"
 #include "model01/Scanner.h"
 
-#include <kaleidoscope/KeyswitchState.h>
-#include <kaleidoscope/KeyswitchEvent.h>
+#include <kaleidoglyph/KeyswitchState.h>
+#include <kaleidoglyph/KeyswitchEvent.h>
 
 
-namespace kaleidoscope {
+namespace kaleidoglyph {
 namespace hardware {
 
 
@@ -266,4 +266,4 @@ void Keyboard::setKeyscanInterval(uint8_t interval) {
 }
 
 } // namespace hardware {
-} // namespace kaleidoscope {
+} // namespace kaleidoglyph {

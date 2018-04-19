@@ -5,7 +5,7 @@
 #include <Arduino.h>
 
 
-namespace kaleidoscope {
+namespace kaleidoglyph {
 namespace hardware {
 
 // As with "Key", this name should be changed to make it clear what's represented
@@ -14,4 +14,4 @@ struct KeyswitchData {
 };
 
 } // namespace hardware {
-} // namespace kaleidoscope {
+} // namespace kaleidoglyph {

@@ -5,7 +5,7 @@
 #include <Arduino.h>
 
 
-namespace kaleidoscope {
+namespace kaleidoglyph {
 
 // In the old cRGB struct, the order of the bytes (b,g,r) was important because brace
 // initialization was used. for the Color struct, I'm using a real constructor, so that
@@ -82,4 +82,4 @@ Color getProgmemColor(const Color& pgm_color) {
   return Color(pgm_read_word(&pgm_color));
 }
 
-} // namespace kaleidoscope {
+} // namespace kaleidoglyph {

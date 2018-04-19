@@ -10,13 +10,13 @@
 #include "model01/KeyAddr.h"
 #include "model01/Scanner.h"
 
-#include <kaleidoscope/KeyswitchState.h>
-#include <kaleidoscope/KeyswitchEvent.h>
-#include <kaleidoscope/cKeyAddr.h>
-#include <kaleidoscope/cKey.h>
+#include <kaleidoglyph/KeyswitchState.h>
+#include <kaleidoglyph/KeyswitchEvent.h>
+#include <kaleidoglyph/cKeyAddr.h>
+#include <kaleidoglyph/cKey.h>
 
 
-namespace kaleidoscope {
+namespace kaleidoglyph {
 namespace hardware {
 
 
@@ -177,4 +177,4 @@ for (KeyswitchEvent event : keyboard) {
 #endif
 
 } // namespace model01 {
-} // namespace kaleidoscope {
+} // namespace kaleidoglyph {

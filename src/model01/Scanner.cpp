@@ -39,7 +39,7 @@ extern "C" {
 #include "twi/wire-protocol-constants.h"
 
 
-namespace kaleidoscope {
+namespace kaleidoglyph {
 namespace hardware {
 
 // Magic constant with no documentation...
@@ -341,4 +341,4 @@ byte Scanner::setLedSpiFrequency(byte frequency) {
 }
 
 } // namespace hardware {
-} // namespace kaleidoscope {
+} // namespace kaleidoglyph {

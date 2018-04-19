@@ -5,7 +5,7 @@
 #include <Arduino.h>
 
 
-namespace kaleidoscope {
+namespace kaleidoglyph {
 
 // I need to decide if this constant should be defined here or in Keyboard.h
 constexpr byte total_keys = 64;
@@ -112,4 +112,4 @@ inline KeyAddr getProgmemKeyAddr(const KeyAddr& pgm_key_addr) {
   return KeyAddr(pgm_read_byte(&pgm_key_addr));
 }
 
-} // namespace kaleidoscope {
+} // namespace kaleidoglyph {

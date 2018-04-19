@@ -33,7 +33,7 @@ SOFTWARE.
 #include "model01/Color.h"
 
 // See .cpp file for comments regarding appropriate namespaces
-namespace kaleidoscope {
+namespace kaleidoglyph {
 namespace hardware {
 
 // I'm uncertain of how to manage these constants
@@ -103,4 +103,4 @@ class Scanner {
 }; // class Scanner {
 
 } // namespace hardware {
-} // namespace kaleidoscope {
+} // namespace kaleidoglyph {
