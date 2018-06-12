@@ -10,7 +10,7 @@
 #include "model01/KeyAddr.h"
 #include "model01/Scanner.h"
 
-#include <kaleidoglyph/KeyswitchState.h>
+#include <kaleidoglyph/KeyState.h>
 #include <kaleidoglyph/KeyswitchEvent.h>
 #include <kaleidoglyph/cKeyAddr.h>
 #include <kaleidoglyph/cKey.h>
@@ -31,7 +31,7 @@ class Keyboard {
   void scanMatrix();
 
   // I really don't think we need this function, but maybe it will be useful
-  KeyswitchState keyswitchState(KeyAddr k) const;
+  KeyState keyswitchState(KeyAddr k) const;
 
   // Update all LEDs to values set by set*Color() functions below
   void updateLeds();
@@ -138,7 +138,7 @@ inline bool Keyboard::Iterator::operator!=(const Iterator& other) {
 
           event_.addr  = KeyAddr(addr_);
           event_.key   = cKey::blank;
-          event_.state = KeyswitchState(curr_state, prev_state);
+          event_.state = KeyState(curr_state, prev_state);
 
           // The `event_` will be returned by the dereference operator below, to be used
           // in the body of the loop:

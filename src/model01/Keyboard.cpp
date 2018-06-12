@@ -8,7 +8,7 @@
 #include "model01/LedAddr.h"
 #include "model01/Scanner.h"
 
-#include <kaleidoglyph/KeyswitchState.h>
+#include <kaleidoglyph/KeyState.h>
 #include <kaleidoglyph/KeyswitchEvent.h>
 
 
@@ -37,12 +37,12 @@ void Keyboard::scanMatrix() {
 }
 
 // return the state of the keyswitch as a bitfield
-KeyswitchState Keyboard::keyswitchState(KeyAddr k) const {
+KeyState Keyboard::keyswitchState(KeyAddr k) const {
   byte state = 0;
   byte r = byte(k) / 8;
   byte c = byte(k) % 8;
-  return KeyswitchState(bitRead(curr_scan_.banks[r], c),
-                        bitRead(prev_scan_.banks[r], c));
+  return KeyState(bitRead(curr_scan_.banks[r], c),
+                  bitRead(prev_scan_.banks[r], c));
 }
 
 
