@@ -11,7 +11,7 @@
 #include "model01/Scanner.h"
 
 #include <kaleidoglyph/KeyState.h>
-#include <kaleidoglyph/KeyswitchEvent.h>
+#include <kaleidoglyph/KeyEvent.h>
 #include <kaleidoglyph/cKeyAddr.h>
 #include <kaleidoglyph/cKey.h>
 
@@ -93,14 +93,14 @@ class Keyboard {
 
     bool operator!=(const Iterator& other);
 
-    KeyswitchEvent& operator*();
+    KeyEvent& operator*();
 
     void operator++();
 
    private:
     Keyboard& keyboard_;
     byte addr_;
-    KeyswitchEvent event_;
+    KeyEvent event_;
 
   }; // class Iterator {
 
@@ -157,7 +157,7 @@ inline bool Keyboard::Iterator::operator!=(const Iterator& other) {
   return false;
 }
 
-inline KeyswitchEvent& Keyboard::Iterator::operator*() {
+inline KeyEvent& Keyboard::Iterator::operator*() {
   return event_;
 }
 
@@ -169,7 +169,7 @@ inline void Keyboard::Iterator::operator++() {
 #if 0
 // To use the Keyboard::Iterator, write a loop like the following:
 Keyboard keyboard;
-for (KeyswitchEvent event : keyboard) {
+for (KeyEvent event : keyboard) {
   // Here you'll get an `event` for each keyswitch that changed state in the current scan
   // cycle, and only those keyswitches, so most of the time the code in this block won't
   // execute at all.

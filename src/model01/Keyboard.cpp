@@ -9,7 +9,7 @@
 #include "model01/Scanner.h"
 
 #include <kaleidoglyph/KeyState.h>
-#include <kaleidoglyph/KeyswitchEvent.h>
+#include <kaleidoglyph/KeyEvent.h>
 
 
 namespace kaleidoglyph {
