@@ -15,7 +15,7 @@
 // Since the HID module that we need depends on the MCU, we need to define which one to
 // include here. This should be a reference to either the HIDAdapter or the HID library
 // itself:
-#define KALEIDOGLYPH_HID_H <Kaleidoglyph-HIDAdaptor-KeyboardioHID.h>
+#define KALEIDOGLYPH_HID_H <KeyboardioHID.h>
 
 
 #define KEYMAP_STACKED(                                                 \

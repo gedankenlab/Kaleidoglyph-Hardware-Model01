@@ -29,8 +29,8 @@ SOFTWARE.
 
 #include <Arduino.h>
 
-#include "model01/KeyswitchData.h"
 #include "model01/Color.h"
+#include "model01/KeyswitchData.h"
 
 // See .cpp file for comments regarding appropriate namespaces
 namespace kaleidoglyph {

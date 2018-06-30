@@ -31,7 +31,6 @@ SOFTWARE.
 #include "model01/Color.h"
 #include "model01/KeyswitchData.h"
 
-
 // why extern "C"? Because twi.c is not C++!
 extern "C" {
 #include "twi/twi.h"

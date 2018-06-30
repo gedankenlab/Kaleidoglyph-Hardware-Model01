@@ -8,8 +8,8 @@
 #include "model01/LedAddr.h"
 #include "model01/Scanner.h"
 
-#include <kaleidoglyph/KeyState.h>
 #include <kaleidoglyph/KeyEvent.h>
+#include <kaleidoglyph/KeyState.h>
 
 
 namespace kaleidoglyph {
