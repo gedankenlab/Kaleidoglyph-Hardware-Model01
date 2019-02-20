@@ -44,10 +44,15 @@ class KeyAddr {
     addr_ = pgm_read_byte(&pgm_key_addr.addr_);
   }
 
-  byte addr() {
+  byte addr() const {
     return addr_;
   }
-  
+
+  constexpr
+  bool isValid() const {
+    return (addr_ < total_keys);
+  }
+
   // Comparison operators for use with other KeyAddr objects
   bool operator==(const KeyAddr& other) const {
     return this->addr_ == other.addr_;
