@@ -30,6 +30,7 @@ SOFTWARE.
 
 #include "model01/Color.h"
 #include "model01/KeyswitchData.h"
+#include <kaleidoglyph/utils.h>
 
 // why extern "C"? Because twi.c is not C++!
 extern "C" {
@@ -43,9 +44,6 @@ namespace hardware {
 
 // Magic constant with no documentation...
 constexpr byte SCANNER_I2C_ADDR_BASE = 0x58;
-// Can't figure out a simple way of making this type-safe & constexpr. Since it's confined
-// to this file, it's not that important.
-#define ELEMENTS(array)  (sizeof(array) / sizeof((array)[0]))
 
 // This array translates LED values to corrected values. It can be cut in half, or even to
 // 1/4th the size, if we take a performance hit by bit-shifting the values before
@@ -95,11 +93,42 @@ void Scanner::testLeds() {
     // readKeys here avoids the bug where sending two consecutive writes to the same
     // scanner returns an i2c error (address NACK)
     readKeys(kd);
-    Serial.println(t1 - t0);
+    Serial.print(F("LED update time: "));
+    Serial.print(t1 - t0);
+    Serial.println(F(" µs"));
     delay(100);
     updateLed(i, off);
     readKeys(kd);
     delay(50);
+  }
+  for (byte i{0}; i < leds_per_hand_; ++i) {
+    byte r = 2 * i;
+    byte g = 6 * i;
+    byte b = i + 70;
+    setLedColor(i, Color{r, g, b});
+  }
+  for (byte i{0}; i < 4; ++i) {
+    uint16_t t0 = micros();
+    updateNextLedBank();
+    uint16_t t1 = micros();
+    // uint16_t t2;
+    // for (byte j{0}; j < 10; ++j) {
+    //   t2 = micros();
+    // }
+    Serial.print(F("LED bank update time: "));
+    Serial.print(t1 - t0);
+    Serial.println(F(" µs"));
+    // Serial.print(F("micros() time: "));
+    // Serial.print(t2 - t1);
+    // Serial.println(F(" µs"));
+    delay(1000);
+    Serial.print(F("Reading keyswitch data: "));
+    t0 = micros();
+    readKeys(kd);
+    t1 = micros();
+    Serial.print(t1 - t0);
+    Serial.println(F(" µs"));
+    delay(1000);
   }
 }
 
@@ -110,7 +139,7 @@ bool Scanner::readKeys(KeyswitchData& key_data) {
   byte rx_buffer[sizeof(key_data) + 1];
 
   // perform blocking read into buffer
-  byte read = twi_readFrom(addr_, rx_buffer, ELEMENTS(rx_buffer), true);
+  /*byte read =*/ twi_readFrom(addr_, rx_buffer, arraySize(rx_buffer), true);
   if (rx_buffer[0] == TWI_REPLY_KEYDATA) {
     // memcpy(&key_data, &rx_buffer[1], sizeof(key_data));
     for (byte i{0}; i < sizeof(key_data); ++i) {
@@ -150,10 +179,10 @@ void Scanner::setLedColor(byte led, Color color) {
 // This function gets called to set led status on one bank (eight LEDs) at a time. Each
 // time it's called, it updates the next bank. I'm renaming it to be more clear.
 void Scanner::updateNextLedBank() {
-  updateLedBank(next_led_bank_++);
-  if (next_led_bank_ == total_led_banks_) {
+  if (next_led_bank_ >= total_led_banks_) {
     next_led_bank_ = 0;
   }
+  updateLedBank(next_led_bank_++);
 }
 
 
@@ -164,17 +193,16 @@ void Scanner::updateLedBank(byte bank) {
   if (! bitRead(led_banks_changed_, bank))
     return;
   byte data[led_bytes_per_bank_ + 1];
-  byte i{0};
-  data[i++] = TWI_CMD_LED_BASE + bank;
+  data[0] = TWI_CMD_LED_BASE + bank;
   byte led = bank * leds_per_bank_;
   // I had a bug where we were running off the end of this array. It might still be
   // there. It might not actually be here, but in the caller, because `bank` might be out
   // of bounds.
-  while (i < sizeof(data)) {
+  for (byte i{0}; i <= led_bytes_per_bank_ - 3;) {
     Color color = led_colors_[led++];
-    data[i++] = pgm_read_byte(&gamma8[color.b()]);
-    data[i++] = pgm_read_byte(&gamma8[color.g()]);
-    data[i++] = pgm_read_byte(&gamma8[color.r()]);
+    data[++i] = pgm_read_byte(&gamma8[color.b()]);
+    data[++i] = pgm_read_byte(&gamma8[color.g()]);
+    data[++i] = pgm_read_byte(&gamma8[color.r()]);
   }
   // for (Color color : led_states_[bank]) {
   //   data[++i] = pgm_read_byte(&gamma8[color.b()]);
@@ -182,7 +210,7 @@ void Scanner::updateLedBank(byte bank) {
   //   data[++i] = pgm_read_byte(&gamma8[color.r()]);
   // }
   // TODO: get rid of this delay
-  delay(5);
+  //delay(5);
   byte result = twi_writeTo(addr_, data, sizeof(data), 1, 0);
   // while (byte result = twi_writeTo(addr_, data, sizeof(data), 1, 0)) {
   //   Serial.print(int(bank)), Serial.print(F(","));
@@ -190,6 +218,7 @@ void Scanner::updateLedBank(byte bank) {
   //   Serial.println(int(result));
   //   // delay(5);
   // }
+  Serial.println(int(result));
   bitClear(led_banks_changed_, bank);
 }
 
@@ -202,12 +231,12 @@ void Scanner::updateLed(byte led, Color color) {
                  pgm_read_byte(&gamma8[color.g()]),
                  pgm_read_byte(&gamma8[color.r()])
                 };
-  while (byte result = twi_writeTo(addr_, data, ELEMENTS(data), 1, 0)) {
+  while (byte result = twi_writeTo(addr_, data, arraySize(data), 1, 0)) {
     Serial.print(int(led)); Serial.print(F(": ")); Serial.println(int(result));
     // TODO: fix this so we don't need the delay at all. It may be that the best way is to
     // guarantee that it only gets called once per scan cycle, or that updates are only
     // allowed by whole banks or all LEDs at once.
-    delay(2);
+    //delay(2);
   }
   led_colors_[led] = color;
   // byte bank = led / LEDS_PER_BANK;
@@ -223,7 +252,8 @@ void Scanner::updateAllLeds(Color color) {
                  pgm_read_byte(&gamma8[color.g()]),
                  pgm_read_byte(&gamma8[color.r()])
                 };
-  byte result = twi_writeTo(addr_, data, ELEMENTS(data), 1, 0);
+  byte result = twi_writeTo(addr_, data, arraySize(data), 1, 0);
+  if (result != 0) return;
 
   // for (byte led{0}; led < leds_per_hand_; ++led) {
   //   led_colors_[led] = color;
@@ -279,7 +309,7 @@ void Scanner::updateAllLeds(Color color) {
 // https://www.arduino.cc/en/Reference/WireEndTransmission
 byte Scanner::setKeyscanInterval(byte delay) {
   byte data[] = {TWI_CMD_KEYSCAN_INTERVAL, delay};
-  byte result = twi_writeTo(addr_, data, ELEMENTS(data), 1, 0);
+  byte result = twi_writeTo(addr_, data, arraySize(data), 1, 0);
 
   return result;
 }
@@ -289,10 +319,8 @@ byte Scanner::setKeyscanInterval(byte delay) {
 
 // This is called from other debugging functions
 byte Scanner::readRegister(byte cmd) {
-  byte return_value = 0;
-
   byte data[] = {cmd};
-  byte result = twi_writeTo(addr_, data, ELEMENTS(data), 1, 0);
+  /*byte result =*/ twi_writeTo(addr_, data, arraySize(data), 1, 0);
 
   delayMicroseconds(15); // We may be able to drop this in the future
   // but will need to verify with correctly
@@ -302,7 +330,7 @@ byte Scanner::readRegister(byte cmd) {
   byte rx_buffer[1];
 
   // perform blocking read into buffer
-  byte read = twi_readFrom(addr_, rx_buffer, ELEMENTS(rx_buffer), true);
+  byte read = twi_readFrom(addr_, rx_buffer, arraySize(rx_buffer), true);
   if (read > 0) {
     return rx_buffer[0];
   } else {
@@ -334,7 +362,7 @@ byte Scanner::readLedSpiFrequency() {
 // https://www.arduino.cc/en/Reference/WireEndTransmission
 byte Scanner::setLedSpiFrequency(byte frequency) {
   byte data[] = {TWI_CMD_LED_SPI_FREQUENCY, frequency};
-  byte result = twi_writeTo(addr_, data, ELEMENTS(data), 1, 0);
+  byte result = twi_writeTo(addr_, data, arraySize(data), 1, 0);
 
   return result;
 }

@@ -38,7 +38,6 @@ void Keyboard::scanMatrix() {
 
 // return the state of the keyswitch as a bitfield
 KeyState Keyboard::keyswitchState(KeyAddr k) const {
-  byte state = 0;
   byte r = byte(k) / 8;
   byte c = byte(k) % 8;
   return KeyState(bitRead(curr_scan_.banks[r], c),
@@ -142,7 +141,7 @@ void Keyboard::testLeds() {
   byte data[24 + 1];
   byte i{0};
   data[i] = TWI_CMD_LED_BASE;
-  while (i < (sizeof(data) - 1)) {
+  while (i < (sizeof(data) - 3)) {
     data[++i] = 0;
     data[++i] = 250;
     data[++i] = 100;
@@ -161,12 +160,9 @@ void Keyboard::testLeds() {
   uint32_t t0 = micros();
 
   results[r++] = twi_writeTo(0x58, data, sizeof(data), 1, 0);
+  uint32_t t1 = micros();
   results[r++] = twi_writeTo(0x58 + 3, data2, sizeof(data2), 1, 0);
 
-  ++data[0];
-  results[r++] = twi_writeTo(0x58, data, sizeof(data), 1, 0);
-  ++data2[0];
-  results[r++] = twi_writeTo(0x58 + 3, data2, sizeof(data), 1, 0);
 
   ++data[0];
   results[r++] = twi_writeTo(0x58, data, sizeof(data), 1, 0);
@@ -178,7 +174,10 @@ void Keyboard::testLeds() {
   ++data2[0];
   results[r++] = twi_writeTo(0x58 + 3, data2, sizeof(data), 1, 0);
 
-  uint32_t t1 = micros();
+  ++data[0];
+  results[r++] = twi_writeTo(0x58, data, sizeof(data), 1, 0);
+  ++data2[0];
+  results[r++] = twi_writeTo(0x58 + 3, data2, sizeof(data), 1, 0);
 
   delay(1000);
   for (byte i{0}; i < r; ++i) {
@@ -188,18 +187,34 @@ void Keyboard::testLeds() {
   delay(10);
   Serial.println(t1 - t0);
 
-  // for (int bank{0}; bank < 4; ++bank) {
-  //   for (int i{0}; i < 8; ++i) {
-  //     byte led = bank * 8 + i;
-  //     scanners_[0].setLedColor(led, {100, 100, 240});
-  //   }
-  //   scanners_[0].updateLedBank(bank);
-  //   Serial.println(int(bank));
-  //   delay(500);
-  // }
+  for (int bank{0}; bank < 4; ++bank) {
+    for (int i{0}; i < 8; ++i) {
+      byte led = bank * 8 + i;
+      scanners_[0].setLedColor(led, {100, 100, 240});
+    }
+    scanners_[0].updateLedBank(bank);
+    Serial.println(int(bank));
+    delay(500);
+  }
 
+  t0 = micros();
   scanners_[0].updateAllLeds({0,0,0});
   scanners_[1].updateAllLeds({0,0,0});
+  t1 = micros();
+  Serial.println(t1-t0);
+
+  t0 = micros();
+  for (KeyAddr k{0}; k < KeyAddr{total_keys}; ++k) {
+    setKeyColor(k, {122, 34, 78});
+  }
+  t1 = micros();
+  delay(500);
+  Serial.println(t1-t0);
+  for (KeyAddr k{0}; k < KeyAddr{total_keys}; ++k) {
+    setKeyColor(k, {0, 0, 0});
+    delay(50);
+  }
+
 }
 
 
