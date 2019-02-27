@@ -38,8 +38,7 @@ class LedAddr {
   LedAddr(byte addr) : addr_{addr} {}
 
   explicit
-  LedAddr(KeyAddr k) : addr_{pgm_read_byte(&key_led_map[byte(k)])} {}
-
+  LedAddr(KeyAddr k);
 
   // Read a LedAddr from an address in PROGMEM. This should be useful for sparse layers,
   // which will contain (LedAddr,Key) pairs.
