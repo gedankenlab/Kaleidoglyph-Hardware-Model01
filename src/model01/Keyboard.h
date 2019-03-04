@@ -34,7 +34,7 @@ class Keyboard {
   KeyState keyswitchState(KeyAddr k) const;
 
   // Update all LEDs to values set by set*Color() functions below
-  void updateLeds();
+  bool syncLeds();
 
   void setAllLeds(Color color);
   void testLeds();
@@ -64,6 +64,9 @@ class Keyboard {
   };
   KeyswitchScan curr_scan_;
   KeyswitchScan prev_scan_;
+
+  // LED updating
+  static constexpr byte total_led_banks{4};
 
   // special functions for Model01; make private if possible
   void enableHighPowerLeds();

@@ -67,24 +67,20 @@ void Keyboard::setKeyColor(KeyAddr k, Color color) {
   setLedColor(LedAddr{k}, color);
 }
 
-
-// Update one bank of LEDs at a time, until they've all been updated, then reset. Updates
-// will begin happening after a fixed number of milliseconds (`led_update_interval`) have
-// elapsed since the previous update began.
-void Keyboard::updateLeds() {
-  static byte t0{0};
+// Update one bank of LEDs on each scanner, and advance the counter for the next
+// call. Returns `true` if the whole keyboard has been sync'd, `false` otherwise.
+bool Keyboard::syncLeds() {
   static byte next_led_bank{0};
-  static constexpr byte total_led_banks{4};
-  static constexpr byte led_update_interval{32}; // milliseconds between frames (~30 fps)
+
+  scanners_[0].updateLedBank(next_led_bank);
+  scanners_[1].updateLedBank(next_led_bank);
+  ++next_led_bank;
+
   if (next_led_bank < total_led_banks) {
-    scanners_[0].updateLedBank(next_led_bank);
-    scanners_[1].updateLedBank(next_led_bank);
-    ++next_led_bank;
-  } else if (millis() - t0 > led_update_interval) {
-    t0 += led_update_interval;
-    next_led_bank = 0;
-    // This is where led-mode plugins should get called to update the led values
+    return false;
   }
+  next_led_bank = 0;
+  return true;
 }
 
 void Keyboard::setAllLeds(Color color) {
