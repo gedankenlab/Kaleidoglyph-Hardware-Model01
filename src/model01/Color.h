@@ -22,15 +22,15 @@ namespace kaleidoglyph {
 class Color {
 
  private:
-  uint16_t r_ : 5, g_ : 5, b_ : 5;
+  byte r_ : 5, g_ : 5, b_ : 5;
 
  public:
   // Public interface functions, using 8-bit values. The secondary two-bit shift is used
   // so that we get the full range from zero to 255, even though the values are only 5
   // bits internally.
   byte red  () const { return (r_ << 3) | (r_ >> 2); }
-  byte green() const { return (g_ << 3) | (r_ >> 2); }
-  byte blue () const { return (b_ << 3) | (r_ >> 2); }
+  byte green() const { return (g_ << 3) | (g_ >> 2); }
+  byte blue () const { return (b_ << 3) | (g_ >> 2); }
 
   void red  (byte r8) { r_ = r8 >> 3; }
   void green(byte g8) { g_ = g8 >> 3; }
