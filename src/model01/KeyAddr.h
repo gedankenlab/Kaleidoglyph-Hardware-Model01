@@ -44,9 +44,15 @@ class KeyAddr {
     addr_ = pgm_read_byte(&pgm_key_addr.addr_);
   }
 
+  constexpr
   byte addr() const {
     return addr_;
   }
+
+  constexpr
+  byte row() const;
+  constexpr
+  byte col() const;
 
   constexpr
   bool isValid() const {
