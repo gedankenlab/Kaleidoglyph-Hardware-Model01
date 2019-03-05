@@ -23,7 +23,7 @@ void Keyboard::scanMatrix() {
   // things for now, but I'll leave this comment here as a reminder to do it right
   // eventually. The simplest thing to do is just call updateLeds(), but a timer should
   // really be used to keep them from updating too often.
-  updateLeds();
+  //syncLeds();
 
   // copy current keyswitch state array to previous
   //memcpy(&prev_scan_, &curr_scan_, sizeof(prev_scan_));
@@ -56,7 +56,6 @@ Color Keyboard::getLedColor(LedAddr led) const {
 void Keyboard::setLedColor(LedAddr led, Color color) {
   bool hand = byte(led) & HAND_BIT; // B00100000
   scanners_[hand].setLedColor(byte(led) & LED_BITS, color);
-  scanners_[hand].updateLed(byte(led) & LED_BITS, color);
 }
 
 Color Keyboard::getKeyColor(KeyAddr k) const {

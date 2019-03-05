@@ -211,14 +211,18 @@ void Scanner::updateLedBank(byte bank) {
   // }
   // TODO: get rid of this delay
   //delay(5);
-  byte result = twi_writeTo(addr_, data, sizeof(data), 1, 0);
+  //byte result =
+  twi_writeTo(addr_, data, sizeof(data), 1, 0);
   // while (byte result = twi_writeTo(addr_, data, sizeof(data), 1, 0)) {
   //   Serial.print(int(bank)), Serial.print(F(","));
   //   Serial.print(int(led)), Serial.print(F(": "));
   //   Serial.println(int(result));
   //   // delay(5);
   // }
-  Serial.println(int(result));
+  // Serial.print(F("Updated LED bank "));
+  // Serial.print(int(bank));
+  // Serial.print(F(": return code = "));
+  // Serial.println(int(result));
   bitClear(led_banks_changed_, bank);
 }
 
