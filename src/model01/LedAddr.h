@@ -9,6 +9,11 @@
 
 namespace kaleidoglyph {
 
+// I need to decide if this constant should be defined here or in Keyboard.h
+constexpr byte total_leds = 64;
+#define TOTAL_LEDS_STR "64"
+
+
 class LedAddr {
 
  private:
