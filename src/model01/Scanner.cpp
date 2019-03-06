@@ -49,15 +49,15 @@ constexpr byte SCANNER_I2C_ADDR_BASE = 0x58;
 // 1/4th the size, if we take a performance hit by bit-shifting the values before
 // translation. 64 different brightness levels should be plenty.
 const PROGMEM byte gamma8[] = {
-  0,   0,
   0,   1,
-  1,   2,
-  3,   5,
-  7,   10,
-  13,  16,
-  20,  25,
-  30,  36,
-  43,  50,
+  2,   3,
+  4,   5,
+  7,   8,
+  10,  11,
+  13,  15,
+  18,  22,
+  25,  32,
+  40,  49,
   59,  68,
   78,  89,
   101, 114,
