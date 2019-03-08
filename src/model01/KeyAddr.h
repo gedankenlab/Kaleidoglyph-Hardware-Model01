@@ -111,7 +111,7 @@ class KeyAddr {
     return tmp;
   }
 
-  explicit
+  explicit constexpr
   operator byte() {
     return addr_;
   }
