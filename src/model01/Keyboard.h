@@ -53,6 +53,37 @@ class Keyboard {
   // This function is used by TestMode
   void setKeyscanInterval(byte interval);
 
+  /** @defgroup kaleidoscope_hardware_reattach Kaleidoscope::Hardware/Attach & Detach
+   *
+   * In situations where one wants to re-initialize the devices, perhaps to
+   * change settings inbetween, detaching from and then attaching back to the
+   * host is a desirable feature to have. Especially if this does not cut power,
+   * nor reboot the device.
+   *
+   * Because different hardware has different ways to accomplish this, the
+   * hardware plugin must provide these functions. Kaleidoscope will wrap them,
+   * so user code does not have to deal with KeyboardHardware.
+   * @{
+   */
+  /**
+   * Detach the device from the host.
+   *
+   * Must detach the device, without rebooting or cutting power. Only the end
+   * points should get detached, the device must remain powered on.
+   */
+  void detachFromHost() {
+    UDCON |= _BV(DETACH);
+  }
+  /**
+   * Attack the device to the host.
+   *
+   * Must restore the link detachFromHost severed.
+   */
+  void attachToHost() {
+    UDCON &= ~_BV(DETACH);
+  }
+  /** @} */
+
  private:
   static constexpr byte HAND_BIT = B00100000;
 
