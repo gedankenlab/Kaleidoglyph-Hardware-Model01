@@ -111,6 +111,12 @@ class KeyAddr {
     return tmp;
   }
 
+  // Iterator (with operator++ & operator!=)
+  KeyAddr begin() const { return KeyAddr{0}; }
+  KeyAddr end() const { return KeyAddr{total_keys}; }
+  const KeyAddr& operator*() const { return *this; }
+  typedef KeyAddr Iterator;
+
   explicit constexpr
   operator byte() {
     return addr_;

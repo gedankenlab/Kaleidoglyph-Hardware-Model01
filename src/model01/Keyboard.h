@@ -14,6 +14,7 @@
 #include <kaleidoglyph/KeyEvent.h>
 #include <kaleidoglyph/cKeyAddr.h>
 #include <kaleidoglyph/cKey.h>
+#include <kaleidoglyph/EventHandlerId.h>
 
 
 namespace kaleidoglyph {
@@ -173,7 +174,7 @@ inline bool Keyboard::Iterator::operator!=(const Iterator& other) {
           event_.addr  = KeyAddr(addr_);
           event_.key   = cKey::blank;
           event_.state = KeyState(curr_state, prev_state);
-          event_.caller = 0;
+          event_.caller = EventHandlerId::controller;
 
           // The `event_` will be returned by the dereference operator below, to be used
           // in the body of the loop:
