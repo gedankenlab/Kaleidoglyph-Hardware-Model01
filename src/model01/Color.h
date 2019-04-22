@@ -67,19 +67,6 @@ class Color {
   bool operator==(const Color& other) const {
     return !(*this != other);
   }
-
-  void readFromProgmem(const Color& pgm_color) {
-    uint16_t raw = pgm_read_word(&pgm_color);
-    this->r_ = raw;
-    this->g_ = raw >> 5;
-    this->b_ = raw >> 10;
-  }
-
 };
-
-inline
-Color getProgmemColor(const Color& pgm_color) {
-  return Color(pgm_read_word(&pgm_color));
-}
 
 } // namespace kaleidoglyph {

@@ -31,12 +31,6 @@ class LedAddr {
   explicit
   LedAddr(KeyAddr k);
 
-  // Read a LedAddr from an address in PROGMEM. This should be useful for sparse layers,
-  // which will contain (LedAddr,Key) pairs.
-  void readFromProgmem(const LedAddr& pgm_led_addr) {
-    addr_ = pgm_read_byte(&pgm_led_addr.addr_);
-  }
-
   
   // Comparison operators for use with other LedAddr objects
   bool operator==(const LedAddr& other) const {
@@ -97,9 +91,5 @@ class LedAddr {
   // Maybe I should provide a cast operator to convert to LedAddr from KeyAddr?
 
 };
-
-inline LedAddr getProgmemLedAddr(const LedAddr& pgm_led_addr) {
-  return LedAddr(pgm_read_byte(&pgm_led_addr));
-}
 
 } // namespace kaleidoglyph {

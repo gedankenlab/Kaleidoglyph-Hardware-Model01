@@ -38,12 +38,6 @@ class KeyAddr {
   // constexpr
   // KeyAddr(byte row, byte col) : addr_((row * 8) + col) {}
 
-  // Read a KeyAddr from an address in PROGMEM. This should be useful for sparse layers,
-  // which will contain (KeyAddr,Key) pairs.
-  void readFromProgmem(const KeyAddr& pgm_key_addr) {
-    addr_ = pgm_read_byte(&pgm_key_addr.addr_);
-  }
-
   constexpr
   byte addr() const {
     return addr_;
@@ -124,9 +118,5 @@ class KeyAddr {
   // Maybe I should provide a cast operator to convert to LedAddr from KeyAddr?
 
 };
-
-inline KeyAddr getProgmemKeyAddr(const KeyAddr& pgm_key_addr) {
-  return KeyAddr(pgm_read_byte(&pgm_key_addr));
-}
 
 } // namespace kaleidoglyph {
